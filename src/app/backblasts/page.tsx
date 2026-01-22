@@ -84,6 +84,18 @@ export default async function BackblastsPage({ searchParams }: BackblastsPagePro
         });
     };
 
+    // Extract user-input title from backblast content (e.g., "Backblast! Isometric + Ladder 2.0" → "Isometric + Ladder 2.0")
+    const extractUserTitle = (contentText: string | null): string | null => {
+        if (!contentText) return null;
+        const firstLine = contentText.split('\n')[0] || '';
+        // Match "Backblast! Title" or "Backblast: Title" patterns
+        const match = firstLine.match(/^(?:backblast)[!:]?\s*(.+)?$/i);
+        if (match && match[1]) {
+            return match[1].trim();
+        }
+        return null;
+    };
+
     return (
         <div className="flex flex-col min-h-screen">
             <Hero
@@ -217,12 +229,16 @@ export default async function BackblastsPage({ searchParams }: BackblastsPagePro
                                                 )}
                                             </div>
 
-                                            {/* Title (if available) */}
-                                            {event.title && (
-                                                <h3 className="text-base font-medium text-foreground mb-3 line-clamp-1">
-                                                    {event.title}
-                                                </h3>
-                                            )}
+                                            {/* Title - prefer user-input title from content over stored title */}
+                                            {(() => {
+                                                const userTitle = extractUserTitle(event.content_text);
+                                                const displayTitle = userTitle || event.title;
+                                                return displayTitle ? (
+                                                    <h3 className="text-base font-medium text-foreground mb-3 line-clamp-1">
+                                                        {displayTitle}
+                                                    </h3>
+                                                ) : null;
+                                            })()}
 
                                             {/* Meta Row: Q + PAX */}
                                             <div className="flex flex-wrap gap-4 mb-4">

@@ -71,7 +71,7 @@ export function ReleaseNotes() {
                             <div className="flex items-center justify-between">
                                 <h4 className="font-bold text-sm">{release.title}</h4>
                                 <span className="text-xs text-muted-foreground">
-                                    {new Date(release.date).toLocaleDateString("en-US", {
+                                    {new Date(release.date + 'T00:00:00').toLocaleDateString("en-US", {
                                         month: "short",
                                         day: "numeric",
                                         year: "numeric",

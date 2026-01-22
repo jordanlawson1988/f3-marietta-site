@@ -12,6 +12,16 @@ export interface Release {
 
 export const RELEASES: Release[] = [
     {
+        version: "1.2.0",
+        date: "2026-01-12",
+        title: "Backblasts Page",
+        changes: [
+            "New Backblasts page to view workout recaps",
+            "Filter backblasts by AO and search by Q, content, or title",
+            "Detailed view with full workout content and metadata",
+        ],
+    },
+    {
         version: "1.1.0",
         date: "2024-12-18",
         title: "Contact & Assistant Updates",
