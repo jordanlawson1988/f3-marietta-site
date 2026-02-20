@@ -2,20 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
-
 
 const navItems = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
-    { name: "F3 Terms", href: "/glossary" },
-    { name: "Community", href: "/community" },
     { name: "Backblasts", href: "/backblasts" },
-    { name: "FAQ", href: "/fng" },
-    { name: "What to Expect", href: "/what-to-expect" },
-    { name: "Contact Us", href: "/contact" },
-    { name: "F3 Gear", href: "https://f3gear.com/", external: true },
+    { name: "New Here?", href: "/new-here" },
+    { name: "Contact", href: "/contact" },
 ];
 
 export function Navbar() {
@@ -34,14 +30,8 @@ export function Navbar() {
                         <Link
                             key={item.name}
                             href={item.href}
-                            target={item.external ? "_blank" : undefined}
-                            rel={item.external ? "noopener noreferrer" : undefined}
-                            className={cn(
-                                "text-base font-medium transition-colors text-gray-200 hover:text-primary flex items-center gap-1",
-                                item.external && "text-muted-foreground hover:text-gray-200"
-                            )}
+                            className="text-base font-medium transition-colors text-gray-200 hover:text-primary"
                         >
-
                             {item.name}
                         </Link>
                     ))}
@@ -64,7 +54,11 @@ export function Navbar() {
                     onClick={() => setIsOpen(!isOpen)}
                     aria-label="Toggle menu"
                 >
-                    {isOpen ? "X" : "Menu"}
+                    {isOpen ? (
+                        <X className="h-6 w-6 text-gray-200" />
+                    ) : (
+                        <Menu className="h-6 w-6 text-gray-200" />
+                    )}
                 </button>
             </div>
 
@@ -76,15 +70,9 @@ export function Navbar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                target={item.external ? "_blank" : undefined}
-                                rel={item.external ? "noopener noreferrer" : undefined}
-                                className={cn(
-                                    "text-sm font-medium transition-colors text-gray-200 hover:text-primary flex items-center gap-2 py-2",
-                                    item.external && "text-muted-foreground"
-                                )}
+                                className="text-sm font-medium transition-colors text-gray-200 hover:text-primary py-2"
                                 onClick={() => setIsOpen(false)}
                             >
-
                                 {item.name}
                             </Link>
                         ))}

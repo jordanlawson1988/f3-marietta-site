@@ -21,10 +21,10 @@ export function Footer() {
                         <ul className="space-y-2">
                             <li><Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
                             <li><Link href="/workouts" className="text-muted-foreground hover:text-primary transition-colors">Workouts</Link></li>
+                            <li><Link href="/backblasts" className="text-muted-foreground hover:text-primary transition-colors">Backblasts</Link></li>
                             <li><Link href="/community" className="text-muted-foreground hover:text-primary transition-colors">Community</Link></li>
-                            <li><Link href="/fng" className="text-muted-foreground hover:text-primary transition-colors">FAQ</Link></li>
-                            <li><a href="https://f3nation.com/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">F3 Nation</a></li>
-                            <li><a href="https://f3nation.com/q-source" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Q-Source</a></li>
+                            <li><Link href="/glossary" className="text-muted-foreground hover:text-primary transition-colors">F3 Terms</Link></li>
+                            <li><a href="https://f3gear.com/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">F3 Gear</a></li>
                         </ul>
                     </div>
 
@@ -34,6 +34,8 @@ export function Footer() {
                             <li><Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact Us</Link></li>
                             <li><a href="https://www.facebook.com/people/F3-Marietta/61585217978212/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Facebook</a></li>
                             <li><a href="https://www.instagram.com/f3marietta/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Instagram</a></li>
+                            <li><a href="https://f3nation.com/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">F3 Nation</a></li>
+                            <li><a href="https://f3nation.com/q-source" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Q-Source</a></li>
                         </ul>
                     </div>
                 </div>
