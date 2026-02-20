@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { Hero } from '@/components/ui/Hero';
 import { Section } from '@/components/ui/Section';
 import { getBackblastsPaginated, getAOList, createExcerpt } from '@/lib/backblast/getBackblastsPaginated';
-import { ChevronLeft, ChevronRight, Calendar, Users, MapPin, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Users, User } from 'lucide-react';
+import { BackblastFilters } from './BackblastFilters';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -109,44 +110,11 @@ export default async function BackblastsPage({ searchParams }: BackblastsPagePro
                     {/* Controls Row */}
                     <div className="mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                         {/* Filters */}
-                        <form className="flex gap-3 flex-wrap items-center">
-                            <select
-                                name="ao"
-                                defaultValue={aoFilter}
-                                className="bg-card border border-border rounded-lg px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary focus:border-primary min-w-[140px]"
-                            >
-                                <option value="">All AOs</option>
-                                {aoList.map((ao) => (
-                                    <option key={ao} value={ao}>
-                                        {ao}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <input
-                                type="text"
-                                name="q"
-                                placeholder="Search Q, AO, or content..."
-                                defaultValue={searchQuery}
-                                className="bg-card border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:border-primary w-[260px]"
-                            />
-
-                            <button
-                                type="submit"
-                                className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
-                            >
-                                Search
-                            </button>
-
-                            {(aoFilter || searchQuery) && (
-                                <Link
-                                    href="/backblasts"
-                                    className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
-                                >
-                                    Clear filters
-                                </Link>
-                            )}
-                        </form>
+                        <BackblastFilters
+                            aoList={aoList}
+                            aoFilter={aoFilter}
+                            searchQuery={searchQuery}
+                        />
 
                         {/* Page Size */}
                         <div className="flex items-center gap-2 text-sm">
