@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { randomUUID } from "crypto";
 import { lexiconEntries, exiconEntries, GlossaryEntry } from "@/../data/f3Glossary";
 import { searchKnowledgeDocs } from "@/../data/f3Knowledge";
 import { searchGlossaryEntries } from "@/lib/searchGlossary";
+import { checkRateLimit } from "@/lib/security/rateLimiter";
 
 // Force Node.js runtime (not Edge) for OpenAI and fs compatibility
 export const runtime = "nodejs";
@@ -131,10 +132,14 @@ Focus on F3, F3 Marietta, workouts, locations, Lexicon/Exicon, and FAQ topics.
     return completion.choices[0]?.message?.content || "I couldn't generate an answer at this time.";
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     const requestId = randomUUID().slice(0, 8);
 
     try {
+        // Rate limit: 10 requests per 60 seconds per IP
+        const rateLimitResponse = checkRateLimit(request, { maxRequests: 10, windowMs: 60 * 1000 });
+        if (rateLimitResponse) return rateLimitResponse;
+
         const { query } = await request.json();
 
         if (!query || typeof query !== "string") {

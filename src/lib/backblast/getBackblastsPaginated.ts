@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { escapePostgrestFilter } from '@/lib/security/sanitize';
 import type { F3Event, EventKind } from '@/types/f3Event';
 
 export interface F3EventRow {
@@ -67,8 +68,9 @@ export async function getBackblastsPaginated(
 
     // Apply search filter across multiple columns
     if (search) {
+        const safe = escapePostgrestFilter(search);
         query = query.or(
-            `q_name.ilike.%${search}%,ao_display_name.ilike.%${search}%,content_text.ilike.%${search}%,title.ilike.%${search}%`
+            `q_name.ilike.%${safe}%,ao_display_name.ilike.%${safe}%,content_text.ilike.%${safe}%,title.ilike.%${safe}%`
         );
     }
 

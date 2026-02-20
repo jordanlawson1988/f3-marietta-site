@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { parseBackblast, isBackblastMessage, generateBackblastTitle } from '@/lib/backblast/parseBackblast';
@@ -28,7 +28,17 @@ interface SlackConversationsResponse {
  * GET /api/slack/reconcile
  * Called by Vercel Cron to reconcile backblasts from Slack
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+    // Verify cron secret
+    const cronSecret = process.env.CRON_SECRET;
+    if (!cronSecret) {
+        return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 503 });
+    }
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${cronSecret}`) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const botToken = process.env.SLACK_BOT_TOKEN;
 
     if (!botToken) {
