@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 import { Send, Loader2 } from "lucide-react";
 import type { AssistantResponse } from "@/types/assistant";
 import { EXAMPLE_QUESTIONS } from "@/types/assistant";
@@ -193,9 +194,11 @@ export function AssistantWidget({
                                 "font-bold mb-2 flex items-center gap-2 uppercase tracking-wider text-muted-foreground",
                                 isPageVariant ? "text-lg" : "text-sm"
                             )}>
-                                <img
+                                <Image
                                     src="/icons/f3-assistant-icon.png"
                                     alt="F3"
+                                    width={24}
+                                    height={24}
                                     className={cn(
                                         "rounded-full",
                                         isPageVariant ? "h-6 w-6" : "h-5 w-5"

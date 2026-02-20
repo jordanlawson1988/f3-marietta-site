@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { supabase } from '@/lib/supabase';
-import { parseBackblast, isBackblastMessage, generateBackblastTitle } from '@/lib/backblast/parseBackblast';
+import { normalizeSlackMessage, isBackblastPayload, isPreblastPayload } from '@/lib/slack/normalizeSlackMessage';
 
 // This endpoint is called by Vercel Cron as a safety net
 // to catch any missed Slack events
@@ -26,7 +26,7 @@ interface SlackConversationsResponse {
 
 /**
  * GET /api/slack/reconcile
- * Called by Vercel Cron to reconcile backblasts from Slack
+ * Called by Vercel Cron to reconcile f3_events from Slack
  */
 export async function GET(request: NextRequest) {
     // Verify cron secret
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
         // Process each channel
         for (const channel of channels) {
             try {
-                // Fetch recent messages from Slack (last 7 days worth)
+                // Fetch recent messages from Slack (last 100 messages)
                 const response = await fetch(
                     `https://slack.com/api/conversations.history?channel=${channel.slack_channel_id}&limit=100`,
                     {
@@ -85,46 +85,61 @@ export async function GET(request: NextRequest) {
 
                 // Process each message
                 for (const message of data.messages || []) {
-                    // Skip non-backblast messages
-                    if (!message.text || !isBackblastMessage(message.text)) {
+                    if (message.subtype === 'tombstone') continue;
+
+                    // Build a minimal raw payload for normalization
+                    const rawPayload = JSON.stringify({
+                        event: {
+                            type: 'message',
+                            channel: channel.slack_channel_id,
+                            ts: message.ts,
+                            text: message.text || '',
+                            user: message.user,
+                            bot_id: message.bot_id,
+                        },
+                    });
+
+                    if (!isBackblastPayload(rawPayload) && !isPreblastPayload(rawPayload)) {
                         continue;
                     }
 
-                    // Skip deleted messages
-                    if (message.subtype === 'tombstone') {
-                        continue;
-                    }
+                    try {
+                        const normalized = await normalizeSlackMessage(rawPayload, channel.ao_display_name);
 
-                    // Parse and upsert
-                    const parsed = parseBackblast(message.text, channel.ao_display_name);
-                    const title = generateBackblastTitle(parsed);
+                        const { error: upsertError } = await supabase
+                            .from('f3_events')
+                            .upsert(
+                                {
+                                    slack_channel_id: normalized.slack_channel_id,
+                                    slack_message_ts: normalized.slack_message_ts,
+                                    slack_permalink: normalized.slack_permalink || null,
+                                    ao_display_name: channel.ao_display_name,
+                                    event_kind: normalized.event_kind,
+                                    title: normalized.title || null,
+                                    event_date: normalized.event_date || null,
+                                    event_time: normalized.event_time || null,
+                                    location_text: normalized.location_text || null,
+                                    q_slack_user_id: normalized.q_slack_user_id || null,
+                                    q_name: normalized.q_name || null,
+                                    pax_count: normalized.pax_count || null,
+                                    content_text: normalized.content_text || null,
+                                    content_html: normalized.content_html || null,
+                                    content_json: normalized.content_json,
+                                    raw_envelope_json: normalized.raw_envelope_json,
+                                    is_deleted: false,
+                                },
+                                { onConflict: 'slack_channel_id,slack_message_ts' }
+                            );
 
-                    const { error: upsertError } = await supabase
-                        .from('backblasts')
-                        .upsert(
-                            {
-                                slack_channel_id: channel.slack_channel_id,
-                                slack_message_ts: message.ts,
-                                ao_display_name: parsed.ao || channel.ao_display_name,
-                                title,
-                                backblast_date: parsed.date,
-                                q_name: parsed.q,
-                                pax_text: parsed.pax,
-                                fng_text: parsed.fngs,
-                                pax_count: parsed.count,
-                                content_text: parsed.content,
-                                is_deleted: false,
-                            },
-                            {
-                                onConflict: 'slack_channel_id,slack_message_ts',
-                            }
-                        );
-
-                    if (upsertError) {
-                        console.error('Error upserting:', upsertError);
+                        if (upsertError) {
+                            console.error('Error upserting f3_event:', upsertError);
+                            errorCount++;
+                        } else {
+                            processedCount++;
+                        }
+                    } catch (err) {
+                        console.error(`Error normalizing message ${message.ts}:`, err);
                         errorCount++;
-                    } else {
-                        processedCount++;
                     }
                 }
             } catch (err) {

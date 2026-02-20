@@ -19,8 +19,14 @@ interface KBFile {
 interface KBFileDetail {
     path: string;
     folder: string;
-    frontmatter: any;
-    sections: any;
+    frontmatter: {
+        title?: string;
+        category?: string;
+        tags?: string[];
+        aliases?: string[];
+        [key: string]: unknown;
+    };
+    sections: Record<string, string>;
     raw: string;
 }
 
@@ -104,7 +110,7 @@ export default function KBAdminPage() {
     const [newTitle, setNewTitle] = useState("");
 
     // Form State (Local edits)
-    const [formData, setFormData] = useState<any>({});
+    const [formData, setFormData] = useState<Partial<KBFileDetail>>({});
 
     // --- Effects ---
 
@@ -134,12 +140,6 @@ export default function KBAdminPage() {
                     setFolders(data.folders);
                 }
 
-                // Expand all folders by default initially
-                // We want to expand all folders returned by API
-                // const allFoldersList = Array.isArray(data) ? [...new Set(data.map((f: KBFile) => f.folder))] : data.folders;
-                // const expanded: Record<string, boolean> = {};
-                // allFoldersList.forEach((f: string) => expanded[f] = true);
-                // setExpandedFolders(expanded);
             } else if (res.status === 401) {
                 logout();
             }
@@ -169,11 +169,6 @@ export default function KBAdminPage() {
                     setFolders(data.folders);
                 }
 
-                // Expand all
-                // const allFoldersList = Array.isArray(data) ? [...new Set(data.map((f: KBFile) => f.folder))] : data.folders;
-                // const expanded: Record<string, boolean> = {};
-                // allFoldersList.forEach((f: string) => expanded[f] = true);
-                // setExpandedFolders(expanded);
             } else {
                 setError("Invalid password");
             }
@@ -440,7 +435,7 @@ TBD
         const fm = formData.frontmatter || {};
         const sec = formData.sections || {};
 
-        const updateFM = (key: string, val: any) => {
+        const updateFM = (key: string, val: unknown) => {
             setFormData({ ...formData, frontmatter: { ...fm, [key]: val } });
         };
         const updateSec = (key: string, val: string) => {

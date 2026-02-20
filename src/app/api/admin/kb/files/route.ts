@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     }
 
     const baseDirs = ["data/content"]; // Focusing on the new structure
-    const files: any[] = [];
+    const files: { path: string; folder: string; slug: string; title: string; category: string; tags: string[] }[] = [];
     const folders: string[] = [];
 
     for (const dir of baseDirs) {
@@ -47,8 +47,8 @@ export async function GET(request: Request) {
                                 const relativePath = path.relative(process.cwd(), fullPath);
                                 const slug = entry.name.replace(".md", "");
 
-                                let metadata: any = {
-                                    title: slug, // Default to slug if no title
+                                let metadata: { title: string; category: string; tags: string[]; [key: string]: unknown } = {
+                                    title: slug,
                                     category: folderName,
                                     tags: []
                                 };

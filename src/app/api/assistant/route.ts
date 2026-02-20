@@ -223,15 +223,15 @@ export async function POST(request: NextRequest) {
         // Since getKnowledgeBaseContext swallows them, we might miss them here if we don't re-fetch or refactor.
         // But the user asked for "fallback to plain OpenAI", so missing related links in fallback case is acceptable.
         // We will try to fetch them again safely.
-        let relatedPages: any[] = [];
+        let relatedPages: { title: string; url: string }[] = [];
         try {
             const relevantDocs = searchKnowledgeDocs(query, 3);
             relatedPages = relevantDocs.map(d => {
                 if (d.id === "about" || d.id === "mission" || d.id === "leadership") return { title: "About Us", url: "/about" };
-                if (d.id === "first-workout") return { title: "New to F3", url: "/fng" };
+                if (d.id === "first-workout") return { title: "New to F3", url: "/new-here" };
                 if (d.id === "marietta") return { title: "Community", url: "/community" };
                 return null;
-            }).filter(Boolean);
+            }).filter((p): p is { title: string; url: string } => p !== null);
         } catch (e) {
             // Ignore doc search errors for related pages
         }
