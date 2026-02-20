@@ -14,7 +14,7 @@ interface Workout {
     time: string;
     location?: string;
     address: string;
-    region?: string; // For "Other Nearby" workouts
+    region?: string;
     mapLink?: string;
 }
 
@@ -297,35 +297,44 @@ const REGIONS = [
     { key: "otherNearby" as const, label: "Other Nearby" },
 ];
 
-// Workout Card Component
+function getTodayIndex(): number {
+    const day = new Date().getDay(); // 0=Sun … 6=Sat
+    return day === 0 ? 6 : day - 1; // remap to 0=Mon … 6=Sun
+}
+
+function getWorkoutCount(schedule: DaySchedule): number {
+    return schedule.marietta.length + schedule.westCobb.length + schedule.otherNearby.length;
+}
+
+// ── Workout Card ────────────────────────────────────────────────────────────
 function WorkoutCard({ workout }: { workout: Workout }) {
     return (
-        <div className="bg-card border border-border rounded-md p-2 space-y-1.5 hover:border-primary/50 transition-colors">
-            <div className="space-y-0.5">
-                <h4 className="font-bold text-xs text-foreground leading-tight">{workout.name}</h4>
+        <div className="bg-card border border-border rounded-md p-3 space-y-2 hover:border-primary/50 transition-colors">
+            <div className="space-y-1">
+                <h4 className="font-bold text-sm text-foreground leading-tight">{workout.name}</h4>
                 <div className="flex flex-wrap gap-1">
-                    <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded">
+                    <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
                         {workout.type}
                     </span>
                     {workout.region && (
-                        <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
+                        <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
                             {workout.region}
                         </span>
                     )}
                 </div>
             </div>
-            <div className="space-y-0.5 text-[10px] text-muted-foreground">
-                <div className="flex items-center gap-1">
-                    <Clock className="h-2.5 w-2.5 shrink-0" />
+            <div className="space-y-1 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                    <Clock className="h-3 w-3 shrink-0" />
                     <span>{workout.time}</span>
                 </div>
                 {workout.location && (
-                    <div className="flex items-start gap-1">
-                        <MapPin className="h-2.5 w-2.5 shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-1.5">
+                        <MapPin className="h-3 w-3 shrink-0 mt-0.5" />
                         <span className="leading-tight">{workout.location}</span>
                     </div>
                 )}
-                <div className="text-[9px] text-muted-foreground/70 pl-3.5 leading-tight">
+                <div className="text-xs text-muted-foreground/70 pl-[1.125rem] leading-tight">
                     {workout.address}
                 </div>
             </div>
@@ -334,71 +343,38 @@ function WorkoutCard({ workout }: { workout: Workout }) {
                     href={workout.mapLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-0.5 text-[10px] text-primary hover:underline"
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                 >
-                    Directions <ExternalLink className="h-2.5 w-2.5" />
+                    Directions <ExternalLink className="h-3 w-3" />
                 </a>
             )}
         </div>
     );
 }
 
-// Region Section Component
+// ── Region Section ──────────────────────────────────────────────────────────
 function RegionSection({ label, workouts }: { label: string; workouts: Workout[] }) {
+    if (workouts.length === 0) return null;
     return (
-        <div className="mb-3 last:mb-0">
+        <div className="mb-4 last:mb-0">
             <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 pb-1 border-b border-border/50">
                 {label}
             </h4>
-            {workouts.length > 0 ? (
-                <div className="space-y-2">
-                    {workouts.map((workout, idx) => (
-                        <WorkoutCard key={`${workout.name}-${idx}`} workout={workout} />
-                    ))}
-                </div>
-            ) : (
-                <p className="text-xs text-muted-foreground/60 italic py-2">None</p>
-            )}
+            <div className="space-y-2">
+                {workouts.map((workout, idx) => (
+                    <WorkoutCard key={`${workout.name}-${idx}`} workout={workout} />
+                ))}
+            </div>
         </div>
     );
 }
 
-// Day Column Component (Desktop)
-function DayColumn({ day, schedule }: { day: string; schedule: DaySchedule }) {
-    const hasNoWorkouts =
-        schedule.marietta.length === 0 &&
-        schedule.westCobb.length === 0 &&
-        schedule.otherNearby.length === 0;
+// ── Day Card ────────────────────────────────────────────────────────────────
+function DayCard({ day, schedule, defaultOpen }: { day: string; schedule: DaySchedule; defaultOpen: boolean }) {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+    const totalWorkouts = getWorkoutCount(schedule);
 
-    return (
-        <div className="bg-muted/30 rounded-lg border border-border p-2 flex flex-col">
-            <h3 className="font-bold font-heading text-sm text-foreground mb-3 pb-2 border-b border-border text-center">
-                {day.slice(0, 3)}
-            </h3>
-            {hasNoWorkouts ? (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                    No scheduled workouts
-                </p>
-            ) : (
-                <>
-                    {REGIONS.map((region) => (
-                        <RegionSection
-                            key={region.key}
-                            label={region.label}
-                            workouts={schedule[region.key]}
-                        />
-                    ))}
-                </>
-            )}
-        </div>
-    );
-}
-
-// Day Accordion Component (Mobile)
-function DayAccordion({ day, schedule }: { day: string; schedule: DaySchedule }) {
-    const [isOpen, setIsOpen] = useState(false);
-    const totalWorkouts =
-        schedule.marietta.length + schedule.westCobb.length + schedule.otherNearby.length;
+    if (totalWorkouts === 0) return null;
 
     return (
         <div className="border border-border rounded-lg overflow-hidden bg-muted/30">
@@ -419,165 +395,54 @@ function DayAccordion({ day, schedule }: { day: string; schedule: DaySchedule })
                     )}
                 />
             </button>
-            {isOpen && (
+            <div
+                className={cn(
+                    "overflow-hidden transition-all duration-300 ease-in-out",
+                    isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+                )}
+            >
                 <div className="p-4 pt-0 border-t border-border">
-                    {totalWorkouts === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">
-                            No scheduled workouts
-                        </p>
-                    ) : (
-                        <>
-                            {REGIONS.map((region) => (
-                                <RegionSection
-                                    key={region.key}
-                                    label={region.label}
-                                    workouts={schedule[region.key]}
-                                />
-                            ))}
-                        </>
-                    )}
+                    {REGIONS.map((region) => (
+                        <RegionSection
+                            key={region.key}
+                            label={region.label}
+                            workouts={schedule[region.key]}
+                        />
+                    ))}
                 </div>
-            )}
+            </div>
         </div>
     );
 }
 
+// ── Page ────────────────────────────────────────────────────────────────────
 export default function WorkoutsPage() {
+    const todayIndex = getTodayIndex();
+
     return (
         <div className="flex flex-col min-h-screen">
             <Hero
                 title="WORKOUT SCHEDULE"
                 subtitle="Find a workout near you. Just show up."
-                ctaText="What to Expect at F3"
-                ctaLink="/what-to-expect"
+                ctaText="New to F3?"
+                ctaLink="/new-here"
                 backgroundImage="/images/workouts-bg.jpg"
             />
 
             <Section>
-                <div className="text-center max-w-2xl mx-auto mb-8">
-                    <h2 className="text-3xl font-bold font-heading mb-4">WORKOUT SCHEDULE</h2>
-                    <p className="text-muted-foreground">
-                        All workouts are free, open to all men, and held outdoors rain or shine.
-                        Check the schedule below and join us in the gloom.
-                    </p>
-                </div>
+                <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-8">
+                    All workouts are free, open to all men, and held outdoors rain or shine.
+                    Check the schedule below and join us in the gloom.
+                </p>
 
-                {/* Desktop: Table layout with Marietta featured prominently */}
-                <div className="hidden lg:block space-y-8">
-                    {/* MARIETTA AOs - Featured Section */}
-                    <div className="bg-primary/5 border-2 border-primary/20 rounded-xl p-4">
-                        <h3 className="text-lg font-bold font-heading text-primary mb-4 uppercase tracking-wide">
-                            Marietta AOs
-                        </h3>
-
-                        {/* Day Headers Row */}
-                        <div className="grid grid-cols-7 gap-2 mb-3">
-                            {DAYS.map((day) => (
-                                <div
-                                    key={day}
-                                    className="text-center font-bold font-heading text-sm text-foreground py-2 bg-muted/50 rounded-lg"
-                                >
-                                    {day.slice(0, 3)}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Marietta Workouts Row */}
-                        <div className="grid grid-cols-7 gap-2">
-                            {DAYS.map((day) => {
-                                const workouts = weekSchedule[day].marietta;
-                                return (
-                                    <div key={day} className="min-h-[140px] bg-card/50 rounded-lg p-2">
-                                        {workouts.length > 0 ? (
-                                            <div className="space-y-2">
-                                                {workouts.map((workout, idx) => (
-                                                    <WorkoutCard key={`${workout.name}-${idx}`} workout={workout} />
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <p className="text-[10px] text-muted-foreground/50 italic text-center py-8">—</p>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* NEARBY AOs - West Cobb & Other Nearby */}
-                    <div className="border border-border/50 rounded-xl p-4 bg-muted/20">
-                        <h3 className="text-md font-bold font-heading text-muted-foreground mb-4">
-                            Nearby AOs
-                        </h3>
-
-                        {/* Day Headers Row */}
-                        <div className="grid grid-cols-[100px_repeat(7,1fr)] gap-2 mb-2">
-                            <div></div>
-                            {DAYS.map((day) => (
-                                <div
-                                    key={day}
-                                    className="text-center font-semibold text-xs text-muted-foreground py-1.5"
-                                >
-                                    {day.slice(0, 3)}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* West Cobb Row */}
-                        <div className="grid grid-cols-[100px_repeat(7,1fr)] gap-2 py-2 border-b border-border/30">
-                            <div className="flex items-start justify-end pr-2">
-                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                                    West Cobb
-                                </span>
-                            </div>
-                            {DAYS.map((day) => {
-                                const workouts = weekSchedule[day].westCobb;
-                                return (
-                                    <div key={day} className="min-h-[80px] bg-muted/10 rounded-md p-1">
-                                        {workouts.length > 0 ? (
-                                            <div className="space-y-1.5">
-                                                {workouts.map((workout, idx) => (
-                                                    <WorkoutCard key={`${workout.name}-${idx}`} workout={workout} />
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <p className="text-[10px] text-muted-foreground/40 italic text-center py-6">—</p>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-
-                        {/* Other Nearby Row */}
-                        <div className="grid grid-cols-[100px_repeat(7,1fr)] gap-2 py-2">
-                            <div className="flex items-start justify-end pr-2">
-                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider text-right">
-                                    Other Nearby
-                                </span>
-                            </div>
-                            {DAYS.map((day) => {
-                                const workouts = weekSchedule[day].otherNearby;
-                                return (
-                                    <div key={day} className="min-h-[80px] bg-muted/10 rounded-md p-1">
-                                        {workouts.length > 0 ? (
-                                            <div className="space-y-1.5">
-                                                {workouts.map((workout, idx) => (
-                                                    <WorkoutCard key={`${workout.name}-${idx}`} workout={workout} />
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <p className="text-[10px] text-muted-foreground/40 italic text-center py-6">—</p>
-                                        )}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Mobile/Tablet: Accordion by day */}
-                <div className="lg:hidden space-y-3">
-                    {DAYS.map((day) => (
-                        <DayAccordion key={day} day={day} schedule={weekSchedule[day]} />
+                <div className="space-y-3 max-w-4xl mx-auto">
+                    {DAYS.map((day, index) => (
+                        <DayCard
+                            key={day}
+                            day={day}
+                            schedule={weekSchedule[day]}
+                            defaultOpen={index === todayIndex}
+                        />
                     ))}
                 </div>
             </Section>
