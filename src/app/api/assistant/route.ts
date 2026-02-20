@@ -100,13 +100,19 @@ async function getKnowledgeBaseContext(query: string): Promise<string | null> {
     }
 }
 
-async function callOpenAI(query: string, context: string | null): Promise<string> {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-        throw new Error("OPENAI_API_KEY is not set");
+// Lazy singleton for OpenAI client (avoid re-instantiation per request)
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+    if (!_openai) {
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
+        _openai = new OpenAI({ apiKey });
     }
+    return _openai;
+}
 
-    const openai = new OpenAI({ apiKey });
+async function callOpenAI(query: string, context: string | null): Promise<string> {
+    const openai = getOpenAI();
 
     const systemPromptBase = `
 You are the F3 Marietta AI assistant.
@@ -120,12 +126,12 @@ Focus on F3, F3 Marietta, workouts, locations, Lexicon/Exicon, and FAQ topics.
         : `${systemPromptBase}\n\nYou do not have any special context for this question; answer from your general knowledge of F3.`;
 
     const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: query },
         ],
-        max_tokens: 250,
+        max_tokens: 500,
         temperature: 0.5,
     });
 
