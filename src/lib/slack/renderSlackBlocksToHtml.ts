@@ -3,7 +3,7 @@
  * Converts Slack Block Kit JSON to sanitized HTML
  */
 
-import sanitizeHtml from 'sanitize-html';
+import { sanitizeHtmlContent, escapeHtml } from '@/lib/security/sanitize';
 import type { SlackUser } from '@/types/f3Event';
 
 // User lookup function type (injected for flexibility)
@@ -76,27 +76,9 @@ export async function renderSlackBlocksToHtml(
     }
 
     const rawHtml = htmlParts.join('\n');
-    const sanitizedHtml = sanitizeHtml(rawHtml, {
-        allowedTags: [
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'p', 'br', 'hr',
-            'strong', 'b', 'em', 'i', 'del', 's', 'code', 'pre',
-            'ul', 'ol', 'li',
-            'a', 'img',
-            'blockquote',
-            'span',
-        ],
-        allowedAttributes: {
-            'a': ['href', 'target', 'rel'],
-            'img': ['src', 'alt'],
-            'span': ['class'],
-            'p': ['class'],
-        },
-        allowedSchemes: ['http', 'https', 'mailto'],
-    });
 
     return {
-        html: sanitizedHtml,
+        html: sanitizeHtmlContent(rawHtml),
         text: textParts.join('\n').trim(),
     };
 }
@@ -358,14 +340,3 @@ function extractText(obj: unknown): string {
     return '';
 }
 
-/**
- * Escape HTML special characters
- */
-function escapeHtml(text: string): string {
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-}

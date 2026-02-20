@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { sanitizeHtmlContent } from '@/lib/security/sanitize';
 import { Section } from '@/components/ui/Section';
 import type { F3Event } from '@/types/f3Event';
 import { ArrowLeft, ExternalLink, Calendar, User, Users, MapPin } from 'lucide-react';
@@ -153,7 +154,7 @@ export default async function BackblastDetailPage({ params }: BackblastDetailPag
                         {event.content_html ? (
                             <div
                                 className="text-foreground text-base"
-                                dangerouslySetInnerHTML={{ __html: event.content_html }}
+                                dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(event.content_html) }}
                             />
                         ) : (
                             <div
