@@ -40,11 +40,6 @@ export async function getWorkoutSchedule(): Promise<
 
   const workouts: WorkoutScheduleRow[] = workoutsData ?? [];
 
-  // Build region lookup
-  const regionMap = new Map<string, Region>(
-    regions.map((r) => [r.id, r])
-  );
-
   // Group by day, then by region
   const schedule: Record<number, DaySchedule> = {};
 

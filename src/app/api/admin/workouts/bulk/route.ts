@@ -61,13 +61,13 @@ export async function POST(request: Request) {
         .from("workout_schedule")
         .update({ is_active: false, updated_at: new Date().toISOString() })
         .in("id", ids)
-        .select("id", { count: "exact", head: true });
+        .select("id");
       break;
 
     case "delete":
       result = await supabase
         .from("workout_schedule")
-        .delete({ count: "exact" })
+        .delete()
         .in("id", ids);
       break;
 
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
         .from("workout_schedule")
         .update({ region_id, updated_at: new Date().toISOString() })
         .in("id", ids)
-        .select("id", { count: "exact", head: true });
+        .select("id");
       break;
   }
 
@@ -84,6 +84,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error.message }, { status: 500 });
   }
 
-  const affected = result?.count ?? ids.length;
+  const affected = result?.data?.length ?? ids.length;
   return NextResponse.json({ success: true, affected });
 }
