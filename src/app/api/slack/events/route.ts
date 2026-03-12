@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { verifySlackSignature } from '@/lib/slack/slackVerify';
-import { parseBackblast, isBackblastMessage, generateBackblastTitle } from '@/lib/backblast/parseBackblast';
 import { normalizeSlackMessage, isBackblastPayload, isPreblastPayload } from '@/lib/slack/normalizeSlackMessage';
 import type { NormalizedEvent } from '@/types/f3Event';
 
@@ -123,34 +122,18 @@ async function handleSlackEvent(event: SlackEvent, rawPayload: string) {
     // Handle message edit (message_changed)
     if (subtype === 'message_changed' && event.message) {
         console.log('Processing message edit');
-        const messageText = event.message.text || '';
 
-        // Check if it's a backblast or preblast
         if (isBackblastPayload(rawPayload) || isPreblastPayload(rawPayload)) {
             await handleF3EventUpsert(aoChannel.ao_display_name, rawPayload, ts);
-        }
-
-        // Also maintain legacy backblasts table for backblasts only
-        if (isBackblastMessage(messageText)) {
-            await handleLegacyBackblastUpsert(
-                channel,
-                event.message.ts,
-                messageText,
-                aoChannel.ao_display_name,
-                rawPayload,
-                ts
-            );
         }
         return;
     }
 
     // Handle new message (no subtype or bot_message)
     if (!subtype || subtype === 'bot_message') {
-        const text = event.text || '';
-        console.log('Processing new message, text length:', text.length);
+        console.log('Processing new message, text length:', (event.text || '').length);
 
-        // Check if this is a backblast or preblast
-        const isBackblast = isBackblastPayload(rawPayload) || isBackblastMessage(text);
+        const isBackblast = isBackblastPayload(rawPayload);
         const isPreblast = isPreblastPayload(rawPayload);
 
         if (!isBackblast && !isPreblast) {
@@ -159,20 +142,7 @@ async function handleSlackEvent(event: SlackEvent, rawPayload: string) {
         }
 
         console.log(`Message identified as ${isPreblast ? 'preblast' : 'backblast'}, upserting...`);
-
-        // Write to new canonical f3_events table
         await handleF3EventUpsert(aoChannel.ao_display_name, rawPayload);
-
-        // Also maintain legacy backblasts table for backblasts only
-        if (isBackblast && !isPreblast) {
-            await handleLegacyBackblastUpsert(
-                channel,
-                ts,
-                text,
-                aoChannel.ao_display_name,
-                rawPayload
-            );
-        }
     }
 }
 
@@ -331,85 +301,22 @@ async function upsertChildRecords(eventId: string, normalized: NormalizedEvent) 
     }
 }
 
-/**
- * Legacy: Upsert to backblasts table for backward compatibility
- */
-async function handleLegacyBackblastUpsert(
-    channelId: string,
-    messageTs: string,
-    text: string,
-    aoDisplayName: string,
-    rawPayload: string,
-    editTs?: string
-) {
-    // Parse the backblast content using legacy parser
-    const parsed = parseBackblast(text, aoDisplayName);
-    const title = generateBackblastTitle(parsed);
-
-    // Prepare the record for upsert
-    const record = {
-        slack_channel_id: channelId,
-        slack_message_ts: messageTs,
-        ao_display_name: parsed.ao || aoDisplayName,
-        title,
-        backblast_date: parsed.date,
-        q_name: parsed.q,
-        pax_text: parsed.pax,
-        fng_text: parsed.fngs,
-        pax_count: parsed.count,
-        content_text: parsed.content,
-        content_json: JSON.parse(rawPayload),
-        last_slack_edit_ts: editTs || null,
-        is_deleted: false,
-    };
-
-    // Upsert the record
+async function handleMessageDeleted(channelId: string, messageTs: string) {
     const { data, error } = await supabase
-        .from('backblasts')
-        .upsert(record, {
-            onConflict: 'slack_channel_id,slack_message_ts',
-        })
+        .from('f3_events')
+        .update({ is_deleted: true })
+        .eq('slack_channel_id', channelId)
+        .eq('slack_message_ts', messageTs)
         .select('id')
         .single();
 
+    if (data) {
+        console.log(`Soft deleted: ${data.id}`);
+    }
     if (error) {
-        console.error('Error upserting legacy backblast:', error);
-        return;
+        console.error('Error soft-deleting f3_event:', error);
     }
 
-    console.log(`Legacy backblast upserted: ${data?.id}`);
-}
-
-async function handleMessageDeleted(channelId: string, messageTs: string) {
-    // Soft delete in both tables
-    const results = await Promise.allSettled([
-        // Delete from f3_events
-        supabase
-            .from('f3_events')
-            .update({ is_deleted: true })
-            .eq('slack_channel_id', channelId)
-            .eq('slack_message_ts', messageTs)
-            .select('id')
-            .single(),
-
-        // Delete from legacy backblasts
-        supabase
-            .from('backblasts')
-            .update({ is_deleted: true })
-            .eq('slack_channel_id', channelId)
-            .eq('slack_message_ts', messageTs)
-            .select('id')
-            .single(),
-    ]);
-
-    // Log results
-    for (const result of results) {
-        if (result.status === 'fulfilled' && result.value.data) {
-            console.log(`Soft deleted: ${result.value.data.id}`);
-        }
-    }
-
-    // Trigger revalidation
     revalidatePath('/backblasts');
 }
 

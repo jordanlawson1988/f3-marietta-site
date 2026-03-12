@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { sanitizeHtmlContent } from '@/lib/security/sanitize';
 import { Section } from '@/components/ui/Section';
 import type { F3Event } from '@/types/f3Event';
 import { ArrowLeft, ExternalLink, Calendar, User, Users, MapPin } from 'lucide-react';
@@ -37,9 +38,17 @@ export async function generateMetadata({ params }: BackblastDetailPageProps) {
         ? `${event.ao_display_name} ${eventType}`
         : eventType;
 
+    const description = event.content_text?.slice(0, 160) ?? '';
+
     return {
-        title: `${title} | F3 Marietta`,
-        description: event.content_text?.slice(0, 160),
+        title,
+        description,
+        openGraph: {
+            title: `${title} | F3 Marietta`,
+            description,
+            type: 'article',
+            images: ['/images/MariettaHomePage.jpeg'],
+        },
     };
 }
 
@@ -148,16 +157,16 @@ export default async function BackblastDetailPage({ params }: BackblastDetailPag
             <Section>
                 <div className="max-w-4xl mx-auto">
                     {/* Workout Content */}
-                    <article className="prose prose-invert max-w-none">
+                    <article className="backblast-content max-w-none">
                         {/* Render HTML content if available */}
                         {event.content_html ? (
                             <div
-                                className="text-foreground text-base leading-relaxed"
-                                dangerouslySetInnerHTML={{ __html: event.content_html }}
+                                className="text-foreground text-base"
+                                dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(event.content_html) }}
                             />
                         ) : (
                             <div
-                                className="text-foreground text-base leading-relaxed whitespace-pre-line"
+                                className="text-foreground text-base whitespace-pre-line"
                                 style={{ fontFamily: 'var(--font-sans)' }}
                             >
                                 {event.content_text}

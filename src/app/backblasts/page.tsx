@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { Hero } from '@/components/ui/Hero';
 import { Section } from '@/components/ui/Section';
 import { getBackblastsPaginated, getAOList, createExcerpt } from '@/lib/backblast/getBackblastsPaginated';
-import { ChevronLeft, ChevronRight, Calendar, Users, MapPin, User } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Users, User } from 'lucide-react';
+import { BackblastFilters } from './BackblastFilters';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -27,7 +28,13 @@ export default async function BackblastsPage({ searchParams }: BackblastsPagePro
     const searchQuery = params.q || '';
 
     const [result, aoList] = await Promise.all([
-        getBackblastsPaginated({ page, pageSize, ao: aoFilter || undefined, search: searchQuery || undefined }),
+        getBackblastsPaginated({
+            page,
+            pageSize,
+            ao: aoFilter || undefined,
+            search: searchQuery || undefined,
+            eventKind: 'backblast',  // Explicitly filter to backblasts only
+        }),
         getAOList(),
     ]);
 
@@ -63,15 +70,31 @@ export default async function BackblastsPage({ searchParams }: BackblastsPagePro
         return `/backblasts${qs ? `?${qs}` : ''}`;
     };
 
-    // Format date helper
+    // Format date helper - handles both date-only (event_date) and datetime (created_at) formats
     const formatDate = (dateStr: string | null) => {
         if (!dateStr) return null;
-        return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
+        // Handle ISO datetime format (e.g., "2026-01-12T12:00:00.000Z")
+        const date = dateStr.includes('T')
+            ? new Date(dateStr)
+            : new Date(dateStr + 'T00:00:00');
+        return date.toLocaleDateString('en-US', {
             weekday: 'short',
             month: 'short',
             day: 'numeric',
             year: 'numeric',
         });
+    };
+
+    // Extract user-input title from backblast content (e.g., "Backblast! Isometric + Ladder 2.0" → "Isometric + Ladder 2.0")
+    const extractUserTitle = (contentText: string | null): string | null => {
+        if (!contentText) return null;
+        const firstLine = contentText.split('\n')[0] || '';
+        // Match "Backblast! Title" or "Backblast: Title" patterns
+        const match = firstLine.match(/^(?:backblast)[!:]?\s*(.+)?$/i);
+        if (match && match[1]) {
+            return match[1].trim();
+        }
+        return null;
     };
 
     return (
@@ -87,44 +110,11 @@ export default async function BackblastsPage({ searchParams }: BackblastsPagePro
                     {/* Controls Row */}
                     <div className="mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                         {/* Filters */}
-                        <form className="flex gap-3 flex-wrap items-center">
-                            <select
-                                name="ao"
-                                defaultValue={aoFilter}
-                                className="bg-card border border-border rounded-lg px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary focus:border-primary min-w-[140px]"
-                            >
-                                <option value="">All AOs</option>
-                                {aoList.map((ao) => (
-                                    <option key={ao} value={ao}>
-                                        {ao}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <input
-                                type="text"
-                                name="q"
-                                placeholder="Search Q, AO, or content..."
-                                defaultValue={searchQuery}
-                                className="bg-card border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:border-primary w-[260px]"
-                            />
-
-                            <button
-                                type="submit"
-                                className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
-                            >
-                                Search
-                            </button>
-
-                            {(aoFilter || searchQuery) && (
-                                <Link
-                                    href="/backblasts"
-                                    className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
-                                >
-                                    Clear filters
-                                </Link>
-                            )}
-                        </form>
+                        <BackblastFilters
+                            aoList={aoList}
+                            aoFilter={aoFilter}
+                            searchQuery={searchQuery}
+                        />
 
                         {/* Page Size */}
                         <div className="flex items-center gap-2 text-sm">
@@ -170,7 +160,8 @@ export default async function BackblastsPage({ searchParams }: BackblastsPagePro
                             {/* Event Cards Grid */}
                             <div className="grid gap-4">
                                 {events.map((event) => {
-                                    const formattedDate = formatDate(event.event_date);
+                                    // Use event_date if available, otherwise fall back to created_at
+                                    const formattedDate = formatDate(event.event_date || event.created_at);
                                     const isPreblast = event.event_kind === 'preblast';
 
                                     return (
@@ -206,12 +197,16 @@ export default async function BackblastsPage({ searchParams }: BackblastsPagePro
                                                 )}
                                             </div>
 
-                                            {/* Title (if available) */}
-                                            {event.title && (
-                                                <h3 className="text-base font-medium text-foreground mb-3 line-clamp-1">
-                                                    {event.title}
-                                                </h3>
-                                            )}
+                                            {/* Title - prefer user-input title from content over stored title */}
+                                            {(() => {
+                                                const userTitle = extractUserTitle(event.content_text);
+                                                const displayTitle = userTitle || event.title;
+                                                return displayTitle ? (
+                                                    <h3 className="text-base font-medium text-foreground mb-3 line-clamp-1">
+                                                        {displayTitle}
+                                                    </h3>
+                                                ) : null;
+                                            })()}
 
                                             {/* Meta Row: Q + PAX */}
                                             <div className="flex flex-wrap gap-4 mb-4">

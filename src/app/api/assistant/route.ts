@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { randomUUID } from "crypto";
 import { lexiconEntries, exiconEntries, GlossaryEntry } from "@/../data/f3Glossary";
 import { searchKnowledgeDocs } from "@/../data/f3Knowledge";
 import { searchGlossaryEntries } from "@/lib/searchGlossary";
+import { checkRateLimit } from "@/lib/security/rateLimiter";
 
 // Force Node.js runtime (not Edge) for OpenAI and fs compatibility
 export const runtime = "nodejs";
@@ -99,13 +100,19 @@ async function getKnowledgeBaseContext(query: string): Promise<string | null> {
     }
 }
 
-async function callOpenAI(query: string, context: string | null): Promise<string> {
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-        throw new Error("OPENAI_API_KEY is not set");
+// Lazy singleton for OpenAI client (avoid re-instantiation per request)
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+    if (!_openai) {
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
+        _openai = new OpenAI({ apiKey });
     }
+    return _openai;
+}
 
-    const openai = new OpenAI({ apiKey });
+async function callOpenAI(query: string, context: string | null): Promise<string> {
+    const openai = getOpenAI();
 
     const systemPromptBase = `
 You are the F3 Marietta AI assistant.
@@ -119,22 +126,26 @@ Focus on F3, F3 Marietta, workouts, locations, Lexicon/Exicon, and FAQ topics.
         : `${systemPromptBase}\n\nYou do not have any special context for this question; answer from your general knowledge of F3.`;
 
     const completion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o-mini",
         messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: query },
         ],
-        max_tokens: 250,
+        max_tokens: 500,
         temperature: 0.5,
     });
 
     return completion.choices[0]?.message?.content || "I couldn't generate an answer at this time.";
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     const requestId = randomUUID().slice(0, 8);
 
     try {
+        // Rate limit: 10 requests per 60 seconds per IP
+        const rateLimitResponse = checkRateLimit(request, { maxRequests: 10, windowMs: 60 * 1000 });
+        if (rateLimitResponse) return rateLimitResponse;
+
         const { query } = await request.json();
 
         if (!query || typeof query !== "string") {
@@ -218,15 +229,15 @@ export async function POST(request: Request) {
         // Since getKnowledgeBaseContext swallows them, we might miss them here if we don't re-fetch or refactor.
         // But the user asked for "fallback to plain OpenAI", so missing related links in fallback case is acceptable.
         // We will try to fetch them again safely.
-        let relatedPages: any[] = [];
+        let relatedPages: { title: string; url: string }[] = [];
         try {
             const relevantDocs = searchKnowledgeDocs(query, 3);
             relatedPages = relevantDocs.map(d => {
                 if (d.id === "about" || d.id === "mission" || d.id === "leadership") return { title: "About Us", url: "/about" };
-                if (d.id === "first-workout") return { title: "New to F3", url: "/fng" };
+                if (d.id === "first-workout") return { title: "New to F3", url: "/new-here" };
                 if (d.id === "marietta") return { title: "Community", url: "/community" };
                 return null;
-            }).filter(Boolean);
+            }).filter((p): p is { title: string; url: string } => p !== null);
         } catch (e) {
             // Ignore doc search errors for related pages
         }

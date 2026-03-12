@@ -13,8 +13,36 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
-  title: "F3 Marietta | Fitness, Fellowship, Faith",
-  description: "F3 Marietta is a region of F3 Nation in Marietta, GA. Free, peer-led workouts for men.",
+  metadataBase: new URL("https://f3marietta.com"),
+  title: {
+    default: "F3 Marietta | Fitness, Fellowship, Faith",
+    template: "%s | F3 Marietta",
+  },
+  description:
+    "F3 Marietta is a region of F3 Nation in Marietta, GA. Free, peer-led workouts for men.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "F3 Marietta",
+    title: "F3 Marietta | Fitness, Fellowship, Faith",
+    description:
+      "Free, peer-led outdoor workouts for men in Marietta, GA. No sign-up required — just show up.",
+    images: [
+      {
+        url: "/images/MariettaHomePage.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "F3 Marietta — Fitness, Fellowship, Faith",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "F3 Marietta | Fitness, Fellowship, Faith",
+    description:
+      "Free, peer-led outdoor workouts for men in Marietta, GA. No sign-up required — just show up.",
+    images: ["/images/MariettaHomePage.jpeg"],
+  },
 };
 
 import { Navbar } from "@/components/layout/Navbar";

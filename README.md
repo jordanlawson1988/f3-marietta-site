@@ -224,3 +224,35 @@ Use this checklist when making changes to the F3 Marietta site or knowledgebase.
 - [ ] Share key updates in F3 Marietta comms (Slack/GroupMe/etc.):
   - [ ] New content (AOs, events, FAQs).
   - [ ] New or improved AI assistant capabilities.
+
+---
+
+## Release Notes
+
+### January 12, 2026 - Backblasts Page Launch
+
+**New Features:**
+- **Backblasts Page** (`/backblasts`) - View all workout recaps from F3 Marietta AOs
+  - Table layout with date, AO, Q (workout leader), and PAX count
+  - Server-side pagination for fast loading
+  - Click any row to view the full backblast details
+
+- **Backblast Detail View** (`/backblasts/[id]`) - Individual backblast pages
+  - Full workout recap content with rich formatting
+  - Displays Q name, PAX count, and workout date
+  - Slack user mentions resolved to display names
+
+- **Canonical F3 Events Data Model** - New normalized database schema
+  - Supports both backblasts (workout recaps) and preblasts (workout announcements)
+  - Stores attendee lists, Q information, and full message content
+  - Automatic ingestion from Slack via F3 Nation bot integration
+
+**Bug Fixes:**
+- Fixed PAX count display (was incorrectly parsing F3 names as numbers)
+- Filtered out thread replies that were appearing as separate backblast entries
+- Resolved Slack user IDs to display names in backblast content
+
+**Technical Notes:**
+- New `f3_events` table replaces legacy `backblasts` table
+- Data fix script available: `npx tsx scripts/fix-f3-events-data.ts`
+- Requires `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` environment variables in production

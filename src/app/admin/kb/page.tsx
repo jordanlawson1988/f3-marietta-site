@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useAdminAuth } from "../AdminAuthContext";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { Folder, FileText, Search, Plus, Save, Eye, Edit3, Code, ChevronRight, ChevronDown } from "lucide-react";
@@ -19,8 +20,14 @@ interface KBFile {
 interface KBFileDetail {
     path: string;
     folder: string;
-    frontmatter: any;
-    sections: any;
+    frontmatter: {
+        title?: string;
+        category?: string;
+        tags?: string[];
+        aliases?: string[];
+        [key: string]: unknown;
+    };
+    sections: Record<string, string>;
     raw: string;
 }
 
@@ -30,7 +37,6 @@ function humanizeFolder(folder: string): string {
     if (folder === "faq") return "FAQ";
     if (folder === "q-guides") return "Q Guides";
     if (folder === "f3-guides") return "F3 Guides";
-    // Convert kebab-case to Title Case
     return folder
         .split("-")
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -79,9 +85,7 @@ function Textarea({ label, value, onChange, rows = 4 }: { label: string; value: 
 // --- Main Page Component ---
 
 export default function KBAdminPage() {
-    // Auth State
-    const [password, setPassword] = useState("");
-    const [token, setToken] = useState<string | null>(null);
+    const { token, logout } = useAdminAuth();
 
     // Data State
     const [files, setFiles] = useState<KBFile[]>([]);
@@ -104,17 +108,13 @@ export default function KBAdminPage() {
     const [newTitle, setNewTitle] = useState("");
 
     // Form State (Local edits)
-    const [formData, setFormData] = useState<any>({});
+    const [formData, setFormData] = useState<Partial<KBFileDetail>>({});
 
     // --- Effects ---
 
     useEffect(() => {
-        const savedToken = localStorage.getItem("f3-kb-admin-token");
-        if (savedToken) {
-            setToken(savedToken);
-            fetchFiles(savedToken);
-        }
-    }, []);
+        if (token) fetchFiles(token);
+    }, [token]);
 
     // --- API Calls ---
 
@@ -125,7 +125,6 @@ export default function KBAdminPage() {
             });
             if (res.ok) {
                 const data = await res.json();
-                // Handle both old array format (fallback) and new object format
                 if (Array.isArray(data)) {
                     setFiles(data);
                     setFolders([...new Set(data.map((f: KBFile) => f.folder))].sort());
@@ -133,64 +132,12 @@ export default function KBAdminPage() {
                     setFiles(data.files);
                     setFolders(data.folders);
                 }
-
-                // Expand all folders by default initially
-                // We want to expand all folders returned by API
-                // const allFoldersList = Array.isArray(data) ? [...new Set(data.map((f: KBFile) => f.folder))] : data.folders;
-                // const expanded: Record<string, boolean> = {};
-                // allFoldersList.forEach((f: string) => expanded[f] = true);
-                // setExpandedFolders(expanded);
             } else if (res.status === 401) {
                 logout();
             }
-        } catch (e) {
+        } catch {
             console.error("Failed to fetch files");
         }
-    };
-
-    const handleLogin = async () => {
-        if (!password) return;
-        setIsLoading(true);
-        setError("");
-        try {
-            const res = await fetch("/api/admin/kb/files", {
-                headers: { "x-admin-token": password },
-            });
-            if (res.ok) {
-                const data = await res.json();
-                setToken(password);
-                localStorage.setItem("f3-kb-admin-token", password);
-
-                if (Array.isArray(data)) {
-                    setFiles(data);
-                    setFolders([...new Set(data.map((f: KBFile) => f.folder))].sort());
-                } else {
-                    setFiles(data.files);
-                    setFolders(data.folders);
-                }
-
-                // Expand all
-                // const allFoldersList = Array.isArray(data) ? [...new Set(data.map((f: KBFile) => f.folder))] : data.folders;
-                // const expanded: Record<string, boolean> = {};
-                // allFoldersList.forEach((f: string) => expanded[f] = true);
-                // setExpandedFolders(expanded);
-            } else {
-                setError("Invalid password");
-            }
-        } catch (e) {
-            setError("Connection failed");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const logout = () => {
-        setToken(null);
-        localStorage.removeItem("f3-kb-admin-token");
-        setFiles([]);
-        setFolders([]);
-        setSelectedFile(null);
-        setFileDetail(null);
     };
 
     const loadFile = async (file: KBFile) => {
@@ -200,7 +147,7 @@ export default function KBAdminPage() {
         setIsLoading(true);
         setError("");
         setMessage("");
-        setActiveTab("form"); // Reset to form view
+        setActiveTab("form");
 
         try {
             const res = await fetch(`/api/admin/kb/file?path=${encodeURIComponent(file.path)}`, {
@@ -209,7 +156,6 @@ export default function KBAdminPage() {
             if (res.ok) {
                 const data = await res.json();
                 setFileDetail(data);
-                // Initialize form data
                 setFormData({
                     frontmatter: { ...data.frontmatter },
                     sections: { ...data.sections },
@@ -218,7 +164,7 @@ export default function KBAdminPage() {
             } else {
                 setError("Failed to load file");
             }
-        } catch (e) {
+        } catch {
             setError("Error loading file");
         } finally {
             setIsLoading(false);
@@ -235,9 +181,6 @@ export default function KBAdminPage() {
             const payload = {
                 path: selectedFile.path,
                 folder: selectedFile.folder,
-                // If in markdown tab, send raw. If in form tab, send structured.
-                // Actually, let's always send structured if we have it, unless user edited raw explicitly?
-                // For simplicity: if activeTab is markdown, send raw. Else send structured.
                 ...(activeTab === "markdown"
                     ? { raw: formData.raw }
                     : {
@@ -258,12 +201,11 @@ export default function KBAdminPage() {
 
             if (res.ok) {
                 setMessage("Saved and reindexed.");
-                // Reload to get fresh state (and re-generated markdown if we saved structured)
                 loadFile(selectedFile);
             } else {
                 setError("Failed to save");
             }
-        } catch (e) {
+        } catch {
             setError("Error saving");
         } finally {
             setIsSaving(false);
@@ -277,82 +219,15 @@ export default function KBAdminPage() {
         const slug = newTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
         const path = `data/content/${newFolder}/${slug}.md`;
 
-        // Default templates
         let content = "";
         if (newFolder === "faq") {
-            content = `---
-title: ${newTitle}
-category: New to F3
-tags: []
-aliases: []
----
-
-### Question
-${newTitle}
-
-### Answer
-TBD
-
-### Related
-- 
-`;
+            content = `---\ntitle: ${newTitle}\ncategory: New to F3\ntags: []\naliases: []\n---\n\n### Question\n${newTitle}\n\n### Answer\nTBD\n\n### Related\n- \n`;
         } else if (newFolder === "lexicon") {
-            content = `---
-title: ${newTitle}
-category: Term
-tags: []
-aliases: []
----
-
-### Definition
-TBD
-
-### How it's used
-TBD
-
-### Variations
-- 
-
-### Notes
-TBD
-
-### Related terms
-- 
-`;
+            content = `---\ntitle: ${newTitle}\ncategory: Term\ntags: []\naliases: []\n---\n\n### Definition\nTBD\n\n### How it's used\nTBD\n\n### Variations\n- \n\n### Notes\nTBD\n\n### Related terms\n- \n`;
         } else if (newFolder === "exicon") {
-            content = `---
-title: ${newTitle}
-category: Exercise
-tags: []
-aliases: []
----
-
-### Definition
-TBD
-
-### How it's done
-1. 
-
-### Variations
-- 
-
-### Notes
-TBD
-
-### Related terms
-- 
-`;
+            content = `---\ntitle: ${newTitle}\ncategory: Exercise\ntags: []\naliases: []\n---\n\n### Definition\nTBD\n\n### How it's done\n1. \n\n### Variations\n- \n\n### Notes\nTBD\n\n### Related terms\n- \n`;
         } else {
-            // Generic fallback for all other folders
-            content = `---
-title: ${newTitle}
-category: ""
-tags: []
-aliases: []
----
-
-TBD
-`;
+            content = `---\ntitle: ${newTitle}\ncategory: ""\ntags: []\naliases: []\n---\n\nTBD\n`;
         }
 
         try {
@@ -368,15 +243,12 @@ TBD
             if (res.ok) {
                 setShowNewModal(false);
                 setNewTitle("");
-                await fetchFiles(token); // Refresh list
-                // Find and select the new file
-                // We don't have the exact object reference, but we can find by path
-                // For now just refresh list is enough, user can find it.
+                await fetchFiles(token);
                 setMessage("Entry created.");
             } else {
                 setError("Failed to create entry");
             }
-        } catch (e) {
+        } catch {
             setError("Error creating entry");
         } finally {
             setIsSaving(false);
@@ -387,11 +259,7 @@ TBD
 
     const groupedFiles = useMemo(() => {
         const groups: Record<string, KBFile[]> = {};
-
-        // Initialize all folders with empty arrays
-        folders.forEach(f => {
-            groups[f] = [];
-        });
+        folders.forEach(f => { groups[f] = []; });
 
         const filtered = files.filter(f => {
             const title = typeof f.title === 'string' ? f.title : String(f.title || '');
@@ -404,7 +272,6 @@ TBD
             groups[f.folder].push(f);
         });
 
-        // Sort keys (folders)
         return Object.keys(groups).sort().reduce((acc, key) => {
             acc[key] = groups[key].sort((a, b) => {
                 const titleA = typeof a.title === 'string' ? a.title : String(a.title || '');
@@ -415,17 +282,11 @@ TBD
         }, {} as Record<string, KBFile[]>);
     }, [files, folders, searchQuery]);
 
-    // Get all unique folders from the file list for the dropdown
     const allFolders = useMemo(() => {
-        const folders = new Set(files.map(f => f.folder));
-        // Ensure default ones are there even if empty (though files API only returns existing)
-        // But for creation, we want to allow creating in existing folders.
-        // If a folder is empty, it won't be in `files`.
-        // Ideally we should fetch folder list separately or rely on what we see.
-        // For now, let's rely on what we see + hardcoded defaults just in case.
+        const folderSet = new Set(files.map(f => f.folder));
         const defaults = ["faq", "lexicon", "exicon", "culture", "events", "gear", "leadership", "q-guides", "regions", "stories", "workouts"];
-        defaults.forEach(d => folders.add(d));
-        return Array.from(folders).sort();
+        defaults.forEach(d => folderSet.add(d));
+        return Array.from(folderSet).sort();
     }, [files]);
 
     const toggleFolder = (folder: string) => {
@@ -440,7 +301,7 @@ TBD
         const fm = formData.frontmatter || {};
         const sec = formData.sections || {};
 
-        const updateFM = (key: string, val: any) => {
+        const updateFM = (key: string, val: unknown) => {
             setFormData({ ...formData, frontmatter: { ...fm, [key]: val } });
         };
         const updateSec = (key: string, val: string) => {
@@ -449,29 +310,18 @@ TBD
 
         return (
             <div className="space-y-6 max-w-3xl mx-auto pb-20">
-                {/* Frontmatter Section */}
                 <div className="bg-[#112240] p-4 rounded-lg border border-[#23334A]">
                     <h4 className="text-sm font-bold text-gray-300 mb-4 border-b border-[#23334A] pb-2">Metadata</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input label="Title" value={fm.title || ""} onChange={(v) => updateFM("title", v)} />
                         <Input label="Category" value={fm.category || ""} onChange={(v) => updateFM("category", v)} />
-                        <Input
-                            label="Tags (comma separated)"
-                            value={(fm.tags || []).join(", ")}
-                            onChange={(v) => updateFM("tags", v.split(",").map(s => s.trim()))}
-                        />
-                        <Input
-                            label="Aliases (comma separated)"
-                            value={(fm.aliases || []).join(", ")}
-                            onChange={(v) => updateFM("aliases", v.split(",").map(s => s.trim()))}
-                        />
+                        <Input label="Tags (comma separated)" value={(fm.tags || []).join(", ")} onChange={(v) => updateFM("tags", v.split(",").map(s => s.trim()))} />
+                        <Input label="Aliases (comma separated)" value={(fm.aliases || []).join(", ")} onChange={(v) => updateFM("aliases", v.split(",").map(s => s.trim()))} />
                     </div>
                 </div>
 
-                {/* Content Section */}
                 <div className="bg-[#112240] p-4 rounded-lg border border-[#23334A]">
                     <h4 className="text-sm font-bold text-gray-300 mb-4 border-b border-[#23334A] pb-2">Content</h4>
-
                     {folder === "faq" ? (
                         <>
                             <Textarea label="Question" value={sec.question || ""} onChange={(v) => updateSec("question", v)} />
@@ -492,7 +342,6 @@ TBD
                             <Textarea label="Related Terms" value={sec.related || ""} onChange={(v) => updateSec("related", v)} />
                         </>
                     ) : (
-                        // Generic Form
                         <Textarea label="Body" value={sec.body || formData.raw || ""} onChange={(v) => updateSec("body", v)} rows={20} />
                     )}
                 </div>
@@ -502,32 +351,12 @@ TBD
 
     // --- Main Render ---
 
-    if (!token) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0A1A2F] text-white p-4">
-                <div className="max-w-md w-full bg-[#112240] p-8 rounded-lg border border-[#23334A] shadow-xl">
-                    <h1 className="text-2xl font-bold mb-6 text-center">KB Admin</h1>
-                    <div className="space-y-4">
-                        <Input label="Password" value={password} onChange={setPassword} />
-                        {error && <p className="text-red-400 text-sm">{error}</p>}
-                        <Button onClick={handleLogin} disabled={isLoading} className="w-full">
-                            {isLoading ? "Unlocking..." : "Unlock"}
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="min-h-screen bg-[#0A1A2F] text-white flex flex-col md:flex-row overflow-hidden">
-            {/* Sidebar */}
-            <div className="w-full md:w-72 bg-[#112240] border-r border-[#23334A] flex flex-col h-screen">
+        <div className="flex h-screen overflow-hidden">
+            {/* File Browser Sidebar */}
+            <div className="w-72 bg-[#112240] border-r border-[#23334A] flex flex-col shrink-0">
                 <div className="p-4 border-b border-[#23334A] space-y-3">
-                    <div className="flex justify-between items-center">
-                        <h2 className="font-bold text-lg">Knowledge Base</h2>
-                        <button onClick={logout} className="text-xs text-gray-400 hover:text-white">Logout</button>
-                    </div>
+                    <h2 className="font-bold text-lg">Knowledge Base</h2>
                     <div className="relative">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
                         <input
@@ -585,7 +414,7 @@ TBD
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
+            <div className="flex-1 flex flex-col overflow-hidden relative">
                 {!selectedFile ? (
                     <div className="flex-1 flex items-center justify-center text-gray-500 flex-col gap-4">
                         <Folder className="h-16 w-16 opacity-20" />
@@ -601,8 +430,8 @@ TBD
                                 <h3 className="font-bold text-lg">{selectedFile.title}</h3>
                             </div>
                             <div className="flex items-center gap-3">
-                                {message && <span className="text-green-400 text-sm animate-in fade-in">{message}</span>}
-                                {error && <span className="text-red-400 text-sm animate-in fade-in">{error}</span>}
+                                {message && <span className="text-green-400 text-sm">{message}</span>}
+                                {error && <span className="text-red-400 text-sm">{error}</span>}
                                 <Button onClick={saveFile} disabled={isSaving} className="flex items-center gap-2">
                                     <Save className="h-4 w-4" />
                                     {isSaving ? "Saving..." : "Save & Reindex"}
@@ -639,7 +468,6 @@ TBD
                             ) : (
                                 <>
                                     {activeTab === "form" && renderForm()}
-
                                     {activeTab === "markdown" && (
                                         <div className="h-full flex flex-col">
                                             <textarea
@@ -650,10 +478,8 @@ TBD
                                             />
                                         </div>
                                     )}
-
                                     {activeTab === "preview" && (
                                         <div className="max-w-3xl mx-auto prose prose-invert">
-                                            {/* Simple preview of raw markdown */}
                                             <div className="whitespace-pre-wrap font-sans text-gray-300 leading-relaxed">
                                                 {formData.raw}
                                             </div>

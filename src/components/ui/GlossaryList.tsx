@@ -1,27 +1,54 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { searchGlossaryEntries } from "@/lib/searchGlossary";
 import { GlossaryEntry } from "@/../data/f3Glossary";
+import { cn } from "@/lib/utils";
 
 interface GlossaryListProps {
     title: string;
     entries: GlossaryEntry[];
     showCategoryFilter?: boolean;
+    highlightId?: string;
 }
 
-export function GlossaryList({ title, entries, showCategoryFilter = false }: GlossaryListProps) {
+export function GlossaryList({ title, entries, showCategoryFilter = false, highlightId }: GlossaryListProps) {
     const [searchQuery, setSearchQuery] = useState("");
+    const [fadedHighlightId, setFadedHighlightId] = useState<string | null>(null);
 
     const filteredEntries = useMemo(() => {
         return searchGlossaryEntries(entries, searchQuery);
     }, [entries, searchQuery]);
 
-    // Group by first letter for A-Z sorting if needed, but for now just flat list with search is fine.
-    // The user mentioned "Consider grouping alphabetically (A–Z) if it’s easy; but search/filter is more important."
-    // Let's stick to a clean list for now to keep it simple and fast, as search is the primary interaction.
+    // Derive active highlight: show if highlightId is set and hasn't been faded yet
+    // When highlightId changes (e.g. "A" → "B"), fadedHighlightId is still "A",
+    // so "B" !== "A" → highlight shows. After 3s timeout sets fadedHighlightId = "B" → fades.
+    const activeHighlight = highlightId && fadedHighlightId !== highlightId ? highlightId : undefined;
+
+    // Scroll to target and schedule fade-out
+    useEffect(() => {
+        if (!highlightId) return;
+
+        // Wait for DOM to update, then scroll
+        const scrollTimer = setTimeout(() => {
+            const el = document.getElementById(highlightId);
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }, 100);
+
+        // Fade out highlight after 3 seconds
+        const fadeTimer = setTimeout(() => {
+            setFadedHighlightId(highlightId);
+        }, 3000);
+
+        return () => {
+            clearTimeout(scrollTimer);
+            clearTimeout(fadeTimer);
+        };
+    }, [highlightId]);
 
     return (
         <div className="max-w-4xl mx-auto mb-8">
@@ -44,7 +71,16 @@ export function GlossaryList({ title, entries, showCategoryFilter = false }: Glo
 
             <div className="grid grid-cols-1 gap-4">
                 {filteredEntries.slice(0, 100).map((entry, index) => (
-                    <Card key={`${entry.id}-${index}`} id={entry.id} className="hover:border-primary/30 transition-colors">
+                    <Card
+                        key={`${entry.id}-${index}`}
+                        id={entry.id}
+                        className={cn(
+                            "transition-all duration-300",
+                            activeHighlight === entry.id
+                                ? "ring-2 ring-primary hover:border-primary/30"
+                                : "hover:border-primary/30"
+                        )}
+                    >
                         <CardHeader className="pb-2">
                             <div className="flex justify-between items-start">
                                 <CardTitle className="text-xl text-primary">{entry.term}</CardTitle>
@@ -74,7 +110,7 @@ export function GlossaryList({ title, entries, showCategoryFilter = false }: Glo
 
                 {filteredEntries.length === 0 && (
                     <div className="text-center py-12">
-                        <p className="text-lg text-muted-foreground">No results found for "{searchQuery}"</p>
+                        <p className="text-lg text-muted-foreground">No results found for &quot;{searchQuery}&quot;</p>
                         <Button variant="link" onClick={() => setSearchQuery("")}>Clear Search</Button>
                     </div>
                 )}

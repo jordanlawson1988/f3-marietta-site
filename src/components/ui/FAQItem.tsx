@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-// import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FAQItemProps {
@@ -19,13 +19,12 @@ export function FAQItem({ question, answer }: FAQItemProps) {
                 onClick={() => setIsOpen(!isOpen)}
             >
                 {question}
-                {isOpen ? (
-                    <span>-</span>
-                    // <ChevronUp className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                ) : (
-                    <span>+</span>
-                    // <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-                )}
+                <ChevronDown
+                    className={cn(
+                        "h-4 w-4 shrink-0 transition-transform duration-200",
+                        isOpen && "rotate-180"
+                    )}
+                />
             </button>
             <div
                 className={cn(

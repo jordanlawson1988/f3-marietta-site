@@ -1,7 +1,6 @@
 import { Section } from "@/components/ui/Section";
 import { Hero } from "@/components/ui/Hero";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-// import { HeartHandshake, Users, Trophy } from "lucide-react";
 import Image from "next/image";
 
 export default function CommunityPage() {
@@ -24,7 +23,6 @@ export default function CommunityPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <Card>
                         <CardHeader>
-                            {/* <Users className="h-10 w-10 text-primary mb-2" /> */}
                             <Image
                                 src="/icons/community-leadership.svg"
                                 alt="Community Leadership Icon"
@@ -43,7 +41,6 @@ export default function CommunityPage() {
 
                     <Card>
                         <CardHeader>
-                            {/* <HeartHandshake className="h-10 w-10 text-primary mb-2" /> */}
                             <Image
                                 src="/icons/service-projects.svg"
                                 alt="Service Projects Icon"
@@ -62,7 +59,6 @@ export default function CommunityPage() {
 
                     <Card>
                         <CardHeader>
-                            {/* <Trophy className="h-10 w-10 text-primary mb-2" /> */}
                             <Image
                                 src="/icons/male-mental-health.svg"
                                 alt="Male Mental Health Icon"
@@ -93,10 +89,11 @@ export default function CommunityPage() {
                         </p>
                     </div>
                     <div className="relative h-[300px] rounded-lg overflow-hidden bg-zinc-800 flex items-center justify-center">
-                        <img
+                        <Image
                             src="/images/community-group.jpg"
                             alt="F3 Marietta Community"
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                         />
                     </div>
                 </div>

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { escapePostgrestFilter } from '@/lib/security/sanitize';
 import type { F3Event, EventKind } from '@/types/f3Event';
 
 export interface F3EventRow {
@@ -11,6 +12,7 @@ export interface F3EventRow {
     pax_count: number | null;
     content_text: string | null;
     content_html: string | null;
+    created_at: string;
 }
 
 export interface PaginatedBackblastsResult {
@@ -50,15 +52,14 @@ export async function getBackblastsPaginated(
     // Build the base query - now using f3_events table
     let query = supabase
         .from('f3_events')
-        .select('id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html', { count: 'exact' })
+        .select('id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, created_at', { count: 'exact' })
         .eq('is_deleted', false)
         .order('event_date', { ascending: false, nullsFirst: false })
         .order('created_at', { ascending: false });
 
-    // Apply event kind filter (optional - default shows all)
-    if (eventKind) {
-        query = query.eq('event_kind', eventKind);
-    }
+    // Filter to backblasts only by default
+    // Use explicit eventKind to override (e.g., 'preblast' or pass null to show all)
+    query = query.eq('event_kind', eventKind ?? 'backblast');
 
     // Apply AO filter
     if (ao) {
@@ -67,8 +68,9 @@ export async function getBackblastsPaginated(
 
     // Apply search filter across multiple columns
     if (search) {
+        const safe = escapePostgrestFilter(search);
         query = query.or(
-            `q_name.ilike.%${search}%,ao_display_name.ilike.%${search}%,content_text.ilike.%${search}%,title.ilike.%${search}%`
+            `q_name.ilike.%${safe}%,ao_display_name.ilike.%${safe}%,content_text.ilike.%${safe}%,title.ilike.%${safe}%`
         );
     }
 
@@ -125,8 +127,12 @@ export async function getAOList(): Promise<string[]> {
 export function createExcerpt(text: string | null, maxLength: number = 100): string {
     if (!text) return '';
 
-    // Clean up the text - remove extra whitespace and normalize
+    // Clean up the text:
+    // 1. Remove Slack user mentions like @U0A58BDPZSS or <@U0A58BDPZSS>
+    // 2. Remove extra whitespace and normalize
     const cleaned = text
+        .replace(/<@[A-Z0-9]+>/g, '')  // Remove <@UXXXXX> mentions
+        .replace(/@U[A-Z0-9]{8,}/g, '')  // Remove @UXXXXX mentions
         .replace(/\s+/g, ' ')
         .trim();
 
