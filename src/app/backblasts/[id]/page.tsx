@@ -38,9 +38,17 @@ export async function generateMetadata({ params }: BackblastDetailPageProps) {
         ? `${event.ao_display_name} ${eventType}`
         : eventType;
 
+    const description = event.content_text?.slice(0, 160) ?? '';
+
     return {
-        title: `${title} | F3 Marietta`,
-        description: event.content_text?.slice(0, 160),
+        title,
+        description,
+        openGraph: {
+            title: `${title} | F3 Marietta`,
+            description,
+            type: 'article',
+            images: ['/images/MariettaHomePage.jpeg'],
+        },
     };
 }
 

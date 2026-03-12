@@ -3,7 +3,8 @@ import path from "path";
 import matter from "gray-matter";
 import { Section } from "@/components/ui/Section";
 import { Hero } from "@/components/ui/Hero";
-import { FAQItem } from "@/components/ui/FAQItem";
+import YouTubeEmbed from "@/components/ui/YouTubeEmbed";
+import FAQSection from "./FAQSection";
 import Link from "next/link";
 
 // ── Video data ──────────────────────────────────────────────────────────────
@@ -20,15 +21,7 @@ function VideoCard({ title, videoId }: { title: string; videoId: string }) {
             <div className="p-4 border-b border-border">
                 <h3 className="font-bold font-heading text-foreground">{title}</h3>
             </div>
-            <div className="relative w-full pt-[56.25%]">
-                <iframe
-                    className="absolute top-0 left-0 w-full h-full"
-                    src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`}
-                    title={title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                />
-            </div>
+            <YouTubeEmbed videoId={videoId} title={title} />
         </div>
     );
 }
@@ -108,11 +101,7 @@ export default function NewHerePage() {
                             Got questions? We've got answers.
                         </p>
                     </div>
-                    <div className="space-y-2">
-                        {faqs.map((faq, index) => (
-                            <FAQItem key={index} question={faq.question} answer={faq.answer} />
-                        ))}
-                    </div>
+                    <FAQSection faqs={faqs} />
                 </div>
             </Section>
 

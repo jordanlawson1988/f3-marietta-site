@@ -69,8 +69,20 @@ FROM regions r
 WHERE ws.region = 'Other Nearby'
   AND r.name = ws.nearby_region;
 
--- 5. Drop the CHECK constraint on the old region column
-ALTER TABLE workout_schedule DROP CONSTRAINT workout_schedule_region_check;
+-- 5. Drop the CHECK constraint on the old region column (name may vary)
+DO $$
+DECLARE
+  _con text;
+BEGIN
+  SELECT conname INTO _con
+    FROM pg_constraint
+   WHERE conrelid = 'workout_schedule'::regclass
+     AND contype = 'c'
+     AND pg_get_constraintdef(oid) ILIKE '%region%';
+  IF _con IS NOT NULL THEN
+    EXECUTE format('ALTER TABLE workout_schedule DROP CONSTRAINT %I', _con);
+  END IF;
+END $$;
 
 -- 6. Add foreign key constraint
 ALTER TABLE workout_schedule
@@ -564,13 +576,14 @@ export async function POST(request: Request) {
       result = await supabase
         .from("workout_schedule")
         .update({ is_active: false, updated_at: new Date().toISOString() })
-        .in("id", ids);
+        .in("id", ids)
+        .select("id", { count: "exact", head: true });
       break;
 
     case "delete":
       result = await supabase
         .from("workout_schedule")
-        .delete()
+        .delete({ count: "exact" })
         .in("id", ids);
       break;
 
@@ -578,7 +591,8 @@ export async function POST(request: Request) {
       result = await supabase
         .from("workout_schedule")
         .update({ region_id, updated_at: new Date().toISOString() })
-        .in("id", ids);
+        .in("id", ids)
+        .select("id", { count: "exact", head: true });
       break;
   }
 
@@ -586,7 +600,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: result.error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ success: true, affected: ids.length });
+  const affected = result?.count ?? ids.length;
+  return NextResponse.json({ success: true, affected });
 }
 ```
 
@@ -604,44 +619,56 @@ git commit -m "feat: add workouts admin API routes (CRUD + bulk)"
 ### Task 6: Create shared admin layout with sidebar
 
 **Files:**
+- Create: `src/app/admin/AdminAuthContext.tsx`
 - Create: `src/app/admin/layout.tsx`
 - Create: `src/app/admin/page.tsx`
 - Modify: `src/app/admin/kb/page.tsx`
 
-- [ ] **Step 1: Create the admin layout**
+- [ ] **Step 1a: Create the AdminAuthContext module**
+
+Named exports from Next.js layout files are not importable by child pages. The auth context must live in its own module.
+
+Create `src/app/admin/AdminAuthContext.tsx`:
+
+```typescript
+"use client";
+
+import { createContext, useContext } from "react";
+
+interface AdminAuthContextValue {
+  token: string | null;
+  logout: () => void;
+}
+
+export const AdminAuthContext = createContext<AdminAuthContextValue>({
+  token: null,
+  logout: () => {},
+});
+
+export function useAdminAuth() {
+  return useContext(AdminAuthContext);
+}
+```
+
+- [ ] **Step 1b: Create the admin layout**
 
 Create `src/app/admin/layout.tsx`:
 
 ```typescript
 "use client";
 
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { AdminAuthContext } from "./AdminAuthContext";
 import {
   BookOpen,
   Dumbbell,
   MapPin,
   LogOut,
 } from "lucide-react";
-
-// --- Admin Auth Context ---
-
-interface AdminAuthContext {
-  token: string | null;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AdminAuthContext>({
-  token: null,
-  logout: () => {},
-});
-
-export function useAdminAuth() {
-  return useContext(AuthContext);
-}
 
 // --- Nav Items ---
 
@@ -743,7 +770,7 @@ export default function AdminLayout({
 
   // --- Authenticated Layout ---
   return (
-    <AuthContext.Provider value={{ token, logout }}>
+    <AdminAuthContext.Provider value={{ token, logout }}>
       <div className="min-h-screen bg-[#0A1A2F] text-white flex">
         {/* Sidebar */}
         <div className="w-56 bg-[#112240] border-r border-[#23334A] flex flex-col shrink-0 h-screen sticky top-0">
@@ -788,7 +815,7 @@ export default function AdminLayout({
         {/* Main Content */}
         <div className="flex-1 overflow-auto">{children}</div>
       </div>
-    </AuthContext.Provider>
+    </AdminAuthContext.Provider>
   );
 }
 ```
@@ -798,27 +825,552 @@ export default function AdminLayout({
 Create `src/app/admin/page.tsx`:
 
 ```typescript
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
-  redirect("/admin/workouts");
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/admin/workouts");
+  }, [router]);
+
+  return null;
 }
 ```
 
 - [ ] **Step 3: Refactor KB page to use shared layout auth**
 
-Modify `src/app/admin/kb/page.tsx`:
+Replace the contents of `src/app/admin/kb/page.tsx`:
 
-Remove the login screen, sidebar, and auth state from the KB page. Replace with the shared `useAdminAuth()` hook. Key changes:
+```typescript
+"use client";
 
-1. Remove the `password`, `token` state declarations and the login/logout functions
-2. Import and use `useAdminAuth` from the layout
-3. Remove the login screen render (`if (!token)` block)
-4. Remove the KB page's own sidebar — the shared layout provides it
-5. Update localStorage key references from `"f3-kb-admin-token"` to `"f3-admin-token"`
-6. The KB page becomes just the main content area (file browser + editor)
+import { useState, useEffect, useMemo } from "react";
+import { useAdminAuth } from "../AdminAuthContext";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
+import { Folder, FileText, Search, Plus, Save, Eye, Edit3, Code, ChevronRight, ChevronDown } from "lucide-react";
 
-The `token` value comes from `const { token } = useAdminAuth();` and is used in all API calls via the `x-admin-token` header, same as before.
+// --- Types ---
+
+interface KBFile {
+    path: string;
+    folder: string;
+    slug: string;
+    title: string;
+    category: string;
+    tags: string[];
+}
+
+interface KBFileDetail {
+    path: string;
+    folder: string;
+    frontmatter: {
+        title?: string;
+        category?: string;
+        tags?: string[];
+        aliases?: string[];
+        [key: string]: unknown;
+    };
+    sections: Record<string, string>;
+    raw: string;
+}
+
+// --- Helpers ---
+
+function humanizeFolder(folder: string): string {
+    if (folder === "faq") return "FAQ";
+    if (folder === "q-guides") return "Q Guides";
+    if (folder === "f3-guides") return "F3 Guides";
+    return folder
+        .split("-")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+}
+
+// --- Components ---
+
+function Badge({ children, className }: { children: React.ReactNode; className?: string }) {
+    return (
+        <span className={cn("px-2 py-0.5 rounded text-xs font-medium bg-[#23334A] text-gray-300 border border-[#3A5E88]", className)}>
+            {children}
+        </span>
+    );
+}
+
+function Input({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+    return (
+        <div className="mb-4">
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{label}</label>
+            <input
+                type="text"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm"
+                placeholder={placeholder}
+            />
+        </div>
+    );
+}
+
+function Textarea({ label, value, onChange, rows = 4 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
+    return (
+        <div className="mb-4 flex-1 flex flex-col">
+            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{label}</label>
+            <textarea
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                rows={rows}
+                className="w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm font-mono resize-y"
+            />
+        </div>
+    );
+}
+
+// --- Main Page Component ---
+
+export default function KBAdminPage() {
+    const { token, logout } = useAdminAuth();
+
+    // Data State
+    const [files, setFiles] = useState<KBFile[]>([]);
+    const [folders, setFolders] = useState<string[]>([]);
+    const [selectedFile, setSelectedFile] = useState<KBFile | null>(null);
+    const [fileDetail, setFileDetail] = useState<KBFileDetail | null>(null);
+
+    // UI State
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [error, setError] = useState("");
+    const [message, setMessage] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [activeTab, setActiveTab] = useState<"form" | "markdown" | "preview">("form");
+    const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
+
+    // New Entry Modal
+    const [showNewModal, setShowNewModal] = useState(false);
+    const [newFolder, setNewFolder] = useState("faq");
+    const [newTitle, setNewTitle] = useState("");
+
+    // Form State (Local edits)
+    const [formData, setFormData] = useState<Partial<KBFileDetail>>({});
+
+    // --- Effects ---
+
+    useEffect(() => {
+        if (token) fetchFiles(token);
+    }, [token]);
+
+    // --- API Calls ---
+
+    const fetchFiles = async (authToken: string) => {
+        try {
+            const res = await fetch("/api/admin/kb/files", {
+                headers: { "x-admin-token": authToken },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    setFiles(data);
+                    setFolders([...new Set(data.map((f: KBFile) => f.folder))].sort());
+                } else {
+                    setFiles(data.files);
+                    setFolders(data.folders);
+                }
+            } else if (res.status === 401) {
+                logout();
+            }
+        } catch {
+            console.error("Failed to fetch files");
+        }
+    };
+
+    const loadFile = async (file: KBFile) => {
+        if (!token) return;
+        setSelectedFile(file);
+        setFileDetail(null);
+        setIsLoading(true);
+        setError("");
+        setMessage("");
+        setActiveTab("form");
+
+        try {
+            const res = await fetch(`/api/admin/kb/file?path=${encodeURIComponent(file.path)}`, {
+                headers: { "x-admin-token": token },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setFileDetail(data);
+                setFormData({
+                    frontmatter: { ...data.frontmatter },
+                    sections: { ...data.sections },
+                    raw: data.raw
+                });
+            } else {
+                setError("Failed to load file");
+            }
+        } catch {
+            setError("Error loading file");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const saveFile = async () => {
+        if (!token || !selectedFile) return;
+        setIsSaving(true);
+        setMessage("");
+        setError("");
+
+        try {
+            const payload = {
+                path: selectedFile.path,
+                folder: selectedFile.folder,
+                ...(activeTab === "markdown"
+                    ? { raw: formData.raw }
+                    : {
+                        frontmatter: formData.frontmatter,
+                        sections: formData.sections
+                    }
+                )
+            };
+
+            const res = await fetch("/api/admin/kb/file", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-admin-token": token,
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (res.ok) {
+                setMessage("Saved and reindexed.");
+                loadFile(selectedFile);
+            } else {
+                setError("Failed to save");
+            }
+        } catch {
+            setError("Error saving");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const createEntry = async () => {
+        if (!token || !newTitle) return;
+        setIsSaving(true);
+
+        const slug = newTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        const path = `data/content/${newFolder}/${slug}.md`;
+
+        let content = "";
+        if (newFolder === "faq") {
+            content = `---\ntitle: ${newTitle}\ncategory: New to F3\ntags: []\naliases: []\n---\n\n### Question\n${newTitle}\n\n### Answer\nTBD\n\n### Related\n- \n`;
+        } else if (newFolder === "lexicon") {
+            content = `---\ntitle: ${newTitle}\ncategory: Term\ntags: []\naliases: []\n---\n\n### Definition\nTBD\n\n### How it's used\nTBD\n\n### Variations\n- \n\n### Notes\nTBD\n\n### Related terms\n- \n`;
+        } else if (newFolder === "exicon") {
+            content = `---\ntitle: ${newTitle}\ncategory: Exercise\ntags: []\naliases: []\n---\n\n### Definition\nTBD\n\n### How it's done\n1. \n\n### Variations\n- \n\n### Notes\nTBD\n\n### Related terms\n- \n`;
+        } else {
+            content = `---\ntitle: ${newTitle}\ncategory: ""\ntags: []\naliases: []\n---\n\nTBD\n`;
+        }
+
+        try {
+            const res = await fetch("/api/admin/kb/file", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-admin-token": token,
+                },
+                body: JSON.stringify({ path, raw: content }),
+            });
+
+            if (res.ok) {
+                setShowNewModal(false);
+                setNewTitle("");
+                await fetchFiles(token);
+                setMessage("Entry created.");
+            } else {
+                setError("Failed to create entry");
+            }
+        } catch {
+            setError("Error creating entry");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    // --- Computed ---
+
+    const groupedFiles = useMemo(() => {
+        const groups: Record<string, KBFile[]> = {};
+        folders.forEach(f => { groups[f] = []; });
+
+        const filtered = files.filter(f => {
+            const title = typeof f.title === 'string' ? f.title : String(f.title || '');
+            return title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                f.slug.includes(searchQuery.toLowerCase());
+        });
+
+        filtered.forEach(f => {
+            if (!groups[f.folder]) groups[f.folder] = [];
+            groups[f.folder].push(f);
+        });
+
+        return Object.keys(groups).sort().reduce((acc, key) => {
+            acc[key] = groups[key].sort((a, b) => {
+                const titleA = typeof a.title === 'string' ? a.title : String(a.title || '');
+                const titleB = typeof b.title === 'string' ? b.title : String(b.title || '');
+                return titleA.localeCompare(titleB);
+            });
+            return acc;
+        }, {} as Record<string, KBFile[]>);
+    }, [files, folders, searchQuery]);
+
+    const allFolders = useMemo(() => {
+        const folderSet = new Set(files.map(f => f.folder));
+        const defaults = ["faq", "lexicon", "exicon", "culture", "events", "gear", "leadership", "q-guides", "regions", "stories", "workouts"];
+        defaults.forEach(d => folderSet.add(d));
+        return Array.from(folderSet).sort();
+    }, [files]);
+
+    const toggleFolder = (folder: string) => {
+        setExpandedFolders(prev => ({ ...prev, [folder]: !prev[folder] }));
+    };
+
+    // --- Render Helpers ---
+
+    const renderForm = () => {
+        if (!fileDetail) return null;
+        const { folder } = fileDetail;
+        const fm = formData.frontmatter || {};
+        const sec = formData.sections || {};
+
+        const updateFM = (key: string, val: unknown) => {
+            setFormData({ ...formData, frontmatter: { ...fm, [key]: val } });
+        };
+        const updateSec = (key: string, val: string) => {
+            setFormData({ ...formData, sections: { ...sec, [key]: val } });
+        };
+
+        return (
+            <div className="space-y-6 max-w-3xl mx-auto pb-20">
+                <div className="bg-[#112240] p-4 rounded-lg border border-[#23334A]">
+                    <h4 className="text-sm font-bold text-gray-300 mb-4 border-b border-[#23334A] pb-2">Metadata</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Input label="Title" value={fm.title || ""} onChange={(v) => updateFM("title", v)} />
+                        <Input label="Category" value={fm.category || ""} onChange={(v) => updateFM("category", v)} />
+                        <Input label="Tags (comma separated)" value={(fm.tags || []).join(", ")} onChange={(v) => updateFM("tags", v.split(",").map(s => s.trim()))} />
+                        <Input label="Aliases (comma separated)" value={(fm.aliases || []).join(", ")} onChange={(v) => updateFM("aliases", v.split(",").map(s => s.trim()))} />
+                    </div>
+                </div>
+
+                <div className="bg-[#112240] p-4 rounded-lg border border-[#23334A]">
+                    <h4 className="text-sm font-bold text-gray-300 mb-4 border-b border-[#23334A] pb-2">Content</h4>
+                    {folder === "faq" ? (
+                        <>
+                            <Textarea label="Question" value={sec.question || ""} onChange={(v) => updateSec("question", v)} />
+                            <Textarea label="Answer" value={sec.answer || ""} onChange={(v) => updateSec("answer", v)} rows={8} />
+                            <Textarea label="Related (Markdown list)" value={sec.related || ""} onChange={(v) => updateSec("related", v)} />
+                        </>
+                    ) : (folder === "lexicon" || folder === "exicon") ? (
+                        <>
+                            <Textarea label="Definition" value={sec.definition || ""} onChange={(v) => updateSec("definition", v)} />
+                            <Textarea
+                                label={folder === "exicon" ? "How it's done" : "How it's used"}
+                                value={(folder === "exicon" ? sec.howDone : sec.howUsed) || ""}
+                                onChange={(v) => updateSec(folder === "exicon" ? "howDone" : "howUsed", v)}
+                                rows={6}
+                            />
+                            <Textarea label="Variations" value={sec.variations || ""} onChange={(v) => updateSec("variations", v)} />
+                            <Textarea label="Notes" value={sec.notes || ""} onChange={(v) => updateSec("notes", v)} />
+                            <Textarea label="Related Terms" value={sec.related || ""} onChange={(v) => updateSec("related", v)} />
+                        </>
+                    ) : (
+                        <Textarea label="Body" value={sec.body || formData.raw || ""} onChange={(v) => updateSec("body", v)} rows={20} />
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    // --- Main Render ---
+
+    return (
+        <div className="flex h-screen overflow-hidden">
+            {/* File Browser Sidebar */}
+            <div className="w-72 bg-[#112240] border-r border-[#23334A] flex flex-col shrink-0">
+                <div className="p-4 border-b border-[#23334A] space-y-3">
+                    <h2 className="font-bold text-lg">Knowledge Base</h2>
+                    <div className="relative">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-8 pr-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] text-sm focus:outline-none focus:border-[#4A76A8] text-white"
+                        />
+                    </div>
+                    <Button size="sm" className="w-full flex items-center justify-center gap-2" onClick={() => setShowNewModal(true)}>
+                        <Plus className="h-4 w-4" /> New Entry
+                    </Button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-2">
+                    {Object.entries(groupedFiles).map(([folder, groupFiles]) => (
+                        <div key={folder} className="mb-2">
+                            <button
+                                onClick={() => toggleFolder(folder)}
+                                className="w-full flex items-center justify-between px-2 py-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider hover:bg-[#23334A] rounded"
+                            >
+                                <span className="flex items-center gap-2">
+                                    <Folder className="h-3 w-3" /> {humanizeFolder(folder)}
+                                </span>
+                                {expandedFolders[folder] ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                            </button>
+
+                            {expandedFolders[folder] && (
+                                <div className="ml-2 mt-1 space-y-0.5 border-l border-[#23334A] pl-2">
+                                    {groupFiles.length === 0 ? (
+                                        <div className="px-2 py-1.5 text-xs text-gray-600 italic">No entries yet</div>
+                                    ) : (
+                                        groupFiles.map(file => (
+                                            <button
+                                                key={file.path}
+                                                onClick={() => loadFile(file)}
+                                                className={cn(
+                                                    "w-full text-left px-2 py-1.5 rounded text-sm transition-colors truncate flex items-center gap-2",
+                                                    selectedFile?.path === file.path
+                                                        ? "bg-[#4A76A8] text-white font-medium"
+                                                        : "text-gray-300 hover:bg-[#23334A]"
+                                                )}
+                                            >
+                                                <FileText className="h-3 w-3 opacity-50" />
+                                                {file.title}
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col overflow-hidden relative">
+                {!selectedFile ? (
+                    <div className="flex-1 flex items-center justify-center text-gray-500 flex-col gap-4">
+                        <Folder className="h-16 w-16 opacity-20" />
+                        <p>Select a file to edit</p>
+                    </div>
+                ) : (
+                    <>
+                        {/* Header */}
+                        <div className="p-4 border-b border-[#23334A] bg-[#0A1A2F] flex justify-between items-center shrink-0">
+                            <div className="flex items-center gap-3">
+                                <Badge className="uppercase">{humanizeFolder(selectedFile.folder)}</Badge>
+                                <span className="text-gray-400">/</span>
+                                <h3 className="font-bold text-lg">{selectedFile.title}</h3>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                {message && <span className="text-green-400 text-sm">{message}</span>}
+                                {error && <span className="text-red-400 text-sm">{error}</span>}
+                                <Button onClick={saveFile} disabled={isSaving} className="flex items-center gap-2">
+                                    <Save className="h-4 w-4" />
+                                    {isSaving ? "Saving..." : "Save & Reindex"}
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Tabs */}
+                        <div className="flex border-b border-[#23334A] bg-[#112240] shrink-0">
+                            <button
+                                onClick={() => setActiveTab("form")}
+                                className={cn("px-6 py-3 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors", activeTab === "form" ? "border-[#4A76A8] text-white bg-[#0A1A2F]" : "border-transparent text-gray-400 hover:text-white")}
+                            >
+                                <Edit3 className="h-4 w-4" /> Form
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("markdown")}
+                                className={cn("px-6 py-3 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors", activeTab === "markdown" ? "border-[#4A76A8] text-white bg-[#0A1A2F]" : "border-transparent text-gray-400 hover:text-white")}
+                            >
+                                <Code className="h-4 w-4" /> Markdown
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("preview")}
+                                className={cn("px-6 py-3 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors", activeTab === "preview" ? "border-[#4A76A8] text-white bg-[#0A1A2F]" : "border-transparent text-gray-400 hover:text-white")}
+                            >
+                                <Eye className="h-4 w-4" /> Preview
+                            </button>
+                        </div>
+
+                        {/* Editor Area */}
+                        <div className="flex-1 overflow-y-auto p-6 bg-[#0A1A2F]">
+                            {isLoading ? (
+                                <div className="flex items-center justify-center h-full text-gray-500">Loading...</div>
+                            ) : (
+                                <>
+                                    {activeTab === "form" && renderForm()}
+                                    {activeTab === "markdown" && (
+                                        <div className="h-full flex flex-col">
+                                            <textarea
+                                                value={formData.raw || ""}
+                                                onChange={(e) => setFormData({ ...formData, raw: e.target.value })}
+                                                className="flex-1 w-full bg-[#112240] text-gray-200 p-4 font-mono text-sm resize-none focus:outline-none rounded border border-[#23334A]"
+                                                spellCheck={false}
+                                            />
+                                        </div>
+                                    )}
+                                    {activeTab === "preview" && (
+                                        <div className="max-w-3xl mx-auto prose prose-invert">
+                                            <div className="whitespace-pre-wrap font-sans text-gray-300 leading-relaxed">
+                                                {formData.raw}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </>
+                )}
+            </div>
+
+            {/* New Entry Modal */}
+            {showNewModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-[#112240] p-6 rounded-lg border border-[#23334A] w-full max-w-md shadow-2xl">
+                        <h3 className="text-xl font-bold mb-4">Create New Entry</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Folder</label>
+                                <select
+                                    value={newFolder}
+                                    onChange={(e) => setNewFolder(e.target.value)}
+                                    className="w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm"
+                                >
+                                    {allFolders.map(f => (
+                                        <option key={f} value={f}>{humanizeFolder(f)}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <Input label="Title" value={newTitle} onChange={setNewTitle} placeholder="e.g. What is F3?" />
+                            <div className="flex gap-3 pt-2">
+                                <Button variant="secondary" className="flex-1" onClick={() => setShowNewModal(false)}>Cancel</Button>
+                                <Button className="flex-1" onClick={createEntry} disabled={!newTitle || isSaving}>Create</Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+```
 
 - [ ] **Step 4: Verify KB admin still works**
 
@@ -830,7 +1382,7 @@ Navigate to `/admin/kb` — should show the KB editor, fully functional.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/app/admin/layout.tsx src/app/admin/page.tsx src/app/admin/kb/page.tsx
+git add src/app/admin/AdminAuthContext.tsx src/app/admin/layout.tsx src/app/admin/page.tsx src/app/admin/kb/page.tsx
 git commit -m "feat: add shared admin layout with sidebar navigation"
 ```
 
@@ -851,7 +1403,7 @@ Create `src/app/admin/regions/page.tsx`:
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAdminAuth } from "../layout";
+import { useAdminAuth } from "../AdminAuthContext";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { Plus, Pencil, Trash2, X, Check } from "lucide-react";
@@ -1253,6 +1805,7 @@ export function WorkoutBlock({
 
   return (
     <div
+      data-testid="workout-block"
       className={cn(
         "bg-[#112240] border border-[#23334A] rounded cursor-pointer text-xs relative group",
         !workout.is_active && "opacity-50"
@@ -1300,7 +1853,7 @@ Create `src/app/admin/workouts/WorkoutModal.tsx`:
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAdminAuth } from "../layout";
+import { useAdminAuth } from "../AdminAuthContext";
 import { Button } from "@/components/ui/Button";
 import { X } from "lucide-react";
 import type { WorkoutScheduleRow } from "@/types/workout";
@@ -1734,7 +2287,7 @@ Create `src/app/admin/workouts/page.tsx`:
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useAdminAuth } from "../layout";
+import { useAdminAuth } from "../AdminAuthContext";
 import { Button } from "@/components/ui/Button";
 import { WorkoutGrid } from "./WorkoutGrid";
 import { WorkoutModal } from "./WorkoutModal";
@@ -2151,29 +2704,285 @@ export async function getWorkoutSchedule(): Promise<
 
 - [ ] **Step 2: Update workouts page.tsx server component**
 
-The server component at `src/app/workouts/page.tsx` should need minimal changes — it already converts the result to a plain object. Update the import if needed to match the new `DaySchedule` type. The key change is that `getWorkoutSchedule` now returns `Record<number, DaySchedule>` directly instead of a Map.
+`getWorkoutSchedule` now returns `Record<number, DaySchedule>` directly instead of a `Map`. Remove the Map-to-Record conversion.
+
+Replace the contents of `src/app/workouts/page.tsx`:
+
+```typescript
+import { Section } from "@/components/ui/Section";
+import { Hero } from "@/components/ui/Hero";
+import { Button } from "@/components/ui/Button";
+import { getWorkoutSchedule, type DaySchedule } from "@/lib/workouts/getWorkoutSchedule";
+import { WorkoutSchedule } from "./WorkoutSchedule";
+
+function getTodayISODay(): number {
+    const day = new Date().getDay(); // 0=Sun … 6=Sat
+    return day === 0 ? 7 : day; // ISO: 1=Mon … 7=Sun
+}
+
+export default async function WorkoutsPage() {
+    const schedule = await getWorkoutSchedule();
+    const todayIndex = getTodayISODay();
+
+    return (
+        <div className="flex flex-col min-h-screen">
+            <Hero
+                title="WORKOUT SCHEDULE"
+                subtitle="Find a workout near you. Just show up."
+                ctaText="New to F3?"
+                ctaLink="/new-here"
+                backgroundImage="/images/workouts-bg.jpg"
+            />
+
+            <Section>
+                <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-8">
+                    All workouts are free, open to all men, and held outdoors rain or shine.
+                    Check the schedule below and join us in the gloom.
+                </p>
+
+                <WorkoutSchedule schedule={schedule} todayIndex={todayIndex} />
+            </Section>
+
+            <section className="mt-8 mb-20">
+                <div className="max-w-2xl mx-auto text-center bg-[#0A1A2F] border border-[#23334A] rounded-xl px-6 py-8">
+                    <h2 className="text-xl font-semibold mb-2 text-white">Not in Marietta? No problem!</h2>
+                    <p className="text-gray-300">
+                        You can find F3 workouts all across the country (and the world). Use the F3 Nation map to search for any region or AO.
+                    </p>
+                    <Button asChild className="mt-4">
+                        <a
+                            href="https://map.f3nation.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Find F3 Near You
+                        </a>
+                    </Button>
+                </div>
+            </section>
+        </div>
+    );
+}
+```
 
 - [ ] **Step 3: Update WorkoutSchedule.tsx to render dynamic regions**
 
-Rewrite `src/app/workouts/WorkoutSchedule.tsx` to use the new `DaySchedule` with dynamic `regions` array:
+Replace the contents of `src/app/workouts/WorkoutSchedule.tsx`:
 
-- Replace the hard-coded `REGIONS` array with dynamic iteration over `schedule[dayNum].regions`
-- Primary regions render with their name as the section heading (same as before)
-- Non-primary regions are collected into an "Other Nearby" group, with each workout card showing its region name as a badge
+```typescript
+"use client";
 
-Key changes to `RegionSection`:
-- Accept `RegionWorkouts[]` for the "Other Nearby" group
-- For primary: render section heading with region name
-- For non-primary: render under "Other Nearby" heading, show region badge on each card
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { ChevronDown, MapPin, Clock, ExternalLink } from "lucide-react";
+import type { WorkoutScheduleRow } from "@/types/workout";
+import type { DaySchedule, RegionWorkouts } from "@/lib/workouts/getWorkoutSchedule";
 
-Key changes to `DayCard`:
-- Split regions into primary and non-primary
-- Render primary regions as individual sections
-- Collect non-primary regions into one "Other Nearby" section
+const DAY_NAMES: Record<number, string> = {
+  1: "Monday",
+  2: "Tuesday",
+  3: "Wednesday",
+  4: "Thursday",
+  5: "Friday",
+  6: "Saturday",
+  7: "Sunday",
+};
 
-Key changes to `WorkoutCard`:
-- Accept optional `regionName` prop for non-primary regions
-- Display as a badge when provided
+function formatTime(time: string): string {
+  const [h, m] = time.split(":");
+  const hour = parseInt(h, 10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${h12}:${m} ${ampm}`;
+}
+
+// ── Workout Card ────────────────────────────────────────────────────────────
+function WorkoutCard({
+  workout,
+  regionName,
+}: {
+  workout: WorkoutScheduleRow;
+  regionName?: string;
+}) {
+  const timeStr = `${formatTime(workout.start_time)} – ${formatTime(workout.end_time)}`;
+
+  return (
+    <div className="bg-card border border-border rounded-md p-3 space-y-2 hover:border-primary/50 transition-colors">
+      <div className="space-y-1">
+        <h4 className="font-bold text-sm text-foreground leading-tight">
+          {workout.ao_name}
+        </h4>
+        <div className="flex flex-wrap gap-1">
+          <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
+            {workout.workout_type}
+          </span>
+          {regionName && (
+            <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
+              {regionName}
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="space-y-1 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5">
+          <Clock className="h-3 w-3 shrink-0" />
+          <span>{timeStr}</span>
+        </div>
+        {workout.location_name && (
+          <div className="flex items-start gap-1.5">
+            <MapPin className="h-3 w-3 shrink-0 mt-0.5" />
+            <span className="leading-tight">{workout.location_name}</span>
+          </div>
+        )}
+        <div className="text-xs text-muted-foreground/70 pl-[1.125rem] leading-tight">
+          {workout.address}
+        </div>
+      </div>
+      {workout.map_link && (
+        <a
+          href={workout.map_link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+        >
+          Directions <ExternalLink className="h-3 w-3" />
+        </a>
+      )}
+    </div>
+  );
+}
+
+// ── Region Section ──────────────────────────────────────────────────────────
+function RegionSection({
+  label,
+  workouts,
+  showRegionBadge,
+}: {
+  label: string;
+  workouts: { workout: WorkoutScheduleRow; regionName?: string }[];
+  showRegionBadge?: boolean;
+}) {
+  if (workouts.length === 0) return null;
+  return (
+    <div className="mb-4 last:mb-0">
+      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 pb-1 border-b border-border/50">
+        {label}
+      </h4>
+      <div className="space-y-2">
+        {workouts.map(({ workout, regionName }) => (
+          <WorkoutCard
+            key={workout.id}
+            workout={workout}
+            regionName={showRegionBadge ? regionName : undefined}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Day Card ────────────────────────────────────────────────────────────────
+function DayCard({
+  dayNum,
+  schedule,
+  defaultOpen,
+}: {
+  dayNum: number;
+  schedule: DaySchedule;
+  defaultOpen: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  const primaryRegions = schedule.regions.filter((rg) => rg.region.is_primary);
+  const nonPrimaryRegions = schedule.regions.filter((rg) => !rg.region.is_primary);
+
+  const totalWorkouts = schedule.regions.reduce(
+    (sum, rg) => sum + rg.workouts.length,
+    0
+  );
+
+  if (totalWorkouts === 0) return null;
+
+  // Collect non-primary workouts with their region name for badge display
+  const otherNearbyWorkouts = nonPrimaryRegions.flatMap((rg) =>
+    rg.workouts.map((w) => ({ workout: w, regionName: rg.region.name }))
+  );
+
+  return (
+    <div className="border border-border rounded-lg overflow-hidden bg-muted/30">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="font-bold font-heading text-foreground">
+            {DAY_NAMES[dayNum]}
+          </span>
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+            {totalWorkouts} workout{totalWorkouts !== 1 ? "s" : ""}
+          </span>
+        </div>
+        <ChevronDown
+          className={cn(
+            "h-5 w-5 text-muted-foreground transition-transform duration-200",
+            isOpen && "rotate-180"
+          )}
+        />
+      </button>
+      <div
+        className={cn(
+          "overflow-hidden transition-all duration-300 ease-in-out",
+          isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+        )}
+      >
+        <div className="p-4 pt-0 border-t border-border">
+          {/* Primary regions — each gets its own section */}
+          {primaryRegions.map((rg) => (
+            <RegionSection
+              key={rg.region.slug}
+              label={rg.region.name}
+              workouts={rg.workouts.map((w) => ({ workout: w }))}
+            />
+          ))}
+          {/* Non-primary regions — grouped under "Other Nearby" with badges */}
+          {otherNearbyWorkouts.length > 0 && (
+            <RegionSection
+              label="Other Nearby"
+              workouts={otherNearbyWorkouts}
+              showRegionBadge
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Component ──────────────────────────────────────────────────────────
+interface WorkoutScheduleProps {
+  schedule: Record<number, DaySchedule>;
+  todayIndex: number;
+}
+
+export function WorkoutSchedule({ schedule, todayIndex }: WorkoutScheduleProps) {
+  return (
+    <div className="space-y-3 max-w-4xl mx-auto">
+      {[1, 2, 3, 4, 5, 6, 7].map((dayNum) => {
+        const daySchedule = schedule[dayNum];
+        if (!daySchedule) return null;
+        return (
+          <DayCard
+            key={dayNum}
+            dayNum={dayNum}
+            schedule={daySchedule}
+            defaultOpen={dayNum === todayIndex}
+          />
+        );
+      })}
+    </div>
+  );
+}
+```
 
 - [ ] **Step 4: Verify public workouts page**
 
@@ -2246,7 +3055,7 @@ test.describe("Admin Workout Management", () => {
 
   test("opens edit modal when clicking a workout block", async ({ page }) => {
     // Click the first workout block in the grid
-    const firstBlock = page.locator('[class*="bg-\\[\\#112240\\]"]').first();
+    const firstBlock = page.locator("[data-testid='workout-block']").first();
     await firstBlock.click();
     await expect(page.getByText("Edit Workout")).toBeVisible();
   });
