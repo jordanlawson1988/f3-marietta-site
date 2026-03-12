@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDown, MapPin, Clock, ExternalLink } from "lucide-react";
 import type { WorkoutScheduleRow } from "@/types/workout";
-import type { DaySchedule } from "@/lib/workouts/getWorkoutSchedule";
+import type { DaySchedule, RegionWorkouts } from "@/lib/workouts/getWorkoutSchedule";
 
 const DAY_NAMES: Record<number, string> = {
   1: "Monday",
@@ -16,14 +16,7 @@ const DAY_NAMES: Record<number, string> = {
   7: "Sunday",
 };
 
-const REGIONS = [
-  { key: "marietta" as const, label: "Marietta" },
-  { key: "westCobb" as const, label: "West Cobb" },
-  { key: "otherNearby" as const, label: "Other Nearby" },
-];
-
 function formatTime(time: string): string {
-  // time comes as "HH:MM:SS" from Postgres — format to "H:MM AM/PM"
   const [h, m] = time.split(":");
   const hour = parseInt(h, 10);
   const ampm = hour >= 12 ? "PM" : "AM";
@@ -32,7 +25,13 @@ function formatTime(time: string): string {
 }
 
 // ── Workout Card ────────────────────────────────────────────────────────────
-function WorkoutCard({ workout }: { workout: WorkoutScheduleRow }) {
+function WorkoutCard({
+  workout,
+  regionName,
+}: {
+  workout: WorkoutScheduleRow;
+  regionName?: string;
+}) {
   const timeStr = `${formatTime(workout.start_time)} – ${formatTime(workout.end_time)}`;
 
   return (
@@ -45,9 +44,9 @@ function WorkoutCard({ workout }: { workout: WorkoutScheduleRow }) {
           <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
             {workout.workout_type}
           </span>
-          {workout.nearby_region && (
+          {regionName && (
             <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
-              {workout.nearby_region}
+              {regionName}
             </span>
           )}
         </div>
@@ -85,9 +84,11 @@ function WorkoutCard({ workout }: { workout: WorkoutScheduleRow }) {
 function RegionSection({
   label,
   workouts,
+  showRegionBadge,
 }: {
   label: string;
-  workouts: WorkoutScheduleRow[];
+  workouts: { workout: WorkoutScheduleRow; regionName?: string }[];
+  showRegionBadge?: boolean;
 }) {
   if (workouts.length === 0) return null;
   return (
@@ -96,8 +97,12 @@ function RegionSection({
         {label}
       </h4>
       <div className="space-y-2">
-        {workouts.map((workout) => (
-          <WorkoutCard key={workout.id} workout={workout} />
+        {workouts.map(({ workout, regionName }) => (
+          <WorkoutCard
+            key={workout.id}
+            workout={workout}
+            regionName={showRegionBadge ? regionName : undefined}
+          />
         ))}
       </div>
     </div>
@@ -115,12 +120,21 @@ function DayCard({
   defaultOpen: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  const totalWorkouts =
-    schedule.marietta.length +
-    schedule.westCobb.length +
-    schedule.otherNearby.length;
+
+  const primaryRegions = schedule.regions.filter((rg) => rg.region.is_primary);
+  const nonPrimaryRegions = schedule.regions.filter((rg) => !rg.region.is_primary);
+
+  const totalWorkouts = schedule.regions.reduce(
+    (sum, rg) => sum + rg.workouts.length,
+    0
+  );
 
   if (totalWorkouts === 0) return null;
+
+  // Collect non-primary workouts with their region name for badge display
+  const otherNearbyWorkouts = nonPrimaryRegions.flatMap((rg) =>
+    rg.workouts.map((w) => ({ workout: w, regionName: rg.region.name }))
+  );
 
   return (
     <div className="border border-border rounded-lg overflow-hidden bg-muted/30">
@@ -150,13 +164,22 @@ function DayCard({
         )}
       >
         <div className="p-4 pt-0 border-t border-border">
-          {REGIONS.map((region) => (
+          {/* Primary regions — each gets its own section */}
+          {primaryRegions.map((rg) => (
             <RegionSection
-              key={region.key}
-              label={region.label}
-              workouts={schedule[region.key]}
+              key={rg.region.slug}
+              label={rg.region.name}
+              workouts={rg.workouts.map((w) => ({ workout: w }))}
             />
           ))}
+          {/* Non-primary regions — grouped under "Other Nearby" with badges */}
+          {otherNearbyWorkouts.length > 0 && (
+            <RegionSection
+              label="Other Nearby"
+              workouts={otherNearbyWorkouts}
+              showRegionBadge
+            />
+          )}
         </div>
       </div>
     </div>

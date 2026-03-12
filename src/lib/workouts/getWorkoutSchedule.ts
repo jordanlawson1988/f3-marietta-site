@@ -1,53 +1,75 @@
-import { supabase } from '@/lib/supabase';
-import type { WorkoutScheduleRow } from '@/types/workout';
+import { supabase } from "@/lib/supabase";
+import type { WorkoutScheduleRow } from "@/types/workout";
+import type { Region } from "@/types/region";
 
-export interface DaySchedule {
-  marietta: WorkoutScheduleRow[];
-  westCobb: WorkoutScheduleRow[];
-  otherNearby: WorkoutScheduleRow[];
+export interface RegionInfo {
+  name: string;
+  slug: string;
+  is_primary: boolean;
+  sort_order: number;
 }
 
-/**
- * Fetches all active workouts, ordered by day_of_week + start_time,
- * grouped into a Map keyed by ISO day number (1=Mon … 7=Sun).
- */
-export async function getWorkoutSchedule(): Promise<Map<number, DaySchedule>> {
-  const { data, error } = await supabase
-    .from('workout_schedule')
-    .select('id, ao_name, workout_type, day_of_week, start_time, end_time, location_name, address, region, nearby_region, map_link, is_active')
-    .eq('is_active', true)
-    .order('day_of_week', { ascending: true })
-    .order('start_time', { ascending: true });
+export interface RegionWorkouts {
+  region: RegionInfo;
+  workouts: WorkoutScheduleRow[];
+}
 
-  if (error) {
-    console.error('Error fetching workout schedule:', error);
-    return new Map();
-  }
+export interface DaySchedule {
+  regions: RegionWorkouts[];
+}
 
-  const rows = (data || []) as WorkoutScheduleRow[];
+export async function getWorkoutSchedule(): Promise<
+  Record<number, DaySchedule>
+> {
+  // Fetch active regions
+  const { data: regionsData } = await supabase
+    .from("regions")
+    .select("*")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
 
-  const schedule = new Map<number, DaySchedule>();
+  const regions: Region[] = regionsData ?? [];
 
-  // Initialize all 7 days
+  // Fetch active workouts
+  const { data: workoutsData } = await supabase
+    .from("workout_schedule")
+    .select("*")
+    .eq("is_active", true)
+    .order("day_of_week")
+    .order("start_time");
+
+  const workouts: WorkoutScheduleRow[] = workoutsData ?? [];
+
+  // Build region lookup
+  const regionMap = new Map<string, Region>(
+    regions.map((r) => [r.id, r])
+  );
+
+  // Group by day, then by region
+  const schedule: Record<number, DaySchedule> = {};
+
   for (let d = 1; d <= 7; d++) {
-    schedule.set(d, { marietta: [], westCobb: [], otherNearby: [] });
-  }
+    const dayWorkouts = workouts.filter((w) => w.day_of_week === d);
+    const regionGroups: RegionWorkouts[] = [];
 
-  for (const row of rows) {
-    const day = schedule.get(row.day_of_week);
-    if (!day) continue;
-
-    switch (row.region) {
-      case 'Marietta':
-        day.marietta.push(row);
-        break;
-      case 'West Cobb':
-        day.westCobb.push(row);
-        break;
-      case 'Other Nearby':
-        day.otherNearby.push(row);
-        break;
+    for (const region of regions) {
+      const rWorkouts = dayWorkouts.filter(
+        (w) => w.region_id === region.id
+      );
+      if (rWorkouts.length > 0) {
+        regionGroups.push({
+          region: {
+            name: region.name,
+            slug: region.slug,
+            is_primary: region.is_primary,
+            sort_order: region.sort_order,
+          },
+          workouts: rWorkouts,
+        });
+      }
     }
+
+    schedule[d] = { regions: regionGroups };
   }
 
   return schedule;

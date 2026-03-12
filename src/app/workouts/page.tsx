@@ -10,14 +10,7 @@ function getTodayISODay(): number {
 }
 
 export default async function WorkoutsPage() {
-    const scheduleMap = await getWorkoutSchedule();
-
-    // Convert Map to plain object for serialization to client component
-    const schedule: Record<number, DaySchedule> = {};
-    for (const [dayNum, daySchedule] of scheduleMap) {
-        schedule[dayNum] = daySchedule;
-    }
-
+    const schedule = await getWorkoutSchedule();
     const todayIndex = getTodayISODay();
 
     return (
