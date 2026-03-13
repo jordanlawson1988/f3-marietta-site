@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.resolve(__dirname, '.env.local') });
 
 /**
  * Playwright configuration for F3 Marietta E2E tests.
@@ -29,7 +33,7 @@ export default defineConfig({
     // Shared settings for all projects
     use: {
         // Base URL for the application
-        baseURL: 'http://localhost:3000',
+        baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000',
 
         // Collect trace when retrying the failed test
         trace: 'on-first-retry',
@@ -69,8 +73,8 @@ export default defineConfig({
 
     // Run local dev server before starting the tests
     webServer: {
-        command: 'npm run dev',
-        url: 'http://localhost:3000',
+        command: `PORT=${process.env.PLAYWRIGHT_TEST_PORT || '3000'} npm run dev`,
+        url: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
         timeout: 120 * 1000,
     },

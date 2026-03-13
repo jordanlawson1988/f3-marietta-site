@@ -16,14 +16,21 @@ INSERT INTO regions (name, slug, sort_order, is_primary) VALUES
   ('West Cobb', 'west-cobb', 2, true);
 
 -- Seed non-primary regions from distinct nearby_region values
+-- Use DISTINCT ON the slugified value to avoid case-variant duplicates
 INSERT INTO regions (name, slug, sort_order, is_primary)
-SELECT DISTINCT
-  nearby_region,
-  lower(replace(nearby_region, ' ', '-')),
-  2 + row_number() OVER (ORDER BY nearby_region),
+SELECT
+  name,
+  slug,
+  2 + row_number() OVER (ORDER BY slug),
   false
-FROM workout_schedule
-WHERE nearby_region IS NOT NULL AND nearby_region != '';
+FROM (
+  SELECT DISTINCT ON (lower(replace(nearby_region, ' ', '-')))
+    nearby_region AS name,
+    lower(replace(nearby_region, ' ', '-')) AS slug
+  FROM workout_schedule
+  WHERE nearby_region IS NOT NULL AND nearby_region != ''
+  ORDER BY lower(replace(nearby_region, ' ', '-')), nearby_region
+) deduped;
 
 -- 3. Add region_id column to workout_schedule
 ALTER TABLE workout_schedule ADD COLUMN region_id uuid;

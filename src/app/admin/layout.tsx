@@ -54,15 +54,17 @@ export default function AdminLayout({
     setIsLoading(true);
     setError("");
     try {
-      // Validate password by hitting any admin endpoint
-      const res = await fetch("/api/admin/regions", {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
         headers: { "x-admin-token": password },
       });
       if (res.ok) {
         setToken(password);
         localStorage.setItem("f3-admin-token", password);
-      } else {
+      } else if (res.status === 401) {
         setError("Invalid password");
+      } else {
+        setError("Server error — please try again");
       }
     } catch {
       setError("Connection failed");
@@ -86,10 +88,11 @@ export default function AdminLayout({
           </h1>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+              <label htmlFor="admin-password" className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
                 Password
               </label>
               <input
+                id="admin-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

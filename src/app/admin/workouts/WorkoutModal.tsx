@@ -149,8 +149,9 @@ export function WorkoutModal({
         <div className="p-4 space-y-4">
           {/* AO Name */}
           <div>
-            <label className={labelClass}>AO Name</label>
+            <label htmlFor="ao-name" className={labelClass}>AO Name</label>
             <input
+              id="ao-name"
               type="text"
               value={aoName}
               onChange={(e) => setAoName(e.target.value)}
@@ -162,8 +163,9 @@ export function WorkoutModal({
           {/* Workout Type + Day */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>Workout Type</label>
+              <label htmlFor="workout-type" className={labelClass}>Workout Type</label>
               <input
+                id="workout-type"
                 type="text"
                 list="workout-types"
                 value={workoutType}
