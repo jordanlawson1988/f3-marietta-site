@@ -28,16 +28,31 @@ function formatTime(time: string): string {
 function WorkoutCard({
   workout,
   regionName,
+  variant = "primary",
 }: {
   workout: WorkoutScheduleRow;
   regionName?: string;
+  variant?: "primary" | "secondary";
 }) {
   const timeStr = `${formatTime(workout.start_time)} – ${formatTime(workout.end_time)}`;
+  const isPrimary = variant === "primary";
 
   return (
-    <div className="bg-card border border-border rounded-md p-3 space-y-2 hover:border-primary/50 transition-colors">
+    <div
+      className={cn(
+        "rounded-md p-3 space-y-2 transition-colors",
+        isPrimary
+          ? "bg-card border border-border hover:border-primary/50"
+          : "bg-muted/40 border border-border/50 hover:border-border"
+      )}
+    >
       <div className="space-y-1">
-        <h4 className="font-bold text-sm text-foreground leading-tight">
+        <h4
+          className={cn(
+            "font-bold leading-tight",
+            isPrimary ? "text-sm text-foreground" : "text-sm text-foreground/80"
+          )}
+        >
           {workout.ao_name}
         </h4>
         <div className="flex flex-wrap gap-1">
@@ -80,30 +95,51 @@ function WorkoutCard({
   );
 }
 
-// ── Region Section ──────────────────────────────────────────────────────────
-function RegionSection({
-  label,
+// ── Other Nearby Section (collapsible) ──────────────────────────────────────
+function OtherNearbySection({
   workouts,
-  showRegionBadge,
 }: {
-  label: string;
-  workouts: { workout: WorkoutScheduleRow; regionName?: string }[];
-  showRegionBadge?: boolean;
+  workouts: { workout: WorkoutScheduleRow; regionName: string }[];
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+
   if (workouts.length === 0) return null;
+
   return (
-    <div className="mb-4 last:mb-0">
-      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 pb-1 border-b border-border/50">
-        {label}
-      </h4>
-      <div className="space-y-2">
-        {workouts.map(({ workout, regionName }) => (
-          <WorkoutCard
-            key={workout.id}
-            workout={workout}
-            regionName={showRegionBadge ? regionName : undefined}
-          />
-        ))}
+    <div className="mt-4 pt-3 border-t border-dashed border-border/60">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full text-left"
+      >
+        <ChevronDown
+          className={cn(
+            "h-3.5 w-3.5 transition-transform duration-200",
+            isOpen && "rotate-180"
+          )}
+        />
+        <span className="font-semibold uppercase tracking-wider">
+          Other Nearby
+        </span>
+        <span className="bg-muted px-1.5 py-0.5 rounded text-[10px]">
+          {workouts.length}
+        </span>
+      </button>
+      <div
+        className={cn(
+          "overflow-hidden transition-all duration-300 ease-in-out",
+          isOpen ? "max-h-[2000px] opacity-100 mt-3" : "max-h-0 opacity-0"
+        )}
+      >
+        <div className="space-y-2">
+          {workouts.map(({ workout, regionName }) => (
+            <WorkoutCard
+              key={workout.id}
+              workout={workout}
+              regionName={regionName}
+              variant="secondary"
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -131,7 +167,6 @@ function DayCard({
 
   if (totalWorkouts === 0) return null;
 
-  // Collect non-primary workouts with their region name for badge display
   const otherNearbyWorkouts = nonPrimaryRegions.flatMap((rg) =>
     rg.workouts.map((w) => ({ workout: w, regionName: rg.region.name }))
   );
@@ -164,22 +199,22 @@ function DayCard({
         )}
       >
         <div className="p-4 pt-0 border-t border-border">
-          {/* Primary regions — each gets its own section */}
+          {/* Primary regions — prominent display */}
           {primaryRegions.map((rg) => (
-            <RegionSection
-              key={rg.region.slug}
-              label={rg.region.name}
-              workouts={rg.workouts.map((w) => ({ workout: w }))}
-            />
+            <div key={rg.region.slug} className="mb-4 last:mb-0">
+              <h4 className="text-xs font-semibold text-primary uppercase tracking-wider mb-2 pb-1 border-b border-primary/20">
+                {rg.region.name}
+              </h4>
+              <div className="space-y-2">
+                {rg.workouts.map((w) => (
+                  <WorkoutCard key={w.id} workout={w} variant="primary" />
+                ))}
+              </div>
+            </div>
           ))}
-          {/* Non-primary regions — grouped under "Other Nearby" with badges */}
-          {otherNearbyWorkouts.length > 0 && (
-            <RegionSection
-              label="Other Nearby"
-              workouts={otherNearbyWorkouts}
-              showRegionBadge
-            />
-          )}
+
+          {/* Non-primary regions — collapsed by default */}
+          <OtherNearbySection workouts={otherNearbyWorkouts} />
         </div>
       </div>
     </div>
