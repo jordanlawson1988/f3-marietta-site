@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { WorkoutGrid } from "./WorkoutGrid";
 import { WorkoutModal } from "./WorkoutModal";
 import type { WorkoutScheduleRow } from "@/types/workout";
+import { Toast } from "../Toast";
 import type { Region } from "@/types/region";
 
 export default function WorkoutsAdminPage() {
@@ -198,9 +199,6 @@ export default function WorkoutsAdminPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          {message && <span className="text-green-400 text-sm">{message}</span>}
-          {error && <span className="text-red-400 text-sm">{error}</span>}
-
           {selectedIds.size > 0 && (
             <div className="relative">
               <button
@@ -254,6 +252,10 @@ export default function WorkoutsAdminPage() {
         onAddToDay={(day) => openCreateModal(day)}
       />
 
+      {/* Toast notifications */}
+      {message && <Toast message={message} type="success" onDismiss={() => setMessage("")} />}
+      {error && <Toast message={error} type="error" onDismiss={() => setError("")} duration={5000} />}
+
       {/* Workout Modal */}
       {showModal && (
         <WorkoutModal
@@ -261,7 +263,10 @@ export default function WorkoutsAdminPage() {
           regions={regions}
           defaultDay={modalDefaultDay}
           onClose={() => setShowModal(false)}
-          onSaved={fetchData}
+          onSaved={() => {
+            setMessage(modalWorkout ? "Workout updated." : "Workout created.");
+            fetchData();
+          }}
         />
       )}
 

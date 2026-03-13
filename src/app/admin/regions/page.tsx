@@ -5,6 +5,7 @@ import { useAdminAuth } from "../AdminAuthContext";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { Plus, Pencil, Trash2, X, Check } from "lucide-react";
+import { Toast } from "../Toast";
 import type { Region } from "@/types/region";
 
 export default function RegionsAdminPage() {
@@ -147,8 +148,6 @@ export default function RegionsAdminPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold">Regions</h1>
         <div className="flex items-center gap-3">
-          {message && <span className="text-green-400 text-sm">{message}</span>}
-          {error && <span className="text-red-400 text-sm">{error}</span>}
           <Button onClick={openCreateModal} className="flex items-center gap-2">
             <Plus className="h-4 w-4" /> Add Region
           </Button>
@@ -223,6 +222,10 @@ export default function RegionsAdminPage() {
           </table>
         </div>
       )}
+
+      {/* Toast notifications */}
+      {message && <Toast message={message} type="success" onDismiss={() => setMessage("")} />}
+      {error && <Toast message={error} type="error" onDismiss={() => setError("")} duration={5000} />}
 
       {/* Modal */}
       {showModal && (
