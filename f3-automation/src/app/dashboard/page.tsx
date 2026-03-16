@@ -10,7 +10,7 @@ export default function PendingDraftsPage() {
 
   const refreshDrafts = useCallback(async () => {
     try {
-      const res = await fetch('/api/drafts?status=pending');
+      const res = await fetch('/api/drafts?status=pending,edited');
       if (res.ok) {
         const data = await res.json();
         setDrafts(data);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Upload } from 'lucide-react';
 
 export default function ImageUpload({
@@ -12,6 +12,17 @@ export default function ImageUpload({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!file) {
+      setPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
   const handleFile = useCallback(
     (f: File) => {
@@ -39,8 +50,6 @@ export default function ImageUpload({
     },
     [handleFile]
   );
-
-  const preview = file ? URL.createObjectURL(file) : null;
 
   return (
     <div

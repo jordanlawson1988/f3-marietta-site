@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false });
 
   if (status) {
-    query = query.eq('status', status);
+    const statuses = status.split(',');
+    query = query.in('status', statuses);
   }
 
   const { data, error } = await query;

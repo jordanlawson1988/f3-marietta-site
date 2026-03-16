@@ -5,8 +5,16 @@ import crypto from 'crypto';
 const COOKIE_NAME = 'f3-auto-session';
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
+function getSecret(): string {
+  const secret = process.env.ADMIN_TOKEN;
+  if (!secret) throw new Error('ADMIN_TOKEN not configured');
+  return secret;
+}
+
 export function createSessionToken(): string {
-  return crypto.randomBytes(32).toString('hex');
+  const nonce = crypto.randomBytes(32).toString('hex');
+  const hmac = crypto.createHmac('sha256', getSecret()).update(nonce).digest('hex');
+  return `${hmac}.${nonce}`;
 }
 
 export async function setSessionCookie(token: string): Promise<void> {
@@ -20,23 +28,29 @@ export async function setSessionCookie(token: string): Promise<void> {
   });
 }
 
-// Simple in-memory session store (single user, restarts clear sessions)
-let activeSession: string | null = null;
-
 export function validateToken(token: string): boolean {
   return token === process.env.ADMIN_TOKEN;
-}
-
-export function setActiveSession(sessionToken: string): void {
-  activeSession = sessionToken;
 }
 
 export async function verifySession(): Promise<NextResponse | null> {
   const cookieStore = await cookies();
   const session = cookieStore.get(COOKIE_NAME);
-  if (!session?.value || session.value !== activeSession) {
+  if (!session?.value) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const parts = session.value.split('.');
+  if (parts.length !== 2) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const [hmac, nonce] = parts;
+  const expected = crypto.createHmac('sha256', getSecret()).update(nonce).digest('hex');
+
+  if (!crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(expected))) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   return null; // Auth passed
 }
 
