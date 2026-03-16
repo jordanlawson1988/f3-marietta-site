@@ -1,0 +1,6 @@
+{
+  "crons": [
+    { "path": "/api/cron/generate-drafts", "schedule": "0 16 * * *" },
+    { "path": "/api/cron/generate-newsletter", "schedule": "0 12 * * 6" }
+  ]
+}
