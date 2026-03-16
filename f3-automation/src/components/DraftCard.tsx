@@ -27,6 +27,8 @@ export default function DraftCard({
   const [hashtags, setHashtags] = useState(draft.hashtags.join(', '));
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
+  const [fullCaption, setFullCaption] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const { f3_event } = draft;
 
@@ -51,6 +53,8 @@ export default function DraftCard({
         throw new Error(err.error || 'Failed to approve');
       }
 
+      const data = await res.json();
+      setFullCaption(data.full_caption);
       onUpdate();
     } catch (err) {
       console.error('Approve failed:', err);
@@ -178,6 +182,26 @@ export default function DraftCard({
         </div>
       )}
 
+      {/* Copy Caption (shown after approval) */}
+      {fullCaption && (
+        <div className="bg-muted border border-success/30 rounded-md p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-success">Approved — copy caption for Instagram:</span>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(fullCaption);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+              }}
+              className="px-3 py-1 bg-success text-white text-xs font-medium rounded hover:bg-success/90 transition-colors"
+            >
+              {copied ? 'Copied!' : 'Copy Caption'}
+            </button>
+          </div>
+          <pre className="text-sm text-foreground/80 whitespace-pre-wrap">{fullCaption}</pre>
+        </div>
+      )}
+
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 pt-2">
         <button
@@ -185,7 +209,7 @@ export default function DraftCard({
           disabled={!imageFile || loading !== null}
           className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          {loading === 'approve' ? 'Approving...' : 'Approve & Post'}
+          {loading === 'approve' ? 'Approving...' : 'Approve'}
         </button>
         <button
           onClick={handleReject}

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
-import { publishToBuffer } from '@/lib/buffer';
 
 export async function POST(
   request: NextRequest,
@@ -62,8 +61,14 @@ export async function POST(
 
   const publicUrl = urlData.publicUrl;
 
-  // Update draft to approved with image info
-  const { error: approveError } = await supabase
+  // Build full caption with hashtags for easy copy-paste
+  const hashtags = (draft.hashtags as string[]) ?? [];
+  const fullCaption = hashtags.length > 0
+    ? `${draft.caption}\n\n${hashtags.map((h: string) => `#${h.replace(/^#/, '')}`).join(' ')}`
+    : draft.caption;
+
+  // Mark as approved — manual post to Instagram for now
+  const { data: approved, error: approveError } = await supabase
     .from('instagram_drafts')
     .update({
       image_url: publicUrl,
@@ -72,7 +77,9 @@ export async function POST(
       approved_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })
-    .eq('id', id);
+    .eq('id', id)
+    .select()
+    .single();
 
   if (approveError) {
     return NextResponse.json(
@@ -81,56 +88,5 @@ export async function POST(
     );
   }
 
-  // Build full caption with hashtags
-  const hashtags = (draft.hashtags as string[]) ?? [];
-  const fullCaption = hashtags.length > 0
-    ? `${draft.caption}\n\n${hashtags.map((h: string) => `#${h.replace(/^#/, '')}`).join(' ')}`
-    : draft.caption;
-
-  // Attempt to publish to Buffer
-  try {
-    const bufferPostId = await publishToBuffer(fullCaption, publicUrl);
-
-    const { data: posted, error: postError } = await supabase
-      .from('instagram_drafts')
-      .update({
-        status: 'posted',
-        posted_at: new Date().toISOString(),
-        buffer_post_id: bufferPostId,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (postError) {
-      return NextResponse.json(
-        { error: 'Draft posted to Buffer but failed to update status', details: postError.message },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json(posted);
-  } catch (err) {
-    // Buffer publish failed — log to agent_runs, keep status as approved
-    const errorMessage = err instanceof Error ? err.message : String(err);
-
-    await supabase.from('agent_runs').insert({
-      run_type: 'publish_instagram',
-      status: 'failure',
-      error_message: errorMessage,
-      details: { draft_id: id },
-      started_at: new Date().toISOString(),
-      completed_at: new Date().toISOString(),
-    });
-
-    // Return the approved draft (not posted)
-    const { data: approved } = await supabase
-      .from('instagram_drafts')
-      .select()
-      .eq('id', id)
-      .single();
-
-    return NextResponse.json(approved);
-  }
+  return NextResponse.json({ ...approved, full_caption: fullCaption });
 }
