@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     .select('*')
     .eq('event_kind', 'backblast')
     .eq('is_deleted', false)
-    .order('event_date', { ascending: false });
+    .order('created_at', { ascending: false });
 
   if (existingEventIds.length > 0) {
     // Supabase's .not('id', 'in', ...) expects a parenthesized list

@@ -68,7 +68,7 @@ export function buildUserPrompt(
   for (const [ao, aoEvents] of byAo) {
     parts.push(`## ${ao}`);
     for (const event of aoEvents) {
-      const date = event.event_date ?? 'unknown date';
+      const date = event.event_date ?? event.created_at?.split('T')[0] ?? 'unknown date';
       const q = event.q_name ?? 'unknown Q';
       const hc = event.pax_count != null ? `${event.pax_count} PAX` : 'HC unknown';
       parts.push(`- ${date} | Q: ${q} | ${hc}`);

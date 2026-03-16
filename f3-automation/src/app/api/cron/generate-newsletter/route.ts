@@ -28,7 +28,14 @@ export async function GET(request: Request) {
   const authError = verifyCronSecret(request);
   if (authError) return authError;
 
-  const { weekStart, weekEnd } = getWeekBoundaries();
+  // Allow manual override via query params: ?week_start=2026-03-10&week_end=2026-03-16
+  const url = new URL(request.url);
+  const manualStart = url.searchParams.get('week_start');
+  const manualEnd = url.searchParams.get('week_end');
+
+  const { weekStart, weekEnd } = manualStart && manualEnd
+    ? { weekStart: manualStart, weekEnd: manualEnd }
+    : getWeekBoundaries();
 
   // Check if newsletter already exists for this week
   const { data: existing, error: existingError } = await supabase
@@ -57,9 +64,9 @@ export async function GET(request: Request) {
     .select('*')
     .eq('event_kind', 'backblast')
     .eq('is_deleted', false)
-    .gte('event_date', weekStart)
-    .lte('event_date', weekEnd)
-    .order('event_date', { ascending: true });
+    .gte('created_at', `${weekStart}T00:00:00Z`)
+    .lte('created_at', `${weekEnd}T23:59:59Z`)
+    .order('created_at', { ascending: true });
 
   if (eventsError) {
     return NextResponse.json(

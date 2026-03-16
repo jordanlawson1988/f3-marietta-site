@@ -40,7 +40,7 @@ export function buildUserPrompt(event: F3Event): string {
     `AO (location): ${event.ao_display_name ?? 'Unknown'}`,
     `Q (leader): ${event.q_name ?? 'Unknown'}`,
     `PAX count: ${event.pax_count ?? 'Unknown'}`,
-    `Date: ${event.event_date ?? 'Unknown'}`,
+    `Date: ${event.event_date ?? event.created_at?.split('T')[0] ?? 'Unknown'}`,
   ];
 
   if (event.title) {

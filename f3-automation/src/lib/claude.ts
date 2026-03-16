@@ -22,7 +22,7 @@ export async function generateCaption(
   userPrompt: string
 ): Promise<CaptionGeneration> {
   const message = await getAnthropic().messages.create({
-    model: 'claude-sonnet-4-6-20250514',
+    model: 'claude-sonnet-4-20250514',
     max_tokens: 1024,
     system: systemPrompt,
     messages: [{ role: 'user', content: userPrompt }],
@@ -43,7 +43,7 @@ export async function generateNewsletter(
   userPrompt: string
 ): Promise<{ title: string; body_markdown: string; body_slack_mrkdwn: string }> {
   const message = await getAnthropic().messages.create({
-    model: 'claude-sonnet-4-6-20250514',
+    model: 'claude-sonnet-4-20250514',
     max_tokens: 2048,
     system: systemPrompt,
     messages: [{ role: 'user', content: userPrompt }],
