@@ -2,8 +2,8 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 
-const COOKIE_NAME = 'f3-auto-session';
-const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
+export const SESSION_COOKIE_NAME = 'f3-auto-session';
+export const SESSION_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 function getSecret(): string {
   const secret = process.env.ADMIN_TOKEN;
@@ -17,24 +17,13 @@ export function createSessionToken(): string {
   return `${hmac}.${nonce}`;
 }
 
-export async function setSessionCookie(token: string): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: SESSION_MAX_AGE,
-    path: '/',
-  });
-}
-
 export function validateToken(token: string): boolean {
   return token === process.env.ADMIN_TOKEN;
 }
 
 export async function verifySession(): Promise<NextResponse | null> {
   const cookieStore = await cookies();
-  const session = cookieStore.get(COOKIE_NAME);
+  const session = cookieStore.get(SESSION_COOKIE_NAME);
   if (!session?.value) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

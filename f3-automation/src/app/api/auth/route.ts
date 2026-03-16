@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { validateToken, createSessionToken, setSessionCookie } from '@/lib/auth';
+import { validateToken, createSessionToken, SESSION_COOKIE_NAME, SESSION_MAX_AGE } from '@/lib/auth';
 
 export async function POST(request: Request) {
   const { token } = await request.json();
@@ -7,6 +7,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
   const sessionToken = createSessionToken();
-  await setSessionCookie(sessionToken);
-  return NextResponse.json({ success: true });
+  const response = NextResponse.json({ success: true });
+  response.cookies.set(SESSION_COOKIE_NAME, sessionToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: SESSION_MAX_AGE,
+    path: '/',
+  });
+  return response;
 }
