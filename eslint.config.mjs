@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Legacy standalone project (consolidated into main app)
+    "f3-automation/**",
   ]),
 ]);
 

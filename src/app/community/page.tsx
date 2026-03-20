@@ -16,7 +16,7 @@ export default function CommunityPage() {
                 <div className="text-center max-w-3xl mx-auto mb-16">
                     <h2 className="text-3xl font-bold font-heading mb-6">OUR IMPACT</h2>
                     <p className="text-lg text-muted-foreground">
-                        F3 is more than just a workout. It's a leadership development organization. We believe that by getting right with ourselves (Fitness) and our brothers (Fellowship), we are better equipped to serve our families and community (Faith/3rd F).
+                        F3 is more than just a workout. It&apos;s a leadership development organization. We believe that by getting right with ourselves (Fitness) and our brothers (Fellowship), we are better equipped to serve our families and community (Faith/3rd F).
                     </p>
                 </div>
 
@@ -34,7 +34,7 @@ export default function CommunityPage() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-muted-foreground">
-                                We encourage men to step up and lead—whether it's Q-ing a workout, organizing an event, or taking initiative in their neighborhoods.
+                                We encourage men to step up and lead—whether it&apos;s Q-ing a workout, organizing an event, or taking initiative in their neighborhoods.
                             </p>
                         </CardContent>
                     </Card>
@@ -70,7 +70,7 @@ export default function CommunityPage() {
                         </CardHeader>
                         <CardContent>
                             <p className="text-muted-foreground">
-                                By fighting isolation and building genuine friendships, we support men's mental health and resilience.
+                                By fighting isolation and building genuine friendships, we support men&apos;s mental health and resilience.
                             </p>
                         </CardContent>
                     </Card>

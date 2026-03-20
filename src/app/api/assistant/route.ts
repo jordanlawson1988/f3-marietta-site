@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
                 if (d.id === "marietta") return { title: "Community", url: "/community" };
                 return null;
             }).filter((p): p is { title: string; url: string } => p !== null);
-        } catch (e) {
+        } catch {
             // Ignore doc search errors for related pages
         }
 

@@ -114,10 +114,10 @@ function convertToGlossaryEntry(entry: ParsedKBEntry): GlossaryEntry {
     const id = slugify(entry.title);
 
     // Build short description
-    let shortDescription = entry.definition;
+    const shortDescription = entry.definition;
 
     // Build long description from additional content
-    let longParts: string[] = [];
+    const longParts: string[] = [];
     if (entry.howItsDone) {
         longParts.push(entry.howItsDone);
     }

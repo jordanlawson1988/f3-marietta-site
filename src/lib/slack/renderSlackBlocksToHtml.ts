@@ -4,8 +4,6 @@
  */
 
 import { sanitizeHtmlContent, escapeHtml } from '@/lib/security/sanitize';
-import type { SlackUser } from '@/types/f3Event';
-
 // User lookup function type (injected for flexibility)
 type UserLookupFn = (userId: string) => Promise<string>;
 
@@ -191,7 +189,7 @@ async function renderRichTextSection(
 
         switch (elType) {
             case 'text':
-                let text = el.text as string || '';
+                const text = el.text as string || '';
                 let html = escapeHtml(text);
 
                 const style = el.style as Record<string, boolean> | undefined;

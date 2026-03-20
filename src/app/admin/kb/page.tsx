@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAdminAuth } from "../AdminAuthContext";
 import { Button } from "@/components/ui/Button";
 import { authClient } from "@/lib/auth-client";
@@ -114,13 +114,9 @@ export default function KBAdminPage() {
 
     // --- Effects ---
 
-    useEffect(() => {
-        if (session) fetchFiles();
-    }, [session]);
-
     // --- API Calls ---
 
-    const fetchFiles = async () => {
+    const fetchFiles = useCallback(async () => {
         try {
             const res = await fetch("/api/admin/kb/files", {
                 credentials: "include",
@@ -140,7 +136,11 @@ export default function KBAdminPage() {
         } catch {
             console.error("Failed to fetch files");
         }
-    };
+    }, [logout]);
+
+    useEffect(() => {
+        if (session) fetchFiles();
+    }, [session, fetchFiles]);
 
     const loadFile = async (file: KBFile) => {
         setSelectedFile(file);

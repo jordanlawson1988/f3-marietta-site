@@ -98,7 +98,7 @@ export default function NewHerePage() {
                     <div className="text-center mb-10">
                         <h2 className="text-2xl md:text-3xl font-bold font-heading mb-3">FREQUENTLY ASKED QUESTIONS</h2>
                         <p className="text-muted-foreground text-lg">
-                            Got questions? We've got answers.
+                            Got questions? We&apos;ve got answers.
                         </p>
                     </div>
                     <FAQSection faqs={faqs} />

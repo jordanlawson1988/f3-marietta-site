@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDown, MapPin, Clock, ExternalLink } from "lucide-react";
 import type { WorkoutScheduleRow } from "@/types/workout";
-import type { DaySchedule, RegionWorkouts } from "@/lib/workouts/getWorkoutSchedule";
+import type { DaySchedule } from "@/lib/workouts/getWorkoutSchedule";
 
 const DAY_NAMES: Record<number, string> = {
   1: "Monday",

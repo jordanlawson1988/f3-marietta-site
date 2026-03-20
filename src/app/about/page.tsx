@@ -16,17 +16,17 @@ export default function AboutPage() {
                     <div>
                         <h2 className="text-2xl md:text-3xl font-bold font-heading mb-4">OUR MISSION</h2>
                         <p className="text-xl font-medium italic border-l-4 border-primary pl-4 py-2 bg-muted/30">
-                            "To plant, grow, and serve small workout groups for men for the invigoration of male community leadership."
+                            &quot;To plant, grow, and serve small workout groups for men for the invigoration of male community leadership.&quot;
                         </p>
                     </div>
 
                     <div>
                         <h2 className="text-2xl md:text-3xl font-bold font-heading mb-4">OUR STORY</h2>
                         <p className="text-muted-foreground mb-4">
-                            F3 Marietta began in June 2024 with the launch of our first workout location (AO), "The Battlefield," at Marietta High School. What started as a small group of men gathering in the gloom has grown into a thriving community.
+                            F3 Marietta began in June 2024 with the launch of our first workout location (AO), &quot;The Battlefield,&quot; at Marietta High School. What started as a small group of men gathering in the gloom has grown into a thriving community.
                         </p>
                         <p className="text-muted-foreground mb-4">
-                            As our numbers grew, we expanded to include a second AO, "The Last Stand," adopted from the Alpha region. This growth signaled the readiness for Marietta to stand on its own as an official F3 Region.
+                            As our numbers grew, we expanded to include a second AO, &quot;The Last Stand,&quot; adopted from the Alpha region. This growth signaled the readiness for Marietta to stand on its own as an official F3 Region.
                         </p>
                         <p className="text-muted-foreground">
                             Today, F3 Marietta serves men across the city, providing a place to get fit, find fellowship, and explore faith—all while developing the leadership skills needed to be better husbands, fathers, and community members.

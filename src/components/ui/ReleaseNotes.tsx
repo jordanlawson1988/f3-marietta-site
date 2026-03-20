@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -10,17 +10,12 @@ const STORAGE_KEY = "f3-marietta-last-seen-version";
 
 export function ReleaseNotes() {
     const [isOpen, setIsOpen] = useState(false);
-    const [hasNewUpdates, setHasNewUpdates] = useState(false);
-
-    useEffect(() => {
-        // Check if user has seen the latest version
+    const [hasNewUpdates, setHasNewUpdates] = useState(() => {
+        if (typeof window === "undefined") return false;
         const lastSeenVersion = localStorage.getItem(STORAGE_KEY);
         const latestVersion = RELEASES[0]?.version;
-
-        if (latestVersion && lastSeenVersion !== latestVersion) {
-            setHasNewUpdates(true);
-        }
-    }, []);
+        return !!(latestVersion && lastSeenVersion !== latestVersion);
+    });
 
     const handleOpen = () => {
         setIsOpen(true);

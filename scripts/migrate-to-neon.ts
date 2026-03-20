@@ -10,7 +10,7 @@
  */
 
 import { config } from 'dotenv';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import { Pool, PoolClient } from '@neondatabase/serverless';
 
 config({ path: '.env.local' });

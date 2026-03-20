@@ -44,7 +44,7 @@ export function ContactForm() {
             <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-6 text-center">
                 <p className="font-bold text-lg mb-1">Message sent!</p>
                 <p className="text-muted-foreground">
-                    We'll get back to you as soon as possible.
+                    We&apos;ll get back to you as soon as possible.
                 </p>
                 <button
                     type="button"

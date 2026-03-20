@@ -1,7 +1,7 @@
 import { Section } from "@/components/ui/Section";
 import { Hero } from "@/components/ui/Hero";
 import { Button } from "@/components/ui/Button";
-import { getWorkoutSchedule, type DaySchedule } from "@/lib/workouts/getWorkoutSchedule";
+import { getWorkoutSchedule } from "@/lib/workouts/getWorkoutSchedule";
 import { WorkoutSchedule } from "./WorkoutSchedule";
 
 function getTodayISODay(): number {

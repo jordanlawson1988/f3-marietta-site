@@ -16,7 +16,8 @@ import { renderSlackBlocksToHtml } from './renderSlackBlocksToHtml';
  */
 export async function normalizeSlackMessage(
     rawPayload: string,
-    aoDisplayName: string
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _aoDisplayName: string
 ): Promise<NormalizedEvent> {
     const envelope = JSON.parse(rawPayload) as Record<string, unknown>;
     const event = envelope.event as Record<string, unknown>;

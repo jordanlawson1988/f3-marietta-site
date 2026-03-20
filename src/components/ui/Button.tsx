@@ -1,5 +1,4 @@
 import * as React from "react";
-import { type ClassValue } from "clsx";
 import { cn } from "@/lib/utils";
 
 export interface ButtonProps
@@ -22,7 +21,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         // Or just return the child?
 
         if (asChild && React.isValidElement(props.children)) {
-            const child = React.Children.only(props.children) as React.ReactElement<any>;
+            const child = React.Children.only(props.children) as React.ReactElement<{ className?: string }>;
             // Only pass className to the child - do NOT spread all props
             // Spreading props.children onto the Link causes nested <a> tags
             return React.cloneElement(child, {

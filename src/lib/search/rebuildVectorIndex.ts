@@ -78,9 +78,9 @@ function parseMarkdownFile(filePath: string, folder: string): ParsedKBEntry | nu
 
 function convertToGlossaryEntry(entry: ParsedKBEntry): GlossaryEntry {
     const id = slugify(entry.title);
-    let shortDescription = entry.definition;
+    const shortDescription = entry.definition;
 
-    let longParts: string[] = [];
+    const longParts: string[] = [];
     if (entry.howItsDone) {
         longParts.push(entry.howItsDone);
     }
