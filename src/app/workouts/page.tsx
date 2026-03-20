@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/Button";
 import { getWorkoutSchedule } from "@/lib/workouts/getWorkoutSchedule";
 import { WorkoutSchedule } from "./WorkoutSchedule";
 
+export const dynamic = 'force-dynamic';
+
 function getTodayISODay(): number {
     const day = new Date().getDay(); // 0=Sun … 6=Sat
     return day === 0 ? 7 : day; // ISO: 1=Mon … 7=Sun
