@@ -1,25 +1,23 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSql } from "@/lib/db";
 import { validateAdminToken } from "@/lib/admin/auth";
 
 export async function GET(request: Request) {
-  const authError = validateAdminToken(request);
+  const authError = await validateAdminToken(request);
   if (authError) return authError;
 
-  const { data, error } = await supabase
-    .from("regions")
-    .select("*")
-    .order("sort_order", { ascending: true });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const sql = getSql();
+    const data = await sql`SELECT * FROM regions ORDER BY sort_order ASC`;
+    return NextResponse.json({ regions: data });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Database error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  return NextResponse.json({ regions: data });
 }
 
 export async function POST(request: Request) {
-  const authError = validateAdminToken(request);
+  const authError = await validateAdminToken(request);
   if (authError) return authError;
 
   const body = await request.json();
@@ -32,20 +30,16 @@ export async function POST(request: Request) {
   const regionSlug =
     slug || name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-  const { data, error } = await supabase
-    .from("regions")
-    .insert({
-      name,
-      slug: regionSlug,
-      sort_order: sort_order ?? 0,
-      is_primary: is_primary ?? false,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const sql = getSql();
+    const data = await sql`
+      INSERT INTO regions (name, slug, sort_order, is_primary)
+      VALUES (${name}, ${regionSlug}, ${sort_order ?? 0}, ${is_primary ?? false})
+      RETURNING *
+    `;
+    return NextResponse.json({ region: data[0] }, { status: 201 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Database error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  return NextResponse.json({ region: data }, { status: 201 });
 }

@@ -3,7 +3,7 @@
  * Resolves Slack user IDs to human-readable display names
  */
 
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 import { getSlackClient, isSlackClientConfigured } from './slackClient';
 import type { SlackUser } from '@/types/f3Event';
 
@@ -12,15 +12,13 @@ import type { SlackUser } from '@/types/f3Event';
  * First checks local cache, then fetches from Slack API if not found
  */
 export async function lookupSlackUser(slackUserId: string): Promise<SlackUser | null> {
-    // First, check our local cache
-    const { data: cached, error: cacheError } = await supabase
-        .from('slack_users')
-        .select('*')
-        .eq('slack_user_id', slackUserId)
-        .single();
+    const sql = getSql();
 
-    if (cached && !cacheError) {
-        return cached as SlackUser;
+    // First, check our local cache
+    const cached = await sql`SELECT * FROM slack_users WHERE slack_user_id = ${slackUserId}`;
+
+    if (cached[0]) {
+        return cached[0] as SlackUser;
     }
 
     // Not in cache - fetch from Slack API if configured
@@ -50,19 +48,25 @@ export async function lookupSlackUser(slackUserId: string): Promise<SlackUser | 
         };
 
         // Upsert into cache
-        const { data: inserted, error: insertError } = await supabase
-            .from('slack_users')
-            .upsert(slackUser, { onConflict: 'slack_user_id' })
-            .select()
-            .single();
+        try {
+            const inserted = await sql`INSERT INTO slack_users (slack_user_id, team_id, display_name, real_name, image_48, is_bot, deleted)
+                VALUES (${slackUser.slack_user_id}, ${slackUser.team_id}, ${slackUser.display_name}, ${slackUser.real_name}, ${slackUser.image_48}, ${slackUser.is_bot}, ${slackUser.deleted})
+                ON CONFLICT (slack_user_id) DO UPDATE SET
+                    team_id = EXCLUDED.team_id,
+                    display_name = EXCLUDED.display_name,
+                    real_name = EXCLUDED.real_name,
+                    image_48 = EXCLUDED.image_48,
+                    is_bot = EXCLUDED.is_bot,
+                    deleted = EXCLUDED.deleted,
+                    updated_at = now()
+                RETURNING *`;
 
-        if (insertError) {
+            return inserted[0] as SlackUser;
+        } catch (insertError) {
             console.error('Error caching Slack user:', insertError);
             // Return the user data even if caching fails
             return { ...slackUser, updated_at: new Date().toISOString() } as SlackUser;
         }
-
-        return inserted as SlackUser;
     } catch (error) {
         console.error(`Error fetching Slack user ${slackUserId}:`, error);
         return null;
@@ -105,23 +109,20 @@ export async function batchResolveSlackUserNames(
         return result;
     }
 
+    const sql = getSql();
+
     // Deduplicate
     const uniqueIds = [...new Set(slackUserIds)];
 
     // First, check cache for all users
-    const { data: cached } = await supabase
-        .from('slack_users')
-        .select('slack_user_id, display_name, real_name')
-        .in('slack_user_id', uniqueIds);
+    const cached = await sql`SELECT slack_user_id, display_name, real_name FROM slack_users WHERE slack_user_id = ANY(${uniqueIds})`;
 
     const cachedMap = new Map<string, { display_name: string | null; real_name: string | null }>();
-    if (cached) {
-        for (const user of cached) {
-            cachedMap.set(user.slack_user_id, {
-                display_name: user.display_name,
-                real_name: user.real_name,
-            });
-        }
+    for (const user of cached) {
+        cachedMap.set(user.slack_user_id as string, {
+            display_name: user.display_name as string | null,
+            real_name: user.real_name as string | null,
+        });
     }
 
     // Process each user

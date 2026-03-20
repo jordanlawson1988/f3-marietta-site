@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAdminAuth } from "../AdminAuthContext";
 import { Button } from "@/components/ui/Button";
 import { WorkoutGrid } from "./WorkoutGrid";
 import { WorkoutModal } from "./WorkoutModal";
@@ -10,8 +9,6 @@ import { Toast } from "../Toast";
 import type { Region } from "@/types/region";
 
 export default function WorkoutsAdminPage() {
-  const { token } = useAdminAuth();
-
   const [workouts, setWorkouts] = useState<WorkoutScheduleRow[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,14 +30,13 @@ export default function WorkoutsAdminPage() {
   const [showBulkRegionPicker, setShowBulkRegionPicker] = useState(false);
 
   const fetchData = async () => {
-    if (!token) return;
     try {
       const [wRes, rRes] = await Promise.all([
         fetch("/api/admin/workouts", {
-          headers: { "x-admin-token": token },
+          credentials: "include",
         }),
         fetch("/api/admin/regions", {
-          headers: { "x-admin-token": token },
+          credentials: "include",
         }),
       ]);
 
@@ -59,7 +55,7 @@ export default function WorkoutsAdminPage() {
 
   useEffect(() => {
     fetchData();
-  }, [token]);
+  }, []);
 
   const handleSelectWorkout = (id: string) => {
     setSelectedIds((prev) => {
@@ -83,7 +79,7 @@ export default function WorkoutsAdminPage() {
   };
 
   const handleBulkAction = async (action: string) => {
-    if (!token || selectedIds.size === 0) return;
+    if (selectedIds.size === 0) return;
     setError("");
     setMessage("");
     setShowBulkMenu(false);
@@ -102,7 +98,6 @@ export default function WorkoutsAdminPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-token": token,
         },
         body: JSON.stringify({
           action,
@@ -126,7 +121,7 @@ export default function WorkoutsAdminPage() {
   };
 
   const handleBulkChangeRegion = async () => {
-    if (!token || !bulkRegionId) return;
+    if (!bulkRegionId) return;
     setError("");
     setMessage("");
     setShowBulkRegionPicker(false);
@@ -136,7 +131,6 @@ export default function WorkoutsAdminPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-token": token,
         },
         body: JSON.stringify({
           action: "change_region",

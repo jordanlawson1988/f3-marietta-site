@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 import { verifySlackSignature } from '@/lib/slack/slackVerify';
 import { normalizeSlackMessage, isBackblastPayload, isPreblastPayload } from '@/lib/slack/normalizeSlackMessage';
 import type { NormalizedEvent } from '@/types/f3Event';
@@ -147,18 +147,9 @@ async function handleSlackEvent(event: SlackEvent, rawPayload: string) {
 }
 
 async function getAOChannel(slackChannelId: string) {
-    const { data, error } = await supabase
-        .from('ao_channels')
-        .select('*')
-        .eq('slack_channel_id', slackChannelId)
-        .eq('is_enabled', true)
-        .single();
-
-    if (error || !data) {
-        return null;
-    }
-
-    return data;
+    const sql = getSql();
+    const rows = await sql`SELECT * FROM ao_channels WHERE slack_channel_id = ${slackChannelId} AND is_enabled = true`;
+    return rows[0] || null;
 }
 
 /**
@@ -196,20 +187,37 @@ async function handleF3EventUpsert(
         };
 
         // Upsert to f3_events
-        const { data: eventData, error: eventError } = await supabase
-            .from('f3_events')
-            .upsert(record, {
-                onConflict: 'slack_channel_id,slack_message_ts',
-            })
-            .select('id')
-            .single();
+        const sql = getSql();
+        const rows = await sql`
+            INSERT INTO f3_events (slack_channel_id, slack_message_ts, slack_permalink, ao_display_name, event_kind, title, event_date, event_time, location_text, q_slack_user_id, q_name, pax_count, content_text, content_html, content_json, raw_envelope_json, last_slack_edit_ts, is_deleted)
+            VALUES (${record.slack_channel_id}, ${record.slack_message_ts}, ${record.slack_permalink}, ${record.ao_display_name}, ${record.event_kind}, ${record.title}, ${record.event_date}, ${record.event_time}, ${record.location_text}, ${record.q_slack_user_id}, ${record.q_name}, ${record.pax_count}, ${record.content_text}, ${record.content_html}, ${JSON.stringify(record.content_json)}, ${JSON.stringify(record.raw_envelope_json)}, ${record.last_slack_edit_ts}, ${record.is_deleted})
+            ON CONFLICT (slack_channel_id, slack_message_ts) DO UPDATE SET
+                slack_permalink = EXCLUDED.slack_permalink,
+                ao_display_name = EXCLUDED.ao_display_name,
+                event_kind = EXCLUDED.event_kind,
+                title = EXCLUDED.title,
+                event_date = EXCLUDED.event_date,
+                event_time = EXCLUDED.event_time,
+                location_text = EXCLUDED.location_text,
+                q_slack_user_id = EXCLUDED.q_slack_user_id,
+                q_name = EXCLUDED.q_name,
+                pax_count = EXCLUDED.pax_count,
+                content_text = EXCLUDED.content_text,
+                content_html = EXCLUDED.content_html,
+                content_json = EXCLUDED.content_json,
+                raw_envelope_json = EXCLUDED.raw_envelope_json,
+                last_slack_edit_ts = EXCLUDED.last_slack_edit_ts,
+                is_deleted = EXCLUDED.is_deleted,
+                updated_at = now()
+            RETURNING id
+        `;
 
-        if (eventError) {
-            console.error('Error upserting f3_event:', eventError);
+        if (rows.length === 0) {
+            console.error('Error upserting f3_event: no rows returned');
             return;
         }
 
-        const eventId = eventData?.id;
+        const eventId = rows[0]?.id;
         console.log(`F3 Event upserted: ${eventId} (${normalized.event_kind})`);
 
         // Upsert child records
@@ -232,88 +240,66 @@ async function handleF3EventUpsert(
  * Upsert child records (attendees, qs, blocks)
  */
 async function upsertChildRecords(eventId: string, normalized: NormalizedEvent) {
+    const sql = getSql();
+
     // Delete existing child records first (idempotent replace)
     await Promise.all([
-        supabase.from('f3_event_attendees').delete().eq('event_id', eventId),
-        supabase.from('f3_event_qs').delete().eq('event_id', eventId),
-        supabase.from('slack_message_blocks').delete().eq('event_id', eventId),
+        sql`DELETE FROM f3_event_attendees WHERE event_id = ${eventId}`,
+        sql`DELETE FROM f3_event_qs WHERE event_id = ${eventId}`,
+        sql`DELETE FROM slack_message_blocks WHERE event_id = ${eventId}`,
     ]);
 
     // Insert attendees
     if (normalized.attendees.length > 0) {
-        const attendeeRecords = normalized.attendees.map(a => ({
-            event_id: eventId,
-            attendee_external_id: a.external_id || null,
-            attendee_slack_user_id: a.slack_user_id || null,
-        }));
-
-        const { error } = await supabase.from('f3_event_attendees').insert(attendeeRecords);
-        if (error) console.error('Error inserting attendees:', error);
+        for (const a of normalized.attendees) {
+            try {
+                await sql`INSERT INTO f3_event_attendees (event_id, attendee_external_id, attendee_slack_user_id) VALUES (${eventId}, ${a.external_id || null}, ${a.slack_user_id || null})`;
+            } catch (error) {
+                console.error('Error inserting attendee:', error);
+            }
+        }
     }
 
     // Insert Qs
     if (normalized.qs.length > 0) {
-        const qRecords = normalized.qs.map(q => ({
-            event_id: eventId,
-            q_external_id: q.external_id || null,
-            q_slack_user_id: q.slack_user_id || null,
-        }));
-
-        const { error } = await supabase.from('f3_event_qs').insert(qRecords);
-        if (error) console.error('Error inserting Qs:', error);
+        for (const q of normalized.qs) {
+            try {
+                await sql`INSERT INTO f3_event_qs (event_id, q_external_id, q_slack_user_id) VALUES (${eventId}, ${q.external_id || null}, ${q.slack_user_id || null})`;
+            } catch (error) {
+                console.error('Error inserting Q:', error);
+            }
+        }
     }
 
     // Insert blocks
     if (normalized.blocks.length > 0) {
         for (const block of normalized.blocks) {
-            const { data: blockData, error: blockError } = await supabase
-                .from('slack_message_blocks')
-                .insert({
-                    event_id: eventId,
-                    block_index: block.index,
-                    block_type: block.type || null,
-                    block_id: block.id || null,
-                    block_json: block.json,
-                })
-                .select('id')
-                .single();
+            try {
+                const blockRows = await sql`INSERT INTO slack_message_blocks (event_id, block_index, block_type, block_id, block_json) VALUES (${eventId}, ${block.index}, ${block.type || null}, ${block.id || null}, ${JSON.stringify(block.json)}) RETURNING id`;
 
-            if (blockError) {
+                // Insert block elements
+                if (blockRows[0]?.id && block.elements && block.elements.length > 0) {
+                    for (const el of block.elements) {
+                        try {
+                            await sql`INSERT INTO slack_block_elements (block_row_id, element_index, element_type, element_json) VALUES (${blockRows[0].id}, ${el.index}, ${el.type || null}, ${JSON.stringify(el.json)})`;
+                        } catch (elError) {
+                            console.error('Error inserting element:', elError);
+                        }
+                    }
+                }
+            } catch (blockError) {
                 console.error('Error inserting block:', blockError);
-                continue;
-            }
-
-            // Insert block elements
-            if (blockData?.id && block.elements && block.elements.length > 0) {
-                const elementRecords = block.elements.map(el => ({
-                    block_row_id: blockData.id,
-                    element_index: el.index,
-                    element_type: el.type || null,
-                    element_json: el.json,
-                }));
-
-                const { error: elError } = await supabase
-                    .from('slack_block_elements')
-                    .insert(elementRecords);
-                if (elError) console.error('Error inserting elements:', elError);
             }
         }
     }
 }
 
 async function handleMessageDeleted(channelId: string, messageTs: string) {
-    const { data, error } = await supabase
-        .from('f3_events')
-        .update({ is_deleted: true })
-        .eq('slack_channel_id', channelId)
-        .eq('slack_message_ts', messageTs)
-        .select('id')
-        .single();
-
-    if (data) {
-        console.log(`Soft deleted: ${data.id}`);
-    }
-    if (error) {
+    try {
+        const sql = getSql();
+        const rows = await sql`UPDATE f3_events SET is_deleted = true, updated_at = now() WHERE slack_channel_id = ${channelId} AND slack_message_ts = ${messageTs} RETURNING id`;
+        if (rows[0]) console.log(`Soft deleted: ${rows[0].id}`);
+    } catch (error) {
         console.error('Error soft-deleting f3_event:', error);
     }
 

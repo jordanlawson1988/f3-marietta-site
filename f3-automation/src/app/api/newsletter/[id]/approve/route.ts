@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySession } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 import { postNewsletter } from '@/lib/slack';
 
 export async function POST(
@@ -11,70 +11,41 @@ export async function POST(
   if (authError) return authError;
 
   const { id } = await params;
+  const sql = getSql();
 
-  const { data: newsletter, error: fetchError } = await supabase
-    .from('newsletters')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const rows = await sql`SELECT * FROM newsletters WHERE id = ${id}`;
 
-  if (fetchError || !newsletter) {
+  if (!rows[0]) {
     return NextResponse.json({ error: 'Newsletter not found' }, { status: 404 });
   }
+
+  const newsletter = rows[0];
 
   if (!newsletter.body_slack_mrkdwn) {
     return NextResponse.json({ error: 'Newsletter has no Slack content' }, { status: 400 });
   }
 
   // Update status to approved
-  await supabase
-    .from('newsletters')
-    .update({
-      status: 'approved',
-      approved_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id);
+  await sql`UPDATE newsletters SET status = 'approved', approved_at = now(), updated_at = now() WHERE id = ${id}`;
 
   try {
     const messageTs = await postNewsletter(newsletter.body_slack_mrkdwn);
 
-    const { data: updated, error: updateError } = await supabase
-      .from('newsletters')
-      .update({
-        status: 'posted',
-        posted_at: new Date().toISOString(),
-        slack_message_ts: messageTs,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single();
+    const updatedRows = await sql`UPDATE newsletters SET status = 'posted', posted_at = now(), slack_message_ts = ${messageTs}, updated_at = now() WHERE id = ${id} RETURNING *`;
 
-    if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    if (!updatedRows[0]) {
+      return NextResponse.json({ error: 'Failed to update newsletter' }, { status: 500 });
     }
 
     // Log success
-    await supabase.from('agent_runs').insert({
-      run_type: 'publish_newsletter',
-      status: 'success',
-      details: { newsletter_id: id, slack_message_ts: messageTs },
-      completed_at: new Date().toISOString(),
-    });
+    await sql`INSERT INTO agent_runs (run_type, status, details, completed_at) VALUES ('publish_newsletter', 'success', ${JSON.stringify({ newsletter_id: id, slack_message_ts: messageTs })}, now())`;
 
-    return NextResponse.json(updated);
+    return NextResponse.json(updatedRows[0]);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Slack publish failed';
 
     // Log failure
-    await supabase.from('agent_runs').insert({
-      run_type: 'publish_newsletter',
-      status: 'failure',
-      error_message: errorMessage,
-      details: { newsletter_id: id },
-      completed_at: new Date().toISOString(),
-    });
+    await sql`INSERT INTO agent_runs (run_type, status, error_message, details, completed_at) VALUES ('publish_newsletter', 'failure', ${errorMessage}, ${JSON.stringify({ newsletter_id: id })}, now())`;
 
     return NextResponse.json(
       { error: errorMessage, status: 'approved' },

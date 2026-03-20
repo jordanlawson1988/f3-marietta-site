@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 import { sanitizeHtmlContent } from '@/lib/security/sanitize';
 import { Section } from '@/components/ui/Section';
 import type { F3Event } from '@/types/f3Event';
@@ -11,18 +11,12 @@ interface BackblastDetailPageProps {
 }
 
 async function getF3Event(id: string): Promise<F3Event | null> {
-    const { data, error } = await supabase
-        .from('f3_events')
-        .select('*')
-        .eq('id', id)
-        .eq('is_deleted', false)
-        .single();
-
-    if (error || !data) {
-        return null;
-    }
-
-    return data as F3Event;
+    const sql = getSql();
+    const rows = await sql`
+        SELECT * FROM f3_events
+        WHERE id = ${id} AND is_deleted = false
+    `;
+    return (rows[0] as F3Event) || null;
 }
 
 export async function generateMetadata({ params }: BackblastDetailPageProps) {
@@ -64,7 +58,11 @@ export default async function BackblastDetailPage({ params }: BackblastDetailPag
     const eventType = isPreblast ? 'Preblast' : 'Backblast';
 
     const formattedDate = event.event_date
-        ? new Date(event.event_date + 'T00:00:00').toLocaleDateString('en-US', {
+        ? new Date(
+            typeof event.event_date === 'string' && !event.event_date.includes('T')
+                ? event.event_date + 'T00:00:00'
+                : event.event_date
+        ).toLocaleDateString('en-US', {
             weekday: 'long',
             month: 'long',
             day: 'numeric',

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySession } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
+import { put } from '@vercel/blob';
 
 export async function POST(
   request: NextRequest,
@@ -23,43 +24,28 @@ export async function POST(
   }
 
   // Get the draft
-  const { data: draft, error: fetchError } = await supabase
-    .from('instagram_drafts')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const sql = getSql();
+  const drafts = await sql`SELECT * FROM instagram_drafts WHERE id = ${id}`;
 
-  if (fetchError || !draft) {
+  if (drafts.length === 0) {
     return NextResponse.json(
-      { error: 'Draft not found', details: fetchError?.message },
+      { error: 'Draft not found' },
       { status: 404 }
     );
   }
 
-  // Upload image to Supabase Storage
+  const draft = drafts[0];
+
+  // Upload image to Vercel Blob
   const extension = image.name.split('.').pop() || 'jpg';
-  const storagePath = `instagram/${id}.${extension}`;
+  const blobPath = `instagram/${id}.${extension}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from('f3-media')
-    .upload(storagePath, image, {
-      contentType: image.type,
-      upsert: true,
-    });
+  const blob = await put(blobPath, image, {
+    access: 'public',
+    addRandomSuffix: false, // keep predictable paths
+  });
 
-  if (uploadError) {
-    return NextResponse.json(
-      { error: 'Failed to upload image', details: uploadError.message },
-      { status: 500 }
-    );
-  }
-
-  // Get public URL
-  const { data: urlData } = supabase.storage
-    .from('f3-media')
-    .getPublicUrl(storagePath);
-
-  const publicUrl = urlData.publicUrl;
+  const publicUrl = blob.url;
 
   // Build full caption with hashtags for easy copy-paste
   const hashtags = (draft.hashtags as string[]) ?? [];
@@ -68,25 +54,24 @@ export async function POST(
     : draft.caption;
 
   // Mark as approved — manual post to Instagram for now
-  const { data: approved, error: approveError } = await supabase
-    .from('instagram_drafts')
-    .update({
-      image_url: publicUrl,
-      image_storage_path: storagePath,
-      status: 'approved',
-      approved_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id)
-    .select()
-    .single();
+  const now = new Date().toISOString();
+  const updated = await sql`
+    UPDATE instagram_drafts
+    SET image_url = ${publicUrl},
+        image_storage_path = ${blobPath},
+        status = 'approved',
+        approved_at = ${now},
+        updated_at = ${now}
+    WHERE id = ${id}
+    RETURNING *
+  `;
 
-  if (approveError) {
+  if (updated.length === 0) {
     return NextResponse.json(
-      { error: 'Failed to approve draft', details: approveError.message },
+      { error: 'Failed to approve draft' },
       { status: 500 }
     );
   }
 
-  return NextResponse.json({ ...approved, full_caption: fullCaption });
+  return NextResponse.json({ ...updated[0], full_caption: fullCaption });
 }

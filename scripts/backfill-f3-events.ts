@@ -13,22 +13,28 @@
  */
 
 import { config } from 'dotenv';
+import { neon } from '@neondatabase/serverless';
 import { createClient } from '@supabase/supabase-js';
 
 // Load environment variables from .env.local
 config({ path: '.env.local' });
 
-// Load environment variables
+// We still need Supabase client to READ from the old backblasts table
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const databaseUrl = process.env.DATABASE_URL;
 
 if (!supabaseUrl || !supabaseKey) {
     console.error('Error: Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
-    console.error('Please set these environment variables in .env.local');
+    process.exit(1);
+}
+if (!databaseUrl) {
+    console.error('Error: Missing DATABASE_URL');
     process.exit(1);
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
+const sql = neon(databaseUrl);
 
 // Parse CLI arguments
 const args = process.argv.slice(2);
@@ -230,32 +236,56 @@ async function processBackblast(
     }
 
     // Check if already exists
-    const { data: existing } = await supabase
-        .from('f3_events')
-        .select('id')
-        .eq('slack_channel_id', row.slack_channel_id)
-        .eq('slack_message_ts', row.slack_message_ts)
-        .single();
+    const existing = await sql`SELECT id FROM f3_events WHERE slack_channel_id = ${row.slack_channel_id} AND slack_message_ts = ${row.slack_message_ts}`;
 
     // Upsert to f3_events
-    const { data, error } = await supabase
-        .from('f3_events')
-        .upsert(f3Event, {
-            onConflict: 'slack_channel_id,slack_message_ts',
-        })
-        .select('id')
-        .single();
+    const result = await sql`
+        INSERT INTO f3_events (
+            slack_channel_id, slack_message_ts, slack_permalink,
+            ao_display_name, event_kind, title, event_date, event_time,
+            location_text, q_slack_user_id, q_name, pax_count,
+            content_text, content_html, content_json, raw_envelope_json,
+            last_slack_edit_ts, is_deleted, created_at, updated_at
+        ) VALUES (
+            ${f3Event.slack_channel_id}, ${f3Event.slack_message_ts}, ${f3Event.slack_permalink},
+            ${f3Event.ao_display_name}, ${f3Event.event_kind}, ${f3Event.title}, ${f3Event.event_date}, ${f3Event.event_time},
+            ${f3Event.location_text}, ${f3Event.q_slack_user_id}, ${f3Event.q_name}, ${f3Event.pax_count},
+            ${f3Event.content_text}, ${f3Event.content_html}, ${JSON.stringify(f3Event.content_json)}, ${JSON.stringify(f3Event.raw_envelope_json)},
+            ${f3Event.last_slack_edit_ts}, ${f3Event.is_deleted}, ${f3Event.created_at}, ${f3Event.updated_at}
+        )
+        ON CONFLICT (slack_channel_id, slack_message_ts) DO UPDATE SET
+            slack_permalink = EXCLUDED.slack_permalink,
+            ao_display_name = EXCLUDED.ao_display_name,
+            event_kind = EXCLUDED.event_kind,
+            title = EXCLUDED.title,
+            event_date = EXCLUDED.event_date,
+            event_time = EXCLUDED.event_time,
+            location_text = EXCLUDED.location_text,
+            q_slack_user_id = EXCLUDED.q_slack_user_id,
+            q_name = EXCLUDED.q_name,
+            pax_count = EXCLUDED.pax_count,
+            content_text = EXCLUDED.content_text,
+            content_html = EXCLUDED.content_html,
+            content_json = EXCLUDED.content_json,
+            raw_envelope_json = EXCLUDED.raw_envelope_json,
+            last_slack_edit_ts = EXCLUDED.last_slack_edit_ts,
+            is_deleted = EXCLUDED.is_deleted,
+            updated_at = EXCLUDED.updated_at
+        RETURNING id
+    `;
 
-    if (error) {
-        throw new Error(`Upsert failed: ${error.message}`);
+    if (!result || result.length === 0) {
+        throw new Error('Upsert failed: no row returned');
     }
+
+    const insertedId = (result[0] as Record<string, unknown>).id as string;
 
     // Handle child records if we have event data
-    if (data?.id && eventPayload) {
-        await upsertChildRecords(data.id, eventKind, eventPayload, blocks || []);
+    if (insertedId && eventPayload) {
+        await upsertChildRecords(insertedId, eventKind, eventPayload, blocks || []);
     }
 
-    return existing ? 'updated' : 'created';
+    return existing.length > 0 ? 'updated' : 'created';
 }
 
 async function upsertChildRecords(
@@ -266,49 +296,37 @@ async function upsertChildRecords(
 ) {
     // Delete existing child records
     await Promise.all([
-        supabase.from('f3_event_attendees').delete().eq('event_id', eventId),
-        supabase.from('f3_event_qs').delete().eq('event_id', eventId),
-        supabase.from('slack_message_blocks').delete().eq('event_id', eventId),
+        sql`DELETE FROM f3_event_attendees WHERE event_id = ${eventId}`,
+        sql`DELETE FROM f3_event_qs WHERE event_id = ${eventId}`,
+        sql`DELETE FROM slack_message_blocks WHERE event_id = ${eventId}`,
     ]);
 
     // Insert attendees
     if (eventKind === 'backblast' && Array.isArray(eventPayload.the_pax)) {
-        const attendeeRecords = eventPayload.the_pax
-            .filter((p): p is string => typeof p === 'string')
-            .map(slackUserId => ({
-                event_id: eventId,
-                attendee_slack_user_id: slackUserId,
-                attendee_external_id: null,
-            }));
+        const attendees = eventPayload.the_pax
+            .filter((p): p is string => typeof p === 'string');
 
-        if (attendeeRecords.length > 0) {
-            await supabase.from('f3_event_attendees').insert(attendeeRecords);
+        for (const slackUserId of attendees) {
+            await sql`INSERT INTO f3_event_attendees (event_id, attendee_slack_user_id, attendee_external_id)
+                VALUES (${eventId}, ${slackUserId}, ${null})`;
         }
     }
 
     // Insert Qs
     if (eventKind === 'backblast' && eventPayload.the_q) {
-        await supabase.from('f3_event_qs').insert({
-            event_id: eventId,
-            q_slack_user_id: String(eventPayload.the_q),
-            q_external_id: null,
-        });
+        await sql`INSERT INTO f3_event_qs (event_id, q_slack_user_id, q_external_id)
+            VALUES (${eventId}, ${String(eventPayload.the_q)}, ${null})`;
     }
 
     // Insert blocks (simplified - just store the raw JSON)
     if (blocks.length > 0) {
-        const blockRecords = blocks.map((block, index) => {
-            const b = block as Record<string, unknown>;
-            return {
-                event_id: eventId,
-                block_index: index,
-                block_type: b.type as string || null,
-                block_id: b.block_id as string || null,
-                block_json: b,
-            };
-        });
-
-        await supabase.from('slack_message_blocks').insert(blockRecords);
+        for (let index = 0; index < blocks.length; index++) {
+            const b = blocks[index] as Record<string, unknown>;
+            const type = b.type as string || null;
+            const blockId = b.block_id as string || null;
+            await sql`INSERT INTO slack_message_blocks (event_id, block_index, block_type, block_id, block_json)
+                VALUES (${eventId}, ${index}, ${type}, ${blockId}, ${JSON.stringify(b)})`;
+        }
     }
 }
 

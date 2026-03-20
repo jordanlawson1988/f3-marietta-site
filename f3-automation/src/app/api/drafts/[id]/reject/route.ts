@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySession } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 
 export async function POST(
   _request: NextRequest,
@@ -11,22 +11,23 @@ export async function POST(
 
   const { id } = await params;
 
-  const { data, error } = await supabase
-    .from('instagram_drafts')
-    .update({
-      status: 'rejected',
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id)
-    .select()
-    .single();
+  try {
+    const sql = getSql();
 
-  if (error) {
+    const data = await sql`
+      UPDATE instagram_drafts SET
+        status = 'rejected',
+        updated_at = now()
+      WHERE id = ${id}
+      RETURNING *
+    `;
+
+    return NextResponse.json(data[0]);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Database error';
     return NextResponse.json(
-      { error: 'Failed to reject draft', details: error.message },
+      { error: 'Failed to reject draft', details: message },
       { status: 500 }
     );
   }
-
-  return NextResponse.json(data);
 }

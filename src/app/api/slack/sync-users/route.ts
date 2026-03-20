@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 import { getSlackClient, isSlackClientConfigured } from '@/lib/slack/slackClient';
 
 interface SyncStats {
@@ -71,6 +71,7 @@ export async function GET(request: NextRequest) {
  */
 async function syncAllSlackUsers(): Promise<SyncStats> {
     const client = getSlackClient();
+    const sql = getSql();
     const stats: SyncStats = { total: 0, inserted: 0, updated: 0, errors: 0 };
 
     let cursor: string | undefined;
@@ -97,47 +98,34 @@ async function syncAllSlackUsers(): Promise<SyncStats> {
             }
 
             try {
-                const userData = {
-                    slack_user_id: user.id!,
-                    team_id: user.team_id || null,
-                    display_name: user.profile?.display_name || null,
-                    real_name: user.profile?.real_name || null,
-                    image_48: user.profile?.image_48 || null,
-                    is_bot: user.is_bot || false,
-                    deleted: user.deleted || false,
-                };
+                const slackUserId = user.id!;
+                const teamId = user.team_id || null;
+                const displayName = user.profile?.display_name || null;
+                const realName = user.profile?.real_name || null;
+                const image48 = user.profile?.image_48 || null;
+                const isBot = user.is_bot || false;
+                const deleted = user.deleted || false;
 
                 // Check if exists
-                const { data: existing } = await supabase
-                    .from('slack_users')
-                    .select('slack_user_id')
-                    .eq('slack_user_id', user.id!)
-                    .single();
+                const existing = await sql`SELECT slack_user_id FROM slack_users WHERE slack_user_id = ${slackUserId}`;
 
-                if (existing) {
+                if (existing.length > 0) {
                     // Update existing
-                    const { error } = await supabase
-                        .from('slack_users')
-                        .update({ ...userData, updated_at: new Date().toISOString() })
-                        .eq('slack_user_id', user.id!);
-
-                    if (error) {
+                    try {
+                        await sql`UPDATE slack_users SET team_id = ${teamId}, display_name = ${displayName}, real_name = ${realName}, image_48 = ${image48}, is_bot = ${isBot}, deleted = ${deleted}, updated_at = now() WHERE slack_user_id = ${slackUserId}`;
+                        stats.updated++;
+                    } catch (error) {
                         console.error(`Error updating user ${user.id}:`, error);
                         stats.errors++;
-                    } else {
-                        stats.updated++;
                     }
                 } else {
                     // Insert new
-                    const { error } = await supabase
-                        .from('slack_users')
-                        .insert(userData);
-
-                    if (error) {
+                    try {
+                        await sql`INSERT INTO slack_users (slack_user_id, team_id, display_name, real_name, image_48, is_bot, deleted) VALUES (${slackUserId}, ${teamId}, ${displayName}, ${realName}, ${image48}, ${isBot}, ${deleted})`;
+                        stats.inserted++;
+                    } catch (error) {
                         console.error(`Error inserting user ${user.id}:`, error);
                         stats.errors++;
-                    } else {
-                        stats.inserted++;
                     }
                 }
             } catch (error) {

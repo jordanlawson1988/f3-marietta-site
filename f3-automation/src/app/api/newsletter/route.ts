@@ -1,19 +1,19 @@
 import { NextResponse } from 'next/server';
 import { verifySession } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 
 export async function GET() {
   const authError = await verifySession();
   if (authError) return authError;
 
-  const { data, error } = await supabase
-    .from('newsletters')
-    .select('*')
-    .order('week_start', { ascending: false });
+  try {
+    const sql = getSql();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const data = await sql`SELECT * FROM newsletters ORDER BY week_start DESC`;
+
+    return NextResponse.json(data);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Database error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  return NextResponse.json(data);
 }

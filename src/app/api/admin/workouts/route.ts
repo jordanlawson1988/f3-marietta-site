@@ -1,26 +1,23 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSql } from "@/lib/db";
 import { validateAdminToken } from "@/lib/admin/auth";
 
 export async function GET(request: Request) {
-  const authError = validateAdminToken(request);
+  const authError = await validateAdminToken(request);
   if (authError) return authError;
 
-  const { data, error } = await supabase
-    .from("workout_schedule")
-    .select("*")
-    .order("day_of_week", { ascending: true })
-    .order("start_time", { ascending: true });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const sql = getSql();
+    const data = await sql`SELECT * FROM workout_schedule ORDER BY day_of_week ASC, start_time ASC`;
+    return NextResponse.json({ workouts: data });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Database error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  return NextResponse.json({ workouts: data });
 }
 
 export async function POST(request: Request) {
-  const authError = validateAdminToken(request);
+  const authError = await validateAdminToken(request);
   if (authError) return authError;
 
   const body = await request.json();
@@ -44,26 +41,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data, error } = await supabase
-    .from("workout_schedule")
-    .insert({
-      ao_name,
-      workout_type,
-      day_of_week,
-      start_time,
-      end_time,
-      location_name: location_name || null,
-      address,
-      region_id,
-      map_link: map_link || null,
-      is_active: is_active ?? true,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const sql = getSql();
+    const data = await sql`
+      INSERT INTO workout_schedule (ao_name, workout_type, day_of_week, start_time, end_time, location_name, address, region_id, map_link, is_active)
+      VALUES (${ao_name}, ${workout_type}, ${day_of_week}, ${start_time}, ${end_time}, ${location_name || null}, ${address}, ${region_id}, ${map_link || null}, ${is_active ?? true})
+      RETURNING *
+    `;
+    return NextResponse.json({ workout: data[0] }, { status: 201 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Database error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  return NextResponse.json({ workout: data }, { status: 201 });
 }

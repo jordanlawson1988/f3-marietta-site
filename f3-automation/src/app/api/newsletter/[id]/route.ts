@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySession } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 
 export async function PATCH(
   request: NextRequest,
@@ -12,24 +12,22 @@ export async function PATCH(
   const { id } = await params;
   const body = await request.json();
 
-  const updateFields: Record<string, unknown> = {
-    updated_at: new Date().toISOString(),
-  };
+  try {
+    const sql = getSql();
 
-  if (body.title !== undefined) updateFields.title = body.title;
-  if (body.body_markdown !== undefined) updateFields.body_markdown = body.body_markdown;
-  if (body.body_slack_mrkdwn !== undefined) updateFields.body_slack_mrkdwn = body.body_slack_mrkdwn;
+    const data = await sql`
+      UPDATE newsletters SET
+        title = COALESCE(${body.title ?? null}, title),
+        body_markdown = COALESCE(${body.body_markdown ?? null}, body_markdown),
+        body_slack_mrkdwn = COALESCE(${body.body_slack_mrkdwn ?? null}, body_slack_mrkdwn),
+        updated_at = now()
+      WHERE id = ${id}
+      RETURNING *
+    `;
 
-  const { data, error } = await supabase
-    .from('newsletters')
-    .update(updateFields)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data[0]);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Database error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  return NextResponse.json(data);
 }

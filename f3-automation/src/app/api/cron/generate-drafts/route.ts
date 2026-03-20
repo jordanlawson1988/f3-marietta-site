@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyCronSecret } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 import { generateCaption } from '@/lib/claude';
 import {
   INSTAGRAM_CAPTION_SYSTEM_PROMPT,
@@ -12,80 +12,54 @@ export async function GET(request: Request) {
   const authError = verifyCronSecret(request);
   if (authError) return authError;
 
-  // Log the start of the run
-  const { data: run, error: runError } = await supabase
-    .from('agent_runs')
-    .insert({
-      run_type: 'generate_drafts',
-      status: 'success',
-      started_at: new Date().toISOString(),
-    })
-    .select('id')
-    .single();
+  const sql = getSql();
 
-  if (runError || !run) {
+  // Log the start of the run
+  const runRows = await sql`INSERT INTO agent_runs (run_type, status, started_at) VALUES ('generate_drafts', 'success', now()) RETURNING id`;
+
+  if (!runRows[0]) {
     return NextResponse.json(
-      { error: 'Failed to create agent run', details: runError?.message },
+      { error: 'Failed to create agent run' },
       { status: 500 }
     );
   }
+
+  const runId = runRows[0].id;
 
   // Get event IDs that already have drafts
-  const { data: existingDrafts, error: draftsError } = await supabase
-    .from('instagram_drafts')
-    .select('event_id');
+  let existingDraftRows;
+  try {
+    existingDraftRows = await sql`SELECT event_id FROM instagram_drafts`;
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
 
-  if (draftsError) {
-    await supabase
-      .from('agent_runs')
-      .update({
-        status: 'failure',
-        error_message: `Failed to query existing drafts: ${draftsError.message}`,
-        completed_at: new Date().toISOString(),
-      })
-      .eq('id', run.id);
+    await sql`UPDATE agent_runs SET status = 'failure', error_message = ${`Failed to query existing drafts: ${errorMessage}`}, completed_at = now() WHERE id = ${runId}`;
 
     return NextResponse.json(
-      { error: 'Failed to query existing drafts', details: draftsError.message },
+      { error: 'Failed to query existing drafts', details: errorMessage },
       { status: 500 }
     );
   }
 
-  const existingEventIds = (existingDrafts ?? []).map(
-    (d: { event_id: string }) => d.event_id
+  const existingEventIds = (existingDraftRows ?? []).map(
+    (d) => d.event_id as string
   );
 
   // Query backblasts that don't have drafts yet
-  let query = supabase
-    .from('f3_events')
-    .select('*')
-    .eq('event_kind', 'backblast')
-    .eq('is_deleted', false)
-    .order('created_at', { ascending: false });
+  let events;
+  try {
+    if (existingEventIds.length > 0) {
+      events = await sql`SELECT * FROM f3_events WHERE event_kind = 'backblast' AND is_deleted = false AND id != ALL(${existingEventIds}) ORDER BY created_at DESC`;
+    } else {
+      events = await sql`SELECT * FROM f3_events WHERE event_kind = 'backblast' AND is_deleted = false ORDER BY created_at DESC`;
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
 
-  if (existingEventIds.length > 0) {
-    // Supabase's .not('id', 'in', ...) expects a parenthesized list
-    query = query.not(
-      'id',
-      'in',
-      `(${existingEventIds.join(',')})`
-    );
-  }
-
-  const { data: events, error: eventsError } = await query;
-
-  if (eventsError) {
-    await supabase
-      .from('agent_runs')
-      .update({
-        status: 'failure',
-        error_message: `Failed to query events: ${eventsError.message}`,
-        completed_at: new Date().toISOString(),
-      })
-      .eq('id', run.id);
+    await sql`UPDATE agent_runs SET status = 'failure', error_message = ${`Failed to query events: ${errorMessage}`}, completed_at = now() WHERE id = ${runId}`;
 
     return NextResponse.json(
-      { error: 'Failed to query events', details: eventsError.message },
+      { error: 'Failed to query events', details: errorMessage },
       { status: 500 }
     );
   }
@@ -93,14 +67,7 @@ export async function GET(request: Request) {
   const newEvents = (events ?? []) as F3Event[];
 
   if (newEvents.length === 0) {
-    await supabase
-      .from('agent_runs')
-      .update({
-        status: 'success',
-        details: { message: 'No new events to process' },
-        completed_at: new Date().toISOString(),
-      })
-      .eq('id', run.id);
+    await sql`UPDATE agent_runs SET status = 'success', details = ${JSON.stringify({ message: 'No new events to process' })}, completed_at = now() WHERE id = ${runId}`;
 
     return NextResponse.json({
       drafts_created: 0,
@@ -120,25 +87,15 @@ export async function GET(request: Request) {
         buildUserPrompt(event)
       );
 
-      const { error: insertError } = await supabase
-        .from('instagram_drafts')
-        .insert({
-          event_id: event.id,
-          caption: result.caption,
-          story_text: result.story_text,
-          hashtags: result.hashtags,
-          alt_text: result.alt_text,
-          status: 'pending',
-          post_type: 'feed',
-        });
-
-      if (insertError) {
+      try {
+        await sql`INSERT INTO instagram_drafts (event_id, caption, story_text, hashtags, alt_text, status, post_type) VALUES (${event.id}, ${result.caption}, ${result.story_text}, ${result.hashtags}, ${result.alt_text}, 'pending', 'feed')`;
+        draftsCreated++;
+      } catch (insertErr) {
+        const insertMessage = insertErr instanceof Error ? insertErr.message : String(insertErr);
         errors.push({
           event_id: event.id,
-          error: `Insert failed: ${insertError.message}`,
+          error: `Insert failed: ${insertMessage}`,
         });
-      } else {
-        draftsCreated++;
       }
     } catch (err) {
       errors.push({
@@ -152,18 +109,12 @@ export async function GET(request: Request) {
   const allFailed = draftsCreated === 0 && errors.length > 0;
   const someFailed = draftsCreated > 0 && errors.length > 0;
   const finalStatus = allFailed ? 'failure' : someFailed ? 'partial' : 'success';
+  const errorMsg = errors.length > 0
+    ? `${errors.length} of ${newEvents.length} drafts failed`
+    : null;
+  const details = errors.length > 0 ? { errors } : { drafts_created: draftsCreated };
 
-  await supabase
-    .from('agent_runs')
-    .update({
-      status: finalStatus,
-      error_message: errors.length > 0
-        ? `${errors.length} of ${newEvents.length} drafts failed`
-        : null,
-      details: errors.length > 0 ? { errors } : { drafts_created: draftsCreated },
-      completed_at: new Date().toISOString(),
-    })
-    .eq('id', run.id);
+  await sql`UPDATE agent_runs SET status = ${finalStatus}, error_message = ${errorMsg}, details = ${JSON.stringify(details)}, completed_at = now() WHERE id = ${runId}`;
 
   return NextResponse.json({
     drafts_created: draftsCreated,

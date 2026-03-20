@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useAdminAuth } from "../AdminAuthContext";
 import { Button } from "@/components/ui/Button";
 import { X } from "lucide-react";
 import type { WorkoutScheduleRow } from "@/types/workout";
@@ -40,7 +39,6 @@ export function WorkoutModal({
   onClose,
   onSaved,
 }: WorkoutModalProps) {
-  const { token } = useAdminAuth();
   const isEdit = !!workout;
 
   const [aoName, setAoName] = useState(workout?.ao_name ?? "");
@@ -60,7 +58,7 @@ export function WorkoutModal({
   const activeRegions = regions.filter((r) => r.is_active);
 
   const handleSave = async () => {
-    if (!token || !aoName || !address || !regionId) return;
+    if (!aoName || !address || !regionId) return;
     setIsSaving(true);
     setError("");
 
@@ -86,8 +84,8 @@ export function WorkoutModal({
         method: isEdit ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-token": token,
         },
+        credentials: "include",
         body: JSON.stringify(body),
       });
 
@@ -106,13 +104,13 @@ export function WorkoutModal({
   };
 
   const handleDelete = async () => {
-    if (!token || !workout) return;
+    if (!workout) return;
     if (!window.confirm(`Delete "${workout.ao_name}"? This cannot be undone.`)) return;
 
     try {
       const res = await fetch(`/api/admin/workouts/${workout.id}`, {
         method: "DELETE",
-        headers: { "x-admin-token": token },
+        credentials: "include",
       });
 
       if (res.ok) {

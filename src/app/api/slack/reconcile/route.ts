@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 import { normalizeSlackMessage, isBackblastPayload, isPreblastPayload } from '@/lib/slack/normalizeSlackMessage';
 
 // This endpoint is called by Vercel Cron as a safety net
@@ -48,14 +48,18 @@ export async function GET(request: NextRequest) {
 
     try {
         // Get all enabled AO channels
-        const { data: channels, error: channelsError } = await supabase
-            .from('ao_channels')
-            .select('*')
-            .eq('is_enabled', true);
-
-        if (channelsError || !channels) {
+        const sql = getSql();
+        let channels;
+        try {
+            channels = await sql`SELECT * FROM ao_channels WHERE is_enabled = true`;
+        } catch (channelsError) {
             console.error('Error fetching channels:', channelsError);
             return NextResponse.json({ error: 'Database error' }, { status: 500 });
+        }
+
+        if (!channels || channels.length === 0) {
+            console.error('No enabled channels found');
+            return NextResponse.json({ error: 'No channels found' }, { status: 500 });
         }
 
         let processedCount = 0;
@@ -106,39 +110,31 @@ export async function GET(request: NextRequest) {
                     try {
                         const normalized = await normalizeSlackMessage(rawPayload, channel.ao_display_name);
 
-                        const { error: upsertError } = await supabase
-                            .from('f3_events')
-                            .upsert(
-                                {
-                                    slack_channel_id: normalized.slack_channel_id,
-                                    slack_message_ts: normalized.slack_message_ts,
-                                    slack_permalink: normalized.slack_permalink || null,
-                                    ao_display_name: channel.ao_display_name,
-                                    event_kind: normalized.event_kind,
-                                    title: normalized.title || null,
-                                    event_date: normalized.event_date || null,
-                                    event_time: normalized.event_time || null,
-                                    location_text: normalized.location_text || null,
-                                    q_slack_user_id: normalized.q_slack_user_id || null,
-                                    q_name: normalized.q_name || null,
-                                    pax_count: normalized.pax_count || null,
-                                    content_text: normalized.content_text || null,
-                                    content_html: normalized.content_html || null,
-                                    content_json: normalized.content_json,
-                                    raw_envelope_json: normalized.raw_envelope_json,
-                                    is_deleted: false,
-                                },
-                                { onConflict: 'slack_channel_id,slack_message_ts' }
-                            );
+                        await sql`
+                            INSERT INTO f3_events (slack_channel_id, slack_message_ts, slack_permalink, ao_display_name, event_kind, title, event_date, event_time, location_text, q_slack_user_id, q_name, pax_count, content_text, content_html, content_json, raw_envelope_json, is_deleted)
+                            VALUES (${normalized.slack_channel_id}, ${normalized.slack_message_ts}, ${normalized.slack_permalink || null}, ${channel.ao_display_name}, ${normalized.event_kind}, ${normalized.title || null}, ${normalized.event_date || null}, ${normalized.event_time || null}, ${normalized.location_text || null}, ${normalized.q_slack_user_id || null}, ${normalized.q_name || null}, ${normalized.pax_count || null}, ${normalized.content_text || null}, ${normalized.content_html || null}, ${JSON.stringify(normalized.content_json)}, ${JSON.stringify(normalized.raw_envelope_json)}, ${false})
+                            ON CONFLICT (slack_channel_id, slack_message_ts) DO UPDATE SET
+                                slack_permalink = EXCLUDED.slack_permalink,
+                                ao_display_name = EXCLUDED.ao_display_name,
+                                event_kind = EXCLUDED.event_kind,
+                                title = EXCLUDED.title,
+                                event_date = EXCLUDED.event_date,
+                                event_time = EXCLUDED.event_time,
+                                location_text = EXCLUDED.location_text,
+                                q_slack_user_id = EXCLUDED.q_slack_user_id,
+                                q_name = EXCLUDED.q_name,
+                                pax_count = EXCLUDED.pax_count,
+                                content_text = EXCLUDED.content_text,
+                                content_html = EXCLUDED.content_html,
+                                content_json = EXCLUDED.content_json,
+                                raw_envelope_json = EXCLUDED.raw_envelope_json,
+                                is_deleted = EXCLUDED.is_deleted,
+                                updated_at = now()
+                        `;
 
-                        if (upsertError) {
-                            console.error('Error upserting f3_event:', upsertError);
-                            errorCount++;
-                        } else {
-                            processedCount++;
-                        }
+                        processedCount++;
                     } catch (err) {
-                        console.error(`Error normalizing message ${message.ts}:`, err);
+                        console.error(`Error processing message ${message.ts}:`, err);
                         errorCount++;
                     }
                 }

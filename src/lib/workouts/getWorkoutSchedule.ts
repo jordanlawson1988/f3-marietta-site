@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { getSql } from "@/lib/db";
 import type { WorkoutScheduleRow } from "@/types/workout";
 import type { Region } from "@/types/region";
 
@@ -21,24 +21,15 @@ export interface DaySchedule {
 export async function getWorkoutSchedule(): Promise<
   Record<number, DaySchedule>
 > {
-  // Fetch active regions
-  const { data: regionsData } = await supabase
-    .from("regions")
-    .select("*")
-    .eq("is_active", true)
-    .order("sort_order", { ascending: true });
+  const sql = getSql();
 
-  const regions: Region[] = regionsData ?? [];
+  // Fetch active regions
+  const regionsData = await sql`SELECT * FROM regions WHERE is_active = true ORDER BY sort_order ASC`;
+  const regions: Region[] = regionsData as Region[];
 
   // Fetch active workouts
-  const { data: workoutsData } = await supabase
-    .from("workout_schedule")
-    .select("*")
-    .eq("is_active", true)
-    .order("day_of_week")
-    .order("start_time");
-
-  const workouts: WorkoutScheduleRow[] = workoutsData ?? [];
+  const workoutsData = await sql`SELECT * FROM workout_schedule WHERE is_active = true ORDER BY day_of_week, start_time`;
+  const workouts: WorkoutScheduleRow[] = workoutsData as WorkoutScheduleRow[];
 
   // Group by day, then by region
   const schedule: Record<number, DaySchedule> = {};

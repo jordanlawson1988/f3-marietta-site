@@ -70,13 +70,14 @@ export default async function BackblastsPage({ searchParams }: BackblastsPagePro
         return `/backblasts${qs ? `?${qs}` : ''}`;
     };
 
-    // Format date helper - handles both date-only (event_date) and datetime (created_at) formats
-    const formatDate = (dateStr: string | null) => {
-        if (!dateStr) return null;
-        // Handle ISO datetime format (e.g., "2026-01-12T12:00:00.000Z")
-        const date = dateStr.includes('T')
-            ? new Date(dateStr)
-            : new Date(dateStr + 'T00:00:00');
+    // Format date helper - handles Date objects (Neon) and strings
+    const formatDate = (dateVal: string | Date | null) => {
+        if (!dateVal) return null;
+        const date = dateVal instanceof Date
+            ? dateVal
+            : typeof dateVal === 'string' && dateVal.includes('T')
+                ? new Date(dateVal)
+                : new Date(dateVal + 'T00:00:00');
         return date.toLocaleDateString('en-US', {
             weekday: 'short',
             month: 'short',

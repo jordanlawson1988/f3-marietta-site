@@ -1,16 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { AdminAuthContext } from "./AdminAuthContext";
+import { authClient } from "@/lib/auth-client";
 import {
   BookOpen,
   Dumbbell,
   MapPin,
   LogOut,
+  Instagram,
+  History,
+  Newspaper,
 } from "lucide-react";
 
 // --- Nav Items ---
@@ -19,6 +23,9 @@ const NAV_ITEMS = [
   { href: "/admin/workouts", label: "Workouts", icon: Dumbbell },
   { href: "/admin/regions", label: "Regions", icon: MapPin },
   { href: "/admin/kb", label: "Knowledge Base", icon: BookOpen },
+  { href: "/admin/drafts", label: "Instagram Drafts", icon: Instagram },
+  { href: "/admin/drafts/history", label: "Draft History", icon: History },
+  { href: "/admin/newsletter", label: "Newsletter", icon: Newspaper },
 ];
 
 // --- Layout Component ---
@@ -28,43 +35,25 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const pathname = usePathname();
 
-  useEffect(() => {
-    // Migrate old KB token key to new unified key
-    const oldToken = localStorage.getItem("f3-kb-admin-token");
-    const newToken = localStorage.getItem("f3-admin-token");
-    if (oldToken && !newToken) {
-      localStorage.setItem("f3-admin-token", oldToken);
-      localStorage.removeItem("f3-kb-admin-token");
-    }
-
-    const saved = localStorage.getItem("f3-admin-token");
-    if (saved) {
-      setToken(saved);
-    }
-  }, []);
+  const { data: session, isPending } = authClient.useSession();
 
   const handleLogin = async () => {
-    if (!password) return;
+    if (!email || !password) return;
     setIsLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/admin/auth", {
-        method: "POST",
-        headers: { "x-admin-token": password },
+      const result = await authClient.signIn.email({
+        email,
+        password,
       });
-      if (res.ok) {
-        setToken(password);
-        localStorage.setItem("f3-admin-token", password);
-      } else if (res.status === 401) {
-        setError("Invalid password");
-      } else {
-        setError("Server error — please try again");
+      if (result.error) {
+        setError(result.error.message || "Invalid credentials");
       }
     } catch {
       setError("Connection failed");
@@ -73,13 +62,20 @@ export default function AdminLayout({
     }
   };
 
-  const logout = () => {
-    setToken(null);
-    localStorage.removeItem("f3-admin-token");
+  const logout = async () => {
+    await authClient.signOut();
   };
 
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0A1A2F] text-white">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
+  }
+
   // --- Login Screen ---
-  if (!token) {
+  if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0A1A2F] text-white p-4">
         <div className="max-w-md w-full bg-[#112240] p-8 rounded-lg border border-[#23334A] shadow-xl">
@@ -87,6 +83,20 @@ export default function AdminLayout({
             F3 Marietta Admin
           </h1>
           <div className="space-y-4">
+            <div>
+              <label htmlFor="admin-email" className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
+                Email
+              </label>
+              <input
+                id="admin-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+                className="w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm"
+                placeholder="admin@f3marietta.com"
+              />
+            </div>
             <div>
               <label htmlFor="admin-password" className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
                 Password
@@ -106,7 +116,7 @@ export default function AdminLayout({
               disabled={isLoading}
               className="w-full"
             >
-              {isLoading ? "Unlocking..." : "Unlock"}
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </div>
         </div>
@@ -116,7 +126,7 @@ export default function AdminLayout({
 
   // --- Authenticated Layout ---
   return (
-    <AdminAuthContext.Provider value={{ token, logout }}>
+    <AdminAuthContext.Provider value={{ logout }}>
       <div className="min-h-screen bg-[#0A1A2F] text-white flex">
         {/* Sidebar */}
         <div className="w-56 bg-[#112240] border-r border-[#23334A] flex flex-col shrink-0 h-screen sticky top-0">
@@ -124,6 +134,9 @@ export default function AdminLayout({
             <h2 className="font-bold text-sm tracking-wide text-gray-300">
               F3 Marietta Admin
             </h2>
+            <p className="text-xs text-gray-500 mt-1 truncate">
+              {session.user.email}
+            </p>
           </div>
 
           <nav className="flex-1 p-2 space-y-1">

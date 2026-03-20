@@ -1,28 +1,30 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 /**
- * Validates the admin token from request headers.
+ * Validates the admin session from request headers.
  * Returns null if valid, or a NextResponse error if invalid.
  */
-export function validateAdminToken(
-  request: Request
-): NextResponse | null {
-  const token = request.headers.get("x-admin-token");
-  const expected = process.env.ADMIN_DASHBOARD_PASSWORD;
+export async function validateAdminToken(
+    request: Request
+): Promise<NextResponse | null> {
+    try {
+        const session = await auth.api.getSession({
+            headers: request.headers,
+        });
 
-  if (!expected) {
-    return NextResponse.json(
-      { error: "Admin password not configured" },
-      { status: 500 }
-    );
-  }
+        if (!session) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
 
-  if (token !== expected) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-
-  return null; // Auth passed
+        return null; // Auth passed
+    } catch {
+        return NextResponse.json(
+            { error: "Unauthorized" },
+            { status: 401 }
+        );
+    }
 }

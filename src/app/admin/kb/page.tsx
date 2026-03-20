@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAdminAuth } from "../AdminAuthContext";
 import { Button } from "@/components/ui/Button";
+import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Folder, FileText, Search, Plus, Save, Eye, Edit3, Code, ChevronRight, ChevronDown } from "lucide-react";
 
@@ -85,7 +86,8 @@ function Textarea({ label, value, onChange, rows = 4 }: { label: string; value: 
 // --- Main Page Component ---
 
 export default function KBAdminPage() {
-    const { token, logout } = useAdminAuth();
+    const { logout } = useAdminAuth();
+    const { data: session } = authClient.useSession();
 
     // Data State
     const [files, setFiles] = useState<KBFile[]>([]);
@@ -113,15 +115,15 @@ export default function KBAdminPage() {
     // --- Effects ---
 
     useEffect(() => {
-        if (token) fetchFiles(token);
-    }, [token]);
+        if (session) fetchFiles();
+    }, [session]);
 
     // --- API Calls ---
 
-    const fetchFiles = async (authToken: string) => {
+    const fetchFiles = async () => {
         try {
             const res = await fetch("/api/admin/kb/files", {
-                headers: { "x-admin-token": authToken },
+                credentials: "include",
             });
             if (res.ok) {
                 const data = await res.json();
@@ -141,7 +143,6 @@ export default function KBAdminPage() {
     };
 
     const loadFile = async (file: KBFile) => {
-        if (!token) return;
         setSelectedFile(file);
         setFileDetail(null);
         setIsLoading(true);
@@ -151,7 +152,7 @@ export default function KBAdminPage() {
 
         try {
             const res = await fetch(`/api/admin/kb/file?path=${encodeURIComponent(file.path)}`, {
-                headers: { "x-admin-token": token },
+                credentials: "include",
             });
             if (res.ok) {
                 const data = await res.json();
@@ -172,7 +173,7 @@ export default function KBAdminPage() {
     };
 
     const saveFile = async () => {
-        if (!token || !selectedFile) return;
+        if (!selectedFile) return;
         setIsSaving(true);
         setMessage("");
         setError("");
@@ -194,8 +195,8 @@ export default function KBAdminPage() {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-admin-token": token,
                 },
+                credentials: "include",
                 body: JSON.stringify(payload),
             });
 
@@ -213,7 +214,7 @@ export default function KBAdminPage() {
     };
 
     const createEntry = async () => {
-        if (!token || !newTitle) return;
+        if (!newTitle) return;
         setIsSaving(true);
 
         const slug = newTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -235,15 +236,15 @@ export default function KBAdminPage() {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-admin-token": token,
                 },
+                credentials: "include",
                 body: JSON.stringify({ path, raw: content }),
             });
 
             if (res.ok) {
                 setShowNewModal(false);
                 setNewTitle("");
-                await fetchFiles(token);
+                await fetchFiles();
                 setMessage("Entry created.");
             } else {
                 setError("Failed to create entry");

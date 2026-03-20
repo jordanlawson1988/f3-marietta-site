@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySession } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
+import { getSql } from '@/lib/db';
 
 export async function PATCH(
   request: NextRequest,
@@ -12,49 +12,42 @@ export async function PATCH(
   const { id } = await params;
   const body = await request.json();
 
-  // Build update object from allowed fields
+  // Check that at least one allowed field is provided
   const allowedFields = ['caption', 'story_text', 'hashtags', 'alt_text'] as const;
-  const update: Record<string, unknown> = {};
+  const hasUpdate = allowedFields.some((field) => body[field] !== undefined);
 
-  for (const field of allowedFields) {
-    if (body[field] !== undefined) {
-      update[field] = body[field];
-    }
-  }
-
-  if (Object.keys(update).length === 0) {
+  if (!hasUpdate) {
     return NextResponse.json(
       { error: 'No valid fields provided' },
       { status: 400 }
     );
   }
 
-  update.updated_at = new Date().toISOString();
+  try {
+    const sql = getSql();
 
-  // If the draft is currently pending, mark it as edited
-  const { data: existing } = await supabase
-    .from('instagram_drafts')
-    .select('status')
-    .eq('id', id)
-    .single();
+    // Check existing status to determine if we should mark as edited
+    const existing = await sql`SELECT status FROM instagram_drafts WHERE id = ${id}`;
+    const newStatus = existing[0]?.status === 'pending' ? 'edited' : existing[0]?.status;
 
-  if (existing?.status === 'pending') {
-    update.status = 'edited';
-  }
+    const data = await sql`
+      UPDATE instagram_drafts SET
+        caption = COALESCE(${body.caption ?? null}, caption),
+        story_text = COALESCE(${body.story_text ?? null}, story_text),
+        hashtags = COALESCE(${body.hashtags ?? null}, hashtags),
+        alt_text = COALESCE(${body.alt_text ?? null}, alt_text),
+        status = ${newStatus},
+        updated_at = now()
+      WHERE id = ${id}
+      RETURNING *
+    `;
 
-  const { data, error } = await supabase
-    .from('instagram_drafts')
-    .update(update)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) {
+    return NextResponse.json(data[0]);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Database error';
     return NextResponse.json(
-      { error: 'Failed to update draft', details: error.message },
+      { error: 'Failed to update draft', details: message },
       { status: 500 }
     );
   }
-
-  return NextResponse.json(data);
 }

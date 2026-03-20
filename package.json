@@ -13,9 +13,12 @@
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
+    "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-slot": "^1.2.4",
     "@slack/web-api": "^7.13.0",
-    "@supabase/supabase-js": "^2.89.0",
+    "@vercel/blob": "^2.3.1",
+    "better-auth": "^1.5.5",
     "clsx": "^2.1.1",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.554.0",
@@ -29,6 +32,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
+    "@supabase/supabase-js": "^2.99.3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

@@ -1,4 +1,4 @@
-// Re-export F3Event shape (matches shared Supabase f3_events table)
+// F3Event shape (matches shared Neon f3_events table)
 export interface F3Event {
   id: string;
   ao_display_name: string | null;

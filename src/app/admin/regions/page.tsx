@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAdminAuth } from "../AdminAuthContext";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { Plus, Pencil, Trash2, X, Check } from "lucide-react";
@@ -9,7 +8,6 @@ import { Toast } from "../Toast";
 import type { Region } from "@/types/region";
 
 export default function RegionsAdminPage() {
-  const { token } = useAdminAuth();
   const [regions, setRegions] = useState<Region[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,10 +24,9 @@ export default function RegionsAdminPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const fetchRegions = async () => {
-    if (!token) return;
     try {
       const res = await fetch("/api/admin/regions", {
-        headers: { "x-admin-token": token },
+        credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
@@ -44,7 +41,7 @@ export default function RegionsAdminPage() {
 
   useEffect(() => {
     fetchRegions();
-  }, [token]);
+  }, []);
 
   const openCreateModal = () => {
     setEditingRegion(null);
@@ -67,7 +64,7 @@ export default function RegionsAdminPage() {
   };
 
   const handleSave = async () => {
-    if (!token || !formName) return;
+    if (!formName) return;
     setIsSaving(true);
     setError("");
     setMessage("");
@@ -87,7 +84,6 @@ export default function RegionsAdminPage() {
         method,
         headers: {
           "Content-Type": "application/json",
-          "x-admin-token": token,
         },
         body: JSON.stringify(body),
       });
@@ -108,7 +104,6 @@ export default function RegionsAdminPage() {
   };
 
   const handleDelete = async (region: Region) => {
-    if (!token) return;
     if (!window.confirm(`Delete region "${region.name}"? This cannot be undone.`)) return;
 
     setError("");
@@ -117,7 +112,7 @@ export default function RegionsAdminPage() {
     try {
       const res = await fetch(`/api/admin/regions/${region.id}`, {
         method: "DELETE",
-        headers: { "x-admin-token": token },
+        credentials: "include",
       });
 
       if (res.ok) {

@@ -3,24 +3,11 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { validateAdminToken } from "@/lib/admin/auth";
 
 export async function GET(request: Request) {
-    const token = request.headers.get("x-admin-token");
-    const adminPassword = process.env.ADMIN_DASHBOARD_PASSWORD;
-
-    if (!adminPassword) {
-        return NextResponse.json(
-            { error: "Admin dashboard not configured" },
-            { status: 500 }
-        );
-    }
-
-    if (token !== adminPassword) {
-        return NextResponse.json(
-            { error: "Unauthorized" },
-            { status: 401 }
-        );
-    }
+    const authError = await validateAdminToken(request);
+    if (authError) return authError;
 
     const baseDirs = ["data/content"]; // Focusing on the new structure
     const files: { path: string; folder: string; slug: string; title: string; category: string; tags: string[] }[] = [];
