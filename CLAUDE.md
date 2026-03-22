@@ -1,5 +1,13 @@
 # CLAUDE.md
 
+@AGENTS.md
+@.claude/context/test-health.md
+@.claude/context/feature-status.md
+@.claude/context/architecture-notes.md
+@.claude/context/business-context.md
+
+---
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Commands
@@ -90,3 +98,26 @@ Playwright E2E tests in `tests/`. Tests run against localhost:3000 with automati
 ## Deployment
 
 Deployed via Vercel. Push to `main` triggers automatic deployment. Use `feature/*`, `fix/*`, or `hotfix/*` branches for changes.
+
+---
+
+## Session Quickstart
+
+> When starting a new Claude Code session, begin here:
+
+1. This file auto-loads `AGENTS.md` and all `.claude/context/*.md` files via `@imports` above — review them for current project state.
+2. Check `.claude/context/feature-status.md` for current features and data flows.
+3. Review `.claude/context/architecture-notes.md` for tech debt and known footguns.
+4. Run `/status-check` for a quick project dashboard, or `/project-health` for a comprehensive audit.
+5. Run `/context-refresh` if context files are stale (check timestamps at the top of each).
+6. Ask Jordan what to focus on in this session.
+
+### Available Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/test-report` | Run Playwright E2E tests, update test-health.md, report regressions |
+| `/status-check` | Quick dashboard: git state, build, lint, tests, context freshness |
+| `/context-refresh` | Refresh all 4 context files with live project data |
+| `/project-health` | Comprehensive audit: deps, lint, TODOs, migrations, tech debt |
+| `/session-end` | Capture session work, suggest memory updates, output summary |
