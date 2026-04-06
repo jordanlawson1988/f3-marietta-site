@@ -1,12 +1,19 @@
 {
-    "crons": [
-        {
-            "path": "/api/slack/reconcile",
-            "schedule": "0 7 * * *"
-        },
-        {
-            "path": "/api/slack/sync-users",
-            "schedule": "0 6 * * *"
-        }
-    ]
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ':!*.md' ':!.claude/' ':!docs/' ':!scripts/' ':!.superpowers/' ':!*.mdx' ':!.gitignore' ':!.eslintrc*' ':!eslint.config*' ':!.worktrees/'",
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "develop": true
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/slack/reconcile",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/slack/sync-users",
+      "schedule": "0 6 * * *"
+    }
+  ]
 }
