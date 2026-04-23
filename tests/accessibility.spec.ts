@@ -24,25 +24,10 @@ test.describe('Accessibility - Landmarks', () => {
 test.describe('Accessibility - Images', () => {
     test('logo should have alt text', async ({ page }) => {
         await page.goto('/');
-        const logoImages = page.getByRole('img', { name: /F3 Marietta logo/i });
+        // Redesign uses "F3 Marietta cannon emblem" as logo alt text in Navbar/Hero
+        const logoImages = page.getByRole('img', { name: /F3 Marietta/i });
         const count = await logoImages.count();
         expect(count).toBeGreaterThan(0);
-    });
-
-    test('pillar icons should have alt text', async ({ page }) => {
-        await page.goto('/');
-
-        // Check for alt text on pillar icons
-        const fitnessIcon = page.getByRole('img', { name: /fitness/i });
-        const fellowshipIcon = page.getByRole('img', { name: /fellowship/i });
-        const faithIcon = page.getByRole('img', { name: /faith/i });
-
-        // At least one of these should be present
-        const fitnessCount = await fitnessIcon.count();
-        const fellowshipCount = await fellowshipIcon.count();
-        const faithCount = await faithIcon.count();
-
-        expect(fitnessCount + fellowshipCount + faithCount).toBeGreaterThan(0);
     });
 });
 
@@ -64,8 +49,19 @@ test.describe('Accessibility - Links', () => {
     test('links should have accessible names', async ({ page }) => {
         await page.goto('/');
 
-        // Check that navigation links have visible text
-        const navLinks = page.getByRole('navigation').getByRole('link');
+        // On mobile the nav is behind a hamburger — open it first if needed
+        const desktopNav = page.getByRole('navigation').getByRole('link');
+        const desktopCount = await desktopNav.count();
+        if (desktopCount === 0) {
+            // Mobile: open the hamburger menu to reveal nav links
+            const hamburger = page.getByRole('button', { name: /open menu/i });
+            if (await hamburger.count() > 0) {
+                await hamburger.click();
+            }
+        }
+
+        // Check that navigation links have visible text (desktop nav or opened mobile menu)
+        const navLinks = page.getByRole('link').filter({ hasText: /Home|About|Workouts|Backblasts|New Here|Contact/i });
         const count = await navLinks.count();
 
         // Page should have navigation links

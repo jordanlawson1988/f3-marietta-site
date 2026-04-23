@@ -53,7 +53,8 @@ export async function normalizeSlackMessage(
 
     // Extract structured fields from event_payload
     const title = extractTitle(eventPayload, message);
-    let { event_date, event_time } = extractDateTime(eventPayload);
+    let { event_date } = extractDateTime(eventPayload);
+    const { event_time } = extractDateTime(eventPayload);
     const location_text = extractLocation(eventPayload);
 
     // Fallback: extract date from block text (Slackblast bot puts DATE in blocks, not metadata)
