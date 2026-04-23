@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
+import { ChamferButton } from "@/components/ui/brand/ChamferButton";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
@@ -84,14 +85,14 @@ export function AssistantWidget({
                 <div className={cn("text-center mb-6", compact && "mb-4")}>
                     {(title || isPageVariant) && (
                         <h2 className={cn(
-                            "font-bold font-heading mb-2",
+                            "font-display font-semibold uppercase tracking-[.08em] mb-2 text-bone",
                             compact ? "text-xl" : "text-2xl"
                         )}>
                             {title || "What would you like to know?"}
                         </h2>
                     )}
                     {(description || isPageVariant) && (
-                        <p className={cn("text-muted-foreground", compact && "text-sm")}>
+                        <p className={cn("text-bone/60", compact && "text-sm")}>
                             {description || "Ask about F3, workouts, the Lexicon, or where to start."}
                         </p>
                     )}
@@ -110,7 +111,7 @@ export function AssistantWidget({
                                 ? "e.g., What is a Merkin? or When are the workouts?"
                                 : "Ask a question..."}
                             className={cn(
-                                "w-full border border-input bg-background text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-muted-foreground",
+                                "w-full border border-ink-3 bg-ink-2 text-bone shadow-sm focus:outline-none focus:ring-2 focus:ring-steel placeholder:text-bone/50",
                                 isPageVariant
                                     ? "px-4 sm:px-6 py-4 text-base sm:text-lg rounded-full pr-20 sm:pr-32"
                                     : "px-4 py-3 pr-12 text-base rounded-lg"
@@ -130,20 +131,19 @@ export function AssistantWidget({
                                     )}
                                 </Button>
                             ) : (
-                                <Button
+                                <ChamferButton
                                     type="submit"
+                                    variant="steel"
+                                    size="sm"
+                                    arrow={false}
                                     disabled={isLoading || !query.trim()}
-                                    size="icon"
-                                    variant="ghost"
-                                    className="h-8 w-8"
                                 >
                                     {isLoading ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <Loader2 className="h-3 w-3 animate-spin" />
                                     ) : (
-                                        <Send className="h-4 w-4" />
+                                        "Send"
                                     )}
-                                    <span className="sr-only">Ask</span>
-                                </Button>
+                                </ChamferButton>
                             )}
                         </div>
                     </div>
@@ -160,7 +160,7 @@ export function AssistantWidget({
                                 key={q}
                                 onClick={() => handleSearch(q)}
                                 className={cn(
-                                    "bg-muted/50 hover:bg-muted px-3 py-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground text-left",
+                                    "bg-ink-2/50 hover:bg-ink-2 px-3 py-2 rounded-lg transition-colors text-bone/60 hover:text-bone text-left",
                                     isPageVariant ? "text-sm" : "text-xs"
                                 )}
                             >
@@ -186,12 +186,12 @@ export function AssistantWidget({
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     {/* Answer Card */}
                     <Card className={cn(
-                        "border-primary/20",
-                        isPageVariant ? "bg-primary/5" : "bg-muted"
+                        "border-ink-3",
+                        isPageVariant ? "bg-ink-2" : "bg-ink-2"
                     )}>
                         <CardContent className={isPageVariant ? "pt-6" : "pt-4 pb-4"}>
                             <h3 className={cn(
-                                "font-bold mb-2 flex items-center gap-2 uppercase tracking-wider text-muted-foreground",
+                                "font-display font-semibold mb-2 flex items-center gap-2 uppercase tracking-[.08em] text-bone/60",
                                 isPageVariant ? "text-lg" : "text-sm"
                             )}>
                                 <Image
@@ -206,7 +206,7 @@ export function AssistantWidget({
                                 /> {isPageVariant ? "Assistant Answer" : "Answer"}
                             </h3>
                             <p className={cn(
-                                "leading-relaxed whitespace-pre-wrap",
+                                "leading-relaxed whitespace-pre-wrap text-bone",
                                 isPageVariant ? "text-lg" : "text-sm"
                             )}>
                                 {response.answerText}
@@ -218,7 +218,7 @@ export function AssistantWidget({
                     {response.relatedPages && response.relatedPages.length > 0 && (
                         <div>
                             <h4 className={cn(
-                                "font-bold text-muted-foreground uppercase tracking-wider",
+                                "font-display font-semibold text-bone/60 uppercase tracking-[.08em]",
                                 isPageVariant ? "text-sm mb-3" : "text-xs mb-2"
                             )}>
                                 Recommended Pages
@@ -231,14 +231,14 @@ export function AssistantWidget({
                                         key={page.url}
                                         href={page.url}
                                         className={cn(
-                                            "border border-border bg-card hover:border-primary/50 hover:bg-accent/50 transition-colors font-medium",
+                                            "border border-ink-3 bg-ink-2 hover:border-steel/50 hover:bg-ink transition-colors font-medium text-bone",
                                             isPageVariant
                                                 ? "inline-flex items-center gap-2 px-4 py-2 rounded-lg"
                                                 : "flex items-center justify-between px-3 py-2 rounded-md text-sm"
                                         )}
                                     >
                                         {page.title}
-                                        <span className="text-muted-foreground">→</span>
+                                        <span className="text-bone/50">→</span>
                                     </Link>
                                 ))}
                             </div>
@@ -249,7 +249,7 @@ export function AssistantWidget({
                     {response.relatedEntries.length > 0 && (
                         <div>
                             <h4 className={cn(
-                                "font-bold text-muted-foreground uppercase tracking-wider",
+                                "font-display font-semibold text-bone/60 uppercase tracking-[.08em]",
                                 isPageVariant ? "text-sm mb-3" : "text-xs mb-2"
                             )}>
                                 {isPageVariant ? "Related Terms & Exercises" : "Related Terms"}
@@ -264,22 +264,22 @@ export function AssistantWidget({
                                         key={entry.slug}
                                         href={entry.url}
                                         className={cn(
-                                            "flex items-center justify-between border border-border bg-card hover:border-primary/50 hover:bg-accent/50 transition-all group",
+                                            "flex items-center justify-between border border-ink-3 bg-ink-2 hover:border-steel/50 hover:bg-ink transition-all group",
                                             isPageVariant ? "p-3 rounded-lg" : "p-2 rounded-md text-sm"
                                         )}
                                     >
                                         <div>
-                                            <span className="font-bold block group-hover:text-primary transition-colors">
+                                            <span className="font-display font-semibold block text-bone group-hover:text-steel transition-colors">
                                                 {entry.term}
                                             </span>
                                             <span className={cn(
-                                                "text-muted-foreground bg-muted rounded",
+                                                "text-bone/50 bg-ink rounded font-mono tracking-[.1em] uppercase",
                                                 isPageVariant ? "text-xs px-1.5 py-0.5" : "text-[10px] px-1 py-0.5"
                                             )}>
                                                 {entry.type}
                                             </span>
                                         </div>
-                                        <span className="text-muted-foreground group-hover:translate-x-1 transition-transform">
+                                        <span className="text-bone/50 group-hover:translate-x-1 transition-transform">
                                             →
                                         </span>
                                     </a>
