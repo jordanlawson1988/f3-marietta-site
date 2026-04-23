@@ -1,193 +1,110 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { getSql } from '@/lib/db';
-import { sanitizeHtmlContent } from '@/lib/security/sanitize';
-import { Section } from '@/components/ui/Section';
-import type { F3Event } from '@/types/f3Event';
-import { ArrowLeft, ExternalLink, Calendar, User, Users, MapPin } from 'lucide-react';
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getSql } from "@/lib/db";
+import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { CTABand } from "@/components/ui/brand/CTABand";
+import { MonoTag } from "@/components/ui/brand/MonoTag";
+import type { F3Event } from "@/types/f3Event";
 
-interface BackblastDetailPageProps {
-    params: Promise<{ id: string }>;
-}
+type Params = Promise<{ id: string }>;
 
-async function getF3Event(id: string): Promise<F3Event | null> {
+async function getEvent(id: string): Promise<F3Event | null> {
+  try {
     const sql = getSql();
-    const rows = await sql`
-        SELECT * FROM f3_events
-        WHERE id = ${id} AND is_deleted = false
-    `;
-    return (rows[0] as F3Event) || null;
+    const rows = await sql`SELECT * FROM f3_events WHERE id = ${id} AND is_deleted = false LIMIT 1`;
+    return (rows[0] as F3Event | undefined) ?? null;
+  } catch {
+    return null;
+  }
 }
 
-export async function generateMetadata({ params }: BackblastDetailPageProps) {
-    const { id } = await params;
-    const event = await getF3Event(id);
-
-    if (!event) {
-        return { title: 'Event Not Found' };
-    }
-
-    const eventType = event.event_kind === 'preblast' ? 'Preblast' : 'Backblast';
-    const title = event.ao_display_name
-        ? `${event.ao_display_name} ${eventType}`
-        : eventType;
-
-    const description = event.content_text?.slice(0, 160) ?? '';
-
-    return {
-        title,
-        description,
-        openGraph: {
-            title: `${title} | F3 Marietta`,
-            description,
-            type: 'article',
-            images: ['/images/MariettaHomePage.jpeg'],
-        },
-    };
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(
+    typeof iso === "string" && !iso.includes("T") ? iso + "T00:00:00" : iso
+  );
+  return d
+    .toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
+    .toUpperCase();
 }
 
-export default async function BackblastDetailPage({ params }: BackblastDetailPageProps) {
-    const { id } = await params;
-    const event = await getF3Event(id);
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const { id } = await params;
+  const evt = await getEvent(id);
+  if (!evt) return { title: "Backblast" };
+  return {
+    title: evt.title ?? "Backblast",
+    description: evt.content_text?.slice(0, 140) ?? undefined,
+  };
+}
 
-    if (!event) {
-        notFound();
-    }
+export default async function BackblastDetail({ params }: { params: Params }) {
+  const { id } = await params;
+  const evt = await getEvent(id);
+  if (!evt) notFound();
 
-    const isPreblast = event.event_kind === 'preblast';
-    const eventType = isPreblast ? 'Preblast' : 'Backblast';
+  return (
+    <>
+      <PageHeader
+        eyebrow={`${formatDate(evt.event_date)} · ${evt.ao_display_name ?? "F3 Marietta"}${evt.q_name ? ` · Q · ${evt.q_name}` : ""}`}
+        variant="ink"
+        title={evt.title ?? "Battlefield Report"}
+        kicker={
+          evt.content_text
+            ? evt.content_text.slice(0, 180).replace(/<@[A-Z0-9]+>/g, "")
+            : undefined
+        }
+      />
 
-    const formattedDate = event.event_date
-        ? new Date(
-            typeof event.event_date === 'string' && !event.event_date.includes('T')
-                ? event.event_date + 'T00:00:00'
-                : event.event_date
-        ).toLocaleDateString('en-US', {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-        })
-        : null;
-
-    return (
-        <div className="flex flex-col min-h-screen">
-            {/* Header */}
-            <div className="bg-gradient-to-b from-muted/60 to-background border-b border-border py-10">
-                <div className="container mx-auto px-4 max-w-4xl">
-                    {/* Back Link */}
-                    <Link
-                        href="/backblasts"
-                        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-6"
-                    >
-                        <ArrowLeft className="h-4 w-4" />
-                        Back to Events
-                    </Link>
-
-                    {/* Metadata Badges */}
-                    <div className="flex flex-wrap gap-3 mb-4">
-                        {/* Event Type Badge */}
-                        <span className={`
-                            inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                            ${isPreblast
-                                ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                                : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                            }
-                        `}>
-                            {eventType}
-                        </span>
-
-                        {/* AO Badge */}
-                        {event.ao_display_name && (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
-                                <MapPin className="h-3.5 w-3.5" />
-                                {event.ao_display_name}
-                            </span>
-                        )}
-
-                        {/* Date Badge */}
-                        {formattedDate && (
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted text-muted-foreground text-sm">
-                                <Calendar className="h-3.5 w-3.5" />
-                                {formattedDate}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Title */}
-                    <h1 className="text-3xl md:text-4xl font-bold font-heading text-foreground mb-4">
-                        {event.title || eventType}
-                    </h1>
-
-                    {/* Quick Stats */}
-                    <div className="flex flex-wrap gap-6 text-sm">
-                        {event.q_name && (
-                            <div className="flex items-center gap-2">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">Q:</span>
-                                <span className="text-foreground font-medium">
-                                    {event.q_name}
-                                </span>
-                            </div>
-                        )}
-                        {event.pax_count !== null && event.pax_count > 0 && (
-                            <div className="flex items-center gap-2">
-                                <Users className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-muted-foreground">PAX:</span>
-                                <span className="text-foreground font-medium">
-                                    {event.pax_count}
-                                </span>
-                            </div>
-                        )}
-                        {event.event_time && (
-                            <div className="flex items-center gap-2">
-                                <span className="text-muted-foreground">Time:</span>
-                                <span className="text-foreground font-medium">
-                                    {event.event_time}
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                </div>
+      <article className="bg-bone py-16">
+        <div className="max-w-[820px] mx-auto px-7">
+          <div className="flex flex-wrap gap-x-10 gap-y-3 py-5 border-y border-line-soft mb-10">
+            {evt.q_name && <MonoTag>Q · {evt.q_name}</MonoTag>}
+            {evt.pax_count != null && <MonoTag>PAX · {evt.pax_count}</MonoTag>}
+            {evt.event_time && <MonoTag>TIME · {evt.event_time}</MonoTag>}
+            {evt.location_text && <MonoTag>LOC · {evt.location_text}</MonoTag>}
+          </div>
+          <div
+            className="backblast-content prose prose-zinc max-w-none"
+            dangerouslySetInnerHTML={{ __html: evt.content_html ?? "" }}
+          />
+          {!evt.content_html && evt.content_text && (
+            <div className="whitespace-pre-wrap text-[16px] leading-[1.7]">
+              {evt.content_text}
             </div>
-
-            {/* Content */}
-            <Section>
-                <div className="max-w-4xl mx-auto">
-                    {/* Workout Content */}
-                    <article className="backblast-content max-w-none">
-                        {/* Render HTML content if available */}
-                        {event.content_html ? (
-                            <div
-                                className="text-foreground text-base"
-                                dangerouslySetInnerHTML={{ __html: sanitizeHtmlContent(event.content_html) }}
-                            />
-                        ) : (
-                            <div
-                                className="text-foreground text-base whitespace-pre-line"
-                                style={{ fontFamily: 'var(--font-sans)' }}
-                            >
-                                {event.content_text}
-                            </div>
-                        )}
-                    </article>
-
-                    {/* Slack Permalink */}
-                    {event.slack_permalink && (
-                        <div className="mt-10 pt-6 border-t border-border">
-                            <a
-                                href={event.slack_permalink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-                            >
-                                <ExternalLink className="h-4 w-4" />
-                                View original in Slack
-                            </a>
-                        </div>
-                    )}
-                </div>
-            </Section>
+          )}
         </div>
-    );
+      </article>
+
+      <section className="bg-bone-2 py-10 border-t border-line-soft">
+        <div className="max-w-[820px] mx-auto px-7 flex items-center justify-between font-display font-semibold uppercase tracking-[.1em] text-[14px]">
+          <Link href="/backblasts" className="text-ink hover:text-steel">
+            ← Back to reports
+          </Link>
+          <Link href="/workouts" className="text-steel">
+            Post tomorrow →
+          </Link>
+        </div>
+      </section>
+
+      <CTABand
+        variant="steel"
+        title={
+          <>
+            Every post
+            <br />
+            leaves a record.
+          </>
+        }
+        kicker={<>Come to a workout. Write the next one.</>}
+        primary={{ label: "Find a Workout", href: "/workouts" }}
+      />
+    </>
+  );
 }
