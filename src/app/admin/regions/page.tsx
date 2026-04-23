@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { Plus, Pencil, Trash2, X, Check } from "lucide-react";
+import { X } from "lucide-react";
 import { Toast } from "../Toast";
 import type { Region } from "@/types/region";
+import { SectionHead } from "@/components/ui/brand/SectionHead";
+import { ChamferButton } from "@/components/ui/brand/ChamferButton";
+import { MonoTag } from "@/components/ui/brand/MonoTag";
+import { StatusChip } from "@/components/ui/brand/StatusChip";
 
 export default function RegionsAdminPage() {
   const [regions, setRegions] = useState<Region[]>([]);
@@ -117,6 +120,7 @@ export default function RegionsAdminPage() {
 
       if (res.ok) {
         setMessage("Region deleted.");
+        setShowModal(false);
         fetchRegions();
       } else {
         const data = await res.json();
@@ -137,78 +141,92 @@ export default function RegionsAdminPage() {
     }
   };
 
+  const inputClass =
+    "mt-2 w-full bg-transparent border border-bone/25 px-3 py-2 focus:outline-none focus:border-steel text-bone text-sm";
+
   return (
     <div className="p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold">Regions</h1>
-        <div className="flex items-center gap-3">
-          <Button onClick={openCreateModal} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" /> Add Region
-          </Button>
-        </div>
+      {/* Page Header */}
+      <SectionHead eyebrow="§ Admin · Regions" h2="Region Manager" align="left" />
+
+      {/* Toolbar */}
+      <div className="flex items-center justify-end mb-4">
+        <ChamferButton variant="ink" size="md" arrow={false} onClick={openCreateModal}>
+          New Region
+        </ChamferButton>
       </div>
 
       {/* Table */}
       {isLoading ? (
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-muted">Loading...</div>
       ) : (
-        <div className="bg-[#112240] rounded-lg border border-[#23334A] overflow-hidden">
+        <div className="border border-line-soft overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#23334A] text-left">
-                <th className="px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Name</th>
-                <th className="px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider">Slug</th>
-                <th className="px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Order</th>
-                <th className="px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Primary</th>
-                <th className="px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Active</th>
-                <th className="px-4 py-3 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Actions</th>
+              <tr className="border-b border-line-soft text-left">
+                <th className="px-4 py-3">
+                  <span className="font-mono text-[11px] tracking-[.15em] uppercase text-muted">Name</span>
+                </th>
+                <th className="px-4 py-3">
+                  <span className="font-mono text-[11px] tracking-[.15em] uppercase text-muted">Slug</span>
+                </th>
+                <th className="px-4 py-3 text-center">
+                  <span className="font-mono text-[11px] tracking-[.15em] uppercase text-muted">Order</span>
+                </th>
+                <th className="px-4 py-3 text-center">
+                  <span className="font-mono text-[11px] tracking-[.15em] uppercase text-muted">Primary</span>
+                </th>
+                <th className="px-4 py-3 text-center">
+                  <span className="font-mono text-[11px] tracking-[.15em] uppercase text-muted">Status</span>
+                </th>
+                <th className="px-4 py-3 text-right">
+                  <span className="font-mono text-[11px] tracking-[.15em] uppercase text-muted">Actions</span>
+                </th>
               </tr>
             </thead>
             <tbody>
               {regions.map((region) => (
                 <tr
                   key={region.id}
-                  className="border-b border-[#23334A] last:border-0 hover:bg-[#1a2d45] transition-colors"
+                  className="relative group border-b border-line-soft last:border-0 hover:bg-ink/30 transition-colors"
                 >
-                  <td className="px-4 py-3 font-medium text-white">{region.name}</td>
-                  <td className="px-4 py-3 text-gray-400 font-mono text-xs">{region.slug}</td>
-                  <td className="px-4 py-3 text-gray-400 text-center">{region.sort_order}</td>
+                  {/* Left accent */}
+                  <td className="px-4 py-3 font-medium text-bone relative">
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-0 bottom-0 w-[3px] bg-steel scale-y-0 origin-top group-hover:scale-y-100 transition-transform duration-300"
+                    />
+                    {region.name}
+                  </td>
+                  <td className="px-4 py-3 text-muted font-mono text-xs">{region.slug}</td>
+                  <td className="px-4 py-3 text-muted text-center">{region.sort_order}</td>
                   <td className="px-4 py-3 text-center">
                     {region.is_primary ? (
-                      <Check className="h-4 w-4 text-green-400 inline" />
+                      <StatusChip variant="active">Primary</StatusChip>
                     ) : (
-                      <span className="text-gray-600">—</span>
+                      <span className="text-muted/40">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    {region.is_active ? (
-                      <Check className="h-4 w-4 text-green-400 inline" />
-                    ) : (
-                      <X className="h-4 w-4 text-red-400 inline" />
-                    )}
+                    <StatusChip variant={region.is_active ? "active" : "archived"}>
+                      {region.is_active ? "Active" : "Archived"}
+                    </StatusChip>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => openEditModal(region)}
-                        className="p-1.5 rounded hover:bg-[#23334A] text-gray-400 hover:text-white transition-colors"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(region)}
-                        className="p-1.5 rounded hover:bg-[#23334A] text-gray-400 hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
+                    <ChamferButton
+                      variant="ghost"
+                      size="sm"
+                      arrow={false}
+                      onClick={() => openEditModal(region)}
+                    >
+                      Edit
+                    </ChamferButton>
                   </td>
                 </tr>
               ))}
               {regions.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={6} className="px-4 py-8 text-center text-muted">
                     No regions yet. Add one to get started.
                   </td>
                 </tr>
@@ -222,102 +240,146 @@ export default function RegionsAdminPage() {
       {message && <Toast message={message} type="success" onDismiss={() => setMessage("")} />}
       {error && <Toast message={error} type="error" onDismiss={() => setError("")} duration={5000} />}
 
-      {/* Modal */}
+      {/* Edit / Create Drawer */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#112240] p-6 rounded-lg border border-[#23334A] w-full max-w-md shadow-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold">
+        <div className="fixed inset-0 bg-ink/80 backdrop-blur-sm z-50">
+          <div className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-ink text-bone border-l border-steel/30 clip-chamfer overflow-auto p-8">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8 pb-4 border-b border-bone/15">
+              <h3 className="font-display font-bold uppercase tracking-wide text-lg">
                 {editingRegion ? "Edit Region" : "Add Region"}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-white"
+                className="text-muted hover:text-bone transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="space-y-4">
+            {/* Body */}
+            <div className="space-y-5">
+              {/* Name */}
               <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  Name
-                </label>
+                <MonoTag variant="bone">// Name</MonoTag>
                 <input
                   type="text"
                   value={formName}
                   onChange={(e) => handleNameChange(e.target.value)}
-                  className="w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm"
+                  className={inputClass}
                   placeholder="e.g. Marietta"
                 />
               </div>
 
+              {/* Slug */}
               <div>
-                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  Slug {editingRegion && <span className="text-gray-600 normal-case">(immutable)</span>}
-                </label>
+                <MonoTag variant="bone">
+                  // Slug{" "}
+                  {editingRegion && (
+                    <span className="font-normal normal-case text-muted/60">(immutable)</span>
+                  )}
+                </MonoTag>
                 <input
                   type="text"
                   value={formSlug}
                   onChange={(e) => !editingRegion && setFormSlug(e.target.value)}
                   disabled={!!editingRegion}
                   className={cn(
-                    "w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-sm font-mono",
-                    editingRegion ? "text-gray-500 cursor-not-allowed" : "text-white"
+                    inputClass,
+                    "font-mono",
+                    editingRegion ? "text-muted cursor-not-allowed opacity-60" : ""
                   )}
                 />
               </div>
 
+              {/* Sort Order */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">
-                    Sort Order
-                  </label>
+                  <MonoTag variant="bone">// Sort Order</MonoTag>
                   <input
                     type="number"
                     value={formSortOrder}
                     onChange={(e) => setFormSortOrder(parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm"
+                    className={inputClass}
                   />
                 </div>
               </div>
 
-              <div className="flex items-center gap-6 pt-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formIsPrimary}
-                    onChange={(e) => setFormIsPrimary(e.target.checked)}
-                    className="accent-[#4A76A8]"
-                  />
-                  <span className="text-sm text-gray-300">Primary region</span>
+              {/* Toggles */}
+              <div className="flex flex-col gap-3 pt-2">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div
+                    onClick={() => setFormIsPrimary(!formIsPrimary)}
+                    className={`w-10 h-[22px] rounded-full relative transition-colors cursor-pointer ${
+                      formIsPrimary ? "bg-steel" : "bg-bone/20"
+                    }`}
+                  >
+                    <div
+                      className={`w-[18px] h-[18px] bg-bone rounded-full absolute top-[2px] transition-all ${
+                        formIsPrimary ? "right-[2px]" : "left-[2px]"
+                      }`}
+                    />
+                  </div>
+                  <span className="text-sm text-bone">Primary region</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formIsActive}
-                    onChange={(e) => setFormIsActive(e.target.checked)}
-                    className="accent-[#4A76A8]"
-                  />
-                  <span className="text-sm text-gray-300">Active</span>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div
+                    onClick={() => setFormIsActive(!formIsActive)}
+                    className={`w-10 h-[22px] rounded-full relative transition-colors cursor-pointer ${
+                      formIsActive ? "bg-steel" : "bg-bone/20"
+                    }`}
+                  >
+                    <div
+                      className={`w-[18px] h-[18px] bg-bone rounded-full absolute top-[2px] transition-all ${
+                        formIsActive ? "right-[2px]" : "left-[2px]"
+                      }`}
+                    />
+                  </div>
+                  <span className="text-sm text-bone">Active</span>
+                  <span className="text-xs text-muted">— inactive regions are hidden from schedules</span>
                 </label>
               </div>
 
-              <div className="flex gap-3 pt-2">
-                <Button
-                  variant="secondary"
-                  className="flex-1"
+              {error && <p className="text-rust text-sm">{error}</p>}
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-between items-center mt-8 pt-6 border-t border-bone/15">
+              {editingRegion ? (
+                <ChamferButton
+                  type="button"
+                  variant="ink"
+                  size="sm"
+                  arrow={false}
+                  className="!bg-rust !border-rust hover:!bg-ink hover:!border-ink"
+                  onClick={() => handleDelete(editingRegion)}
+                >
+                  Delete
+                </ChamferButton>
+              ) : (
+                <div />
+              )}
+              <div className="flex gap-3">
+                <ChamferButton
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  arrow={false}
                   onClick={() => setShowModal(false)}
                 >
                   Cancel
-                </Button>
-                <Button
-                  className="flex-1"
+                </ChamferButton>
+                <ChamferButton
+                  type="button"
+                  variant="steel"
+                  size="sm"
+                  arrow={false}
                   onClick={handleSave}
                   disabled={!formName || isSaving}
                 >
                   {isSaving ? "Saving..." : editingRegion ? "Save Changes" : "Create"}
-                </Button>
+                </ChamferButton>
               </div>
             </div>
           </div>
