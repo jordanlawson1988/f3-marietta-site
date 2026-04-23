@@ -16,6 +16,9 @@ interface SlackMessage {
     bot_id?: string;
     app_id?: string;
     subtype?: string;
+    thread_ts?: string;
+    metadata?: Record<string, unknown>;
+    blocks?: unknown[];
 }
 
 interface SlackConversationsResponse {
@@ -90,8 +93,12 @@ export async function GET(request: NextRequest) {
                 // Process each message
                 for (const message of data.messages || []) {
                     if (message.subtype === 'tombstone') continue;
+                    if (message.subtype === 'thread_broadcast') continue;
+                    if (message.thread_ts && message.thread_ts !== message.ts) continue;
 
-                    // Build a minimal raw payload for normalization
+                    // Build raw payload preserving metadata and blocks
+                    // metadata.event_type is required to detect bot-posted backblasts
+                    // (their text doesn't start with "Backblast")
                     const rawPayload = JSON.stringify({
                         event: {
                             type: 'message',
@@ -100,6 +107,8 @@ export async function GET(request: NextRequest) {
                             text: message.text || '',
                             user: message.user,
                             bot_id: message.bot_id,
+                            metadata: message.metadata,
+                            blocks: message.blocks,
                         },
                     });
 

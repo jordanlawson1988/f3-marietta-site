@@ -43,12 +43,14 @@ export function WorkoutBlock({
     <div
       data-testid="workout-block"
       className={cn(
-        "bg-[#112240] border border-[#23334A] rounded cursor-pointer text-xs relative group",
+        "bg-ink-2 border border-line-soft cursor-pointer text-xs relative group transition-colors hover:border-steel/50",
         !workout.is_active && "opacity-50"
       )}
       style={{ borderLeftWidth: 3, borderLeftColor: color }}
       onClick={() => onClick(workout)}
     >
+      {/* Left accent bar on hover */}
+      <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[3px] bg-steel scale-y-0 origin-top group-hover:scale-y-100 transition-transform duration-300" />
       <input
         type="checkbox"
         checked={isSelected}
@@ -57,23 +59,23 @@ export function WorkoutBlock({
           onSelect(workout.id);
         }}
         onClick={(e) => e.stopPropagation()}
-        className="absolute top-1.5 right-1.5 accent-[#4A76A8]"
+        className="absolute top-1.5 right-1.5 accent-steel"
       />
       <div className="p-1.5 pr-6">
-        <div className="font-bold text-[#e2e8f0] leading-tight">
+        <div className="font-bold text-bone leading-tight">
           {workout.ao_name}
         </div>
         <div style={{ color }} className="text-[10px] mt-0.5">
           {workout.workout_type}
         </div>
-        <div className="text-[#6b7f96] text-[10px] mt-0.5">{timeStr}</div>
+        <div className="text-muted text-[10px] mt-0.5">{timeStr}</div>
         {region && (
-          <div className="text-[#4a5e73] text-[9px] mt-0.5">
+          <div className="text-muted/60 text-[9px] mt-0.5">
             {region.name}
           </div>
         )}
         {!workout.is_active && (
-          <div className="text-[9px] text-red-400 mt-0.5">Inactive</div>
+          <div className="text-[9px] text-rust mt-0.5">Inactive</div>
         )}
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AssistantWidget } from "@/components/ui/AssistantWidget";
-import { MessageCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function FloatingAssistant() {
@@ -46,7 +46,7 @@ export function FloatingAssistant() {
                     onClick={(e) => e.stopPropagation()}
                     onTouchEnd={(e) => e.stopPropagation()}
                     className={cn(
-                        "pointer-events-auto w-[calc(100vw-32px)] sm:w-[400px] mb-4 rounded-2xl border border-border bg-muted shadow-2xl transition-all duration-300 origin-bottom-right overflow-hidden flex flex-col",
+                        "pointer-events-auto w-[calc(100vw-32px)] sm:w-[400px] mb-4 border border-ink-3 bg-ink shadow-2xl transition-all duration-300 origin-bottom-right overflow-hidden flex flex-col clip-chamfer",
                         isOpen
                             ? "opacity-100 scale-100 translate-y-0"
                             : "opacity-0 scale-95 translate-y-4 pointer-events-none h-0 mb-0"
@@ -56,10 +56,10 @@ export function FloatingAssistant() {
                     }}
                 >
                     {/* Header */}
-                    <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+                    <div className="flex items-center justify-between border-b border-ink-3 px-5 py-3">
                         <div>
-                            <h3 className="font-bold font-heading text-lg">Need help?</h3>
-                            <p className="text-xs text-muted-foreground">AI Assistant</p>
+                            <h3 className="font-display font-semibold uppercase tracking-[.08em] text-[14px] text-bone">F3 Assistant</h3>
+                            <p className="text-xs text-bone/60">Ask me anything</p>
                         </div>
                         <button
                             type="button"
@@ -68,7 +68,7 @@ export function FloatingAssistant() {
                                 e.preventDefault();
                                 handleClose();
                             }}
-                            className="h-10 w-10 rounded-full hover:bg-background/80 inline-flex items-center justify-center transition-colors"
+                            className="h-10 w-10 inline-flex items-center justify-center transition-colors text-bone/60 hover:text-bone"
                             aria-label="Close AI Assistant"
                         >
                             <X className="h-5 w-5" />
@@ -90,15 +90,14 @@ export function FloatingAssistant() {
                             e.preventDefault();
                             handleOpen();
                         }}
-                        className="pointer-events-auto rounded-full shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 px-6 py-3 min-h-[48px] bg-primary text-primary-foreground hover:bg-[#3A5E88]"
-                        aria-label="Open AI Assistant"
+                        className="pointer-events-auto inline-flex items-center gap-2 bg-steel text-bone border-[1.5px] border-steel px-5 py-3 font-display font-semibold uppercase tracking-[.1em] text-[13px] clip-chamfer hover:bg-steel-2 hover:border-steel-2 transition-all shadow-[0_8px_24px_rgba(12,12,12,.25)]"
+                        aria-label="Open F3 AMA assistant"
                         style={{
                             WebkitTapHighlightColor: "transparent",
                             touchAction: "manipulation",
                         }}
                     >
-                        <MessageCircle className="h-5 w-5" />
-                        <span className="font-medium">Need help?</span>
+                        AMA ↗
                     </button>
                 )}
             </div>

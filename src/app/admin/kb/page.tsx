@@ -2,9 +2,12 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAdminAuth } from "../AdminAuthContext";
-import { Button } from "@/components/ui/Button";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { ChamferButton } from "@/components/ui/brand/ChamferButton";
+import { ClipFrame } from "@/components/ui/brand/ClipFrame";
+import { MonoTag } from "@/components/ui/brand/MonoTag";
+import { SectionHead } from "@/components/ui/brand/SectionHead";
 import { Folder, FileText, Search, Plus, Save, Eye, Edit3, Code, ChevronRight, ChevronDown } from "lucide-react";
 
 // --- Types ---
@@ -44,40 +47,36 @@ function humanizeFolder(folder: string): string {
         .join(" ");
 }
 
-// --- Components ---
+// --- Sub-components ---
 
-function Badge({ children, className }: { children: React.ReactNode; className?: string }) {
-    return (
-        <span className={cn("px-2 py-0.5 rounded text-xs font-medium bg-[#23334A] text-gray-300 border border-[#3A5E88]", className)}>
-            {children}
-        </span>
-    );
-}
-
-function Input({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+function FieldInput({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
     return (
         <div className="mb-4">
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{label}</label>
+            <label className="block mb-1">
+                <MonoTag>{label}</MonoTag>
+            </label>
             <input
                 type="text"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm"
+                className="w-full px-3 py-2 bg-[#0A1A2F] border border-[#23334A] focus:border-steel focus:outline-none text-bone text-sm"
                 placeholder={placeholder}
             />
         </div>
     );
 }
 
-function Textarea({ label, value, onChange, rows = 4 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
+function FieldTextarea({ label, value, onChange, rows = 4 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
     return (
         <div className="mb-4 flex-1 flex flex-col">
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">{label}</label>
+            <label className="block mb-1">
+                <MonoTag>{label}</MonoTag>
+            </label>
             <textarea
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 rows={rows}
-                className="w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm font-mono resize-y"
+                className="w-full px-3 py-2 bg-[#0A1A2F] border border-[#23334A] focus:border-steel focus:outline-none text-bone text-sm font-mono resize-y"
             />
         </div>
     );
@@ -111,8 +110,6 @@ export default function KBAdminPage() {
 
     // Form State (Local edits)
     const [formData, setFormData] = useState<Partial<KBFileDetail>>({});
-
-    // --- Effects ---
 
     // --- API Calls ---
 
@@ -311,41 +308,41 @@ export default function KBAdminPage() {
 
         return (
             <div className="space-y-6 max-w-3xl mx-auto pb-20">
-                <div className="bg-[#112240] p-4 rounded-lg border border-[#23334A]">
-                    <h4 className="text-sm font-bold text-gray-300 mb-4 border-b border-[#23334A] pb-2">Metadata</h4>
+                <ClipFrame variant="ink" padding="p-5">
+                    <h4 className="font-mono text-xs uppercase tracking-[.15em] text-muted mb-4 border-b border-bone/10 pb-2">Metadata</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label="Title" value={fm.title || ""} onChange={(v) => updateFM("title", v)} />
-                        <Input label="Category" value={fm.category || ""} onChange={(v) => updateFM("category", v)} />
-                        <Input label="Tags (comma separated)" value={(fm.tags || []).join(", ")} onChange={(v) => updateFM("tags", v.split(",").map(s => s.trim()))} />
-                        <Input label="Aliases (comma separated)" value={(fm.aliases || []).join(", ")} onChange={(v) => updateFM("aliases", v.split(",").map(s => s.trim()))} />
+                        <FieldInput label="Title" value={fm.title || ""} onChange={(v) => updateFM("title", v)} />
+                        <FieldInput label="Category" value={fm.category || ""} onChange={(v) => updateFM("category", v)} />
+                        <FieldInput label="Tags (comma separated)" value={(fm.tags || []).join(", ")} onChange={(v) => updateFM("tags", v.split(",").map(s => s.trim()))} />
+                        <FieldInput label="Aliases (comma separated)" value={(fm.aliases || []).join(", ")} onChange={(v) => updateFM("aliases", v.split(",").map(s => s.trim()))} />
                     </div>
-                </div>
+                </ClipFrame>
 
-                <div className="bg-[#112240] p-4 rounded-lg border border-[#23334A]">
-                    <h4 className="text-sm font-bold text-gray-300 mb-4 border-b border-[#23334A] pb-2">Content</h4>
+                <ClipFrame variant="ink" padding="p-5">
+                    <h4 className="font-mono text-xs uppercase tracking-[.15em] text-muted mb-4 border-b border-bone/10 pb-2">Content</h4>
                     {folder === "faq" ? (
                         <>
-                            <Textarea label="Question" value={sec.question || ""} onChange={(v) => updateSec("question", v)} />
-                            <Textarea label="Answer" value={sec.answer || ""} onChange={(v) => updateSec("answer", v)} rows={8} />
-                            <Textarea label="Related (Markdown list)" value={sec.related || ""} onChange={(v) => updateSec("related", v)} />
+                            <FieldTextarea label="Question" value={sec.question || ""} onChange={(v) => updateSec("question", v)} />
+                            <FieldTextarea label="Answer" value={sec.answer || ""} onChange={(v) => updateSec("answer", v)} rows={8} />
+                            <FieldTextarea label="Related (Markdown list)" value={sec.related || ""} onChange={(v) => updateSec("related", v)} />
                         </>
                     ) : (folder === "lexicon" || folder === "exicon") ? (
                         <>
-                            <Textarea label="Definition" value={sec.definition || ""} onChange={(v) => updateSec("definition", v)} />
-                            <Textarea
+                            <FieldTextarea label="Definition" value={sec.definition || ""} onChange={(v) => updateSec("definition", v)} />
+                            <FieldTextarea
                                 label={folder === "exicon" ? "How it's done" : "How it's used"}
                                 value={(folder === "exicon" ? sec.howDone : sec.howUsed) || ""}
                                 onChange={(v) => updateSec(folder === "exicon" ? "howDone" : "howUsed", v)}
                                 rows={6}
                             />
-                            <Textarea label="Variations" value={sec.variations || ""} onChange={(v) => updateSec("variations", v)} />
-                            <Textarea label="Notes" value={sec.notes || ""} onChange={(v) => updateSec("notes", v)} />
-                            <Textarea label="Related Terms" value={sec.related || ""} onChange={(v) => updateSec("related", v)} />
+                            <FieldTextarea label="Variations" value={sec.variations || ""} onChange={(v) => updateSec("variations", v)} />
+                            <FieldTextarea label="Notes" value={sec.notes || ""} onChange={(v) => updateSec("notes", v)} />
+                            <FieldTextarea label="Related Terms" value={sec.related || ""} onChange={(v) => updateSec("related", v)} />
                         </>
                     ) : (
-                        <Textarea label="Body" value={sec.body || formData.raw || ""} onChange={(v) => updateSec("body", v)} rows={20} />
+                        <FieldTextarea label="Body" value={sec.body || formData.raw || ""} onChange={(v) => updateSec("body", v)} rows={20} />
                     )}
-                </div>
+                </ClipFrame>
             </div>
         );
     };
@@ -357,20 +354,27 @@ export default function KBAdminPage() {
             {/* File Browser Sidebar */}
             <div className="w-72 bg-[#112240] border-r border-[#23334A] flex flex-col shrink-0">
                 <div className="p-4 border-b border-[#23334A] space-y-3">
-                    <h2 className="font-bold text-lg">Knowledge Base</h2>
+                    <SectionHead eyebrow="§ Admin · KB" h2="Knowledge Base" align="left" className="mb-2" />
                     <div className="relative">
-                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted" />
                         <input
                             type="text"
                             placeholder="Search..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-8 pr-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] text-sm focus:outline-none focus:border-[#4A76A8] text-white"
+                            className="w-full pl-8 pr-3 py-2 bg-[#0A1A2F] border border-[#23334A] text-sm focus:outline-none focus:border-steel text-bone"
+                            aria-label="Search KB entries"
                         />
                     </div>
-                    <Button size="sm" className="w-full flex items-center justify-center gap-2" onClick={() => setShowNewModal(true)}>
+                    <ChamferButton
+                        variant="ink"
+                        size="sm"
+                        arrow={false}
+                        className="w-full justify-center"
+                        onClick={() => setShowNewModal(true)}
+                    >
                         <Plus className="h-4 w-4" /> New Entry
-                    </Button>
+                    </ChamferButton>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-2">
@@ -378,31 +382,32 @@ export default function KBAdminPage() {
                         <div key={folder} className="mb-2">
                             <button
                                 onClick={() => toggleFolder(folder)}
-                                className="w-full flex items-center justify-between px-2 py-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider hover:bg-[#23334A] rounded"
+                                className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-[#23334A] transition-colors"
                             >
                                 <span className="flex items-center gap-2">
-                                    <Folder className="h-3 w-3" /> {humanizeFolder(folder)}
+                                    <Folder className="h-3 w-3 text-muted" />
+                                    <MonoTag>{humanizeFolder(folder)}</MonoTag>
                                 </span>
-                                {expandedFolders[folder] ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                                {expandedFolders[folder] ? <ChevronDown className="h-3 w-3 text-muted" /> : <ChevronRight className="h-3 w-3 text-muted" />}
                             </button>
 
                             {expandedFolders[folder] && (
                                 <div className="ml-2 mt-1 space-y-0.5 border-l border-[#23334A] pl-2">
                                     {groupFiles.length === 0 ? (
-                                        <div className="px-2 py-1.5 text-xs text-gray-600 italic">No entries yet</div>
+                                        <div className="px-2 py-1.5 text-xs text-muted italic">No entries yet</div>
                                     ) : (
                                         groupFiles.map(file => (
                                             <button
                                                 key={file.path}
                                                 onClick={() => loadFile(file)}
                                                 className={cn(
-                                                    "w-full text-left px-2 py-1.5 rounded text-sm transition-colors truncate flex items-center gap-2",
+                                                    "w-full text-left px-2 py-1.5 text-sm transition-colors truncate flex items-center gap-2 border-l-2",
                                                     selectedFile?.path === file.path
-                                                        ? "bg-[#4A76A8] text-white font-medium"
-                                                        : "text-gray-300 hover:bg-[#23334A]"
+                                                        ? "bg-steel/20 text-bone border-l-steel font-medium"
+                                                        : "text-muted border-l-transparent hover:bg-[#23334A] hover:border-l-steel/40"
                                                 )}
                                             >
-                                                <FileText className="h-3 w-3 opacity-50" />
+                                                <FileText className="h-3 w-3 opacity-50 shrink-0" />
                                                 {file.title}
                                             </button>
                                         ))
@@ -417,26 +422,35 @@ export default function KBAdminPage() {
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden relative">
                 {!selectedFile ? (
-                    <div className="flex-1 flex items-center justify-center text-gray-500 flex-col gap-4">
-                        <Folder className="h-16 w-16 opacity-20" />
-                        <p>Select a file to edit</p>
+                    <div className="flex-1 flex items-center justify-center flex-col gap-4">
+                        <Folder className="h-16 w-16 opacity-10 text-muted" />
+                        <p className="font-display font-bold uppercase text-2xl tracking-wide text-muted">
+                            Select a File
+                        </p>
+                        <p className="text-sm text-muted">Pick an entry from the sidebar to begin editing</p>
                     </div>
                 ) : (
                     <>
                         {/* Header */}
                         <div className="p-4 border-b border-[#23334A] bg-[#0A1A2F] flex justify-between items-center shrink-0">
                             <div className="flex items-center gap-3">
-                                <Badge className="uppercase">{humanizeFolder(selectedFile.folder)}</Badge>
-                                <span className="text-gray-400">/</span>
-                                <h3 className="font-bold text-lg">{selectedFile.title}</h3>
+                                <MonoTag variant="steel">{humanizeFolder(selectedFile.folder)}</MonoTag>
+                                <span className="text-muted">/</span>
+                                <span className="font-display font-bold uppercase tracking-wide text-bone text-base">{selectedFile.title}</span>
                             </div>
                             <div className="flex items-center gap-3">
-                                {message && <span className="text-green-400 text-sm">{message}</span>}
-                                {error && <span className="text-red-400 text-sm">{error}</span>}
-                                <Button onClick={saveFile} disabled={isSaving} className="flex items-center gap-2">
+                                {message && <span className="text-green-400 text-sm font-mono">{message}</span>}
+                                {error && <span className="text-red-400 text-sm font-mono">{error}</span>}
+                                <ChamferButton
+                                    variant="ink"
+                                    size="sm"
+                                    arrow={false}
+                                    onClick={saveFile}
+                                    disabled={isSaving}
+                                >
                                     <Save className="h-4 w-4" />
                                     {isSaving ? "Saving..." : "Save & Reindex"}
-                                </Button>
+                                </ChamferButton>
                             </div>
                         </div>
 
@@ -444,19 +458,34 @@ export default function KBAdminPage() {
                         <div className="flex border-b border-[#23334A] bg-[#112240] shrink-0">
                             <button
                                 onClick={() => setActiveTab("form")}
-                                className={cn("px-6 py-3 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors", activeTab === "form" ? "border-[#4A76A8] text-white bg-[#0A1A2F]" : "border-transparent text-gray-400 hover:text-white")}
+                                className={cn(
+                                    "px-6 py-3 text-sm font-mono uppercase tracking-[.1em] flex items-center gap-2 border-b-2 transition-colors",
+                                    activeTab === "form"
+                                        ? "border-steel text-bone bg-[#0A1A2F]"
+                                        : "border-transparent text-muted hover:text-bone"
+                                )}
                             >
                                 <Edit3 className="h-4 w-4" /> Form
                             </button>
                             <button
                                 onClick={() => setActiveTab("markdown")}
-                                className={cn("px-6 py-3 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors", activeTab === "markdown" ? "border-[#4A76A8] text-white bg-[#0A1A2F]" : "border-transparent text-gray-400 hover:text-white")}
+                                className={cn(
+                                    "px-6 py-3 text-sm font-mono uppercase tracking-[.1em] flex items-center gap-2 border-b-2 transition-colors",
+                                    activeTab === "markdown"
+                                        ? "border-steel text-bone bg-[#0A1A2F]"
+                                        : "border-transparent text-muted hover:text-bone"
+                                )}
                             >
                                 <Code className="h-4 w-4" /> Markdown
                             </button>
                             <button
                                 onClick={() => setActiveTab("preview")}
-                                className={cn("px-6 py-3 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors", activeTab === "preview" ? "border-[#4A76A8] text-white bg-[#0A1A2F]" : "border-transparent text-gray-400 hover:text-white")}
+                                className={cn(
+                                    "px-6 py-3 text-sm font-mono uppercase tracking-[.1em] flex items-center gap-2 border-b-2 transition-colors",
+                                    activeTab === "preview"
+                                        ? "border-steel text-bone bg-[#0A1A2F]"
+                                        : "border-transparent text-muted hover:text-bone"
+                                )}
                             >
                                 <Eye className="h-4 w-4" /> Preview
                             </button>
@@ -465,7 +494,7 @@ export default function KBAdminPage() {
                         {/* Editor Area */}
                         <div className="flex-1 overflow-y-auto p-6 bg-[#0A1A2F]">
                             {isLoading ? (
-                                <div className="flex items-center justify-center h-full text-gray-500">Loading...</div>
+                                <div className="flex items-center justify-center h-full text-muted">Loading...</div>
                             ) : (
                                 <>
                                     {activeTab === "form" && renderForm()}
@@ -474,17 +503,19 @@ export default function KBAdminPage() {
                                             <textarea
                                                 value={formData.raw || ""}
                                                 onChange={(e) => setFormData({ ...formData, raw: e.target.value })}
-                                                className="flex-1 w-full bg-[#112240] text-gray-200 p-4 font-mono text-sm resize-none focus:outline-none rounded border border-[#23334A]"
+                                                className="flex-1 w-full bg-[#112240] text-muted p-4 font-mono text-sm resize-none focus:outline-none border border-[#23334A] focus:border-steel"
                                                 spellCheck={false}
                                             />
                                         </div>
                                     )}
                                     {activeTab === "preview" && (
-                                        <div className="max-w-3xl mx-auto prose prose-invert">
-                                            <div className="whitespace-pre-wrap font-sans text-gray-300 leading-relaxed">
-                                                {formData.raw}
+                                        <ClipFrame variant="bone" padding="p-7">
+                                            <div className="max-w-3xl mx-auto prose prose-invert">
+                                                <div className="whitespace-pre-wrap font-sans text-muted leading-relaxed">
+                                                    {formData.raw}
+                                                </div>
                                             </div>
-                                        </div>
+                                        </ClipFrame>
                                     )}
                                 </>
                             )}
@@ -495,26 +526,45 @@ export default function KBAdminPage() {
 
             {/* New Entry Modal */}
             {showNewModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-[#112240] p-6 rounded-lg border border-[#23334A] w-full max-w-md shadow-2xl">
-                        <h3 className="text-xl font-bold mb-4">Create New Entry</h3>
+                <div className="fixed inset-0 bg-ink/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-ink text-bone border border-steel/30 clip-chamfer p-8 w-full max-w-md shadow-2xl">
+                        <h3 className="font-display font-bold uppercase tracking-wide text-xl mb-6">Create New Entry</h3>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Folder</label>
+                                <label className="block mb-1">
+                                    <MonoTag>Folder</MonoTag>
+                                </label>
                                 <select
                                     value={newFolder}
                                     onChange={(e) => setNewFolder(e.target.value)}
-                                    className="w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm"
+                                    className="w-full px-3 py-2 bg-transparent border border-bone/25 focus:border-steel focus:outline-none text-bone text-sm"
                                 >
                                     {allFolders.map(f => (
                                         <option key={f} value={f}>{humanizeFolder(f)}</option>
                                     ))}
                                 </select>
                             </div>
-                            <Input label="Title" value={newTitle} onChange={setNewTitle} placeholder="e.g. What is F3?" />
+                            <FieldInput label="Title" value={newTitle} onChange={setNewTitle} placeholder="e.g. What is F3?" />
                             <div className="flex gap-3 pt-2">
-                                <Button variant="secondary" className="flex-1" onClick={() => setShowNewModal(false)}>Cancel</Button>
-                                <Button className="flex-1" onClick={createEntry} disabled={!newTitle || isSaving}>Create</Button>
+                                <ChamferButton
+                                    variant="ghost"
+                                    size="sm"
+                                    arrow={false}
+                                    className="flex-1 justify-center"
+                                    onClick={() => setShowNewModal(false)}
+                                >
+                                    Cancel
+                                </ChamferButton>
+                                <ChamferButton
+                                    variant="ink"
+                                    size="sm"
+                                    arrow={false}
+                                    className="flex-1 justify-center"
+                                    onClick={createEntry}
+                                    disabled={!newTitle || isSaving}
+                                >
+                                    Create
+                                </ChamferButton>
                             </div>
                         </div>
                     </div>

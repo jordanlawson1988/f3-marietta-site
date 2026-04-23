@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/Button";
 import { WorkoutGrid } from "./WorkoutGrid";
 import { WorkoutModal } from "./WorkoutModal";
 import type { WorkoutScheduleRow } from "@/types/workout";
 import { Toast } from "../Toast";
 import type { Region } from "@/types/region";
+import { SectionHead } from "@/components/ui/brand/SectionHead";
+import { ChamferButton } from "@/components/ui/brand/ChamferButton";
+import { Button } from "@/components/ui/Button";
 
 export default function WorkoutsAdminPage() {
   const [workouts, setWorkouts] = useState<WorkoutScheduleRow[]>([]);
@@ -156,11 +158,14 @@ export default function WorkoutsAdminPage() {
   const activeRegions = regions.filter((r) => r.is_active);
 
   if (isLoading) {
-    return <div className="p-6 text-gray-500">Loading...</div>;
+    return <div className="p-6 text-muted">Loading...</div>;
   }
 
   return (
     <div className="p-6">
+      {/* Page Header */}
+      <SectionHead eyebrow="§ Admin · Workouts" h2="Schedule Manager" align="left" />
+
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -226,12 +231,9 @@ export default function WorkoutsAdminPage() {
             </div>
           )}
 
-          <Button
-            onClick={() => openCreateModal()}
-            className="flex items-center gap-2 text-sm"
-          >
-            + Add Workout
-          </Button>
+          <ChamferButton variant="ink" size="md" arrow={false} onClick={() => openCreateModal()}>
+            New Workout
+          </ChamferButton>
         </div>
       </div>
 
@@ -266,16 +268,16 @@ export default function WorkoutsAdminPage() {
 
       {/* Bulk Region Picker Modal */}
       {showBulkRegionPicker && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#112240] p-6 rounded-lg border border-[#23334A] w-full max-w-sm shadow-2xl">
-            <h3 className="text-lg font-bold mb-4">Change Region</h3>
-            <p className="text-sm text-gray-400 mb-3">
+        <div className="fixed inset-0 bg-ink/80 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-ink text-bone border border-steel/30 clip-chamfer p-8 w-full max-w-sm shadow-2xl">
+            <h3 className="font-display font-bold uppercase tracking-wide text-lg mb-4">Change Region</h3>
+            <p className="text-sm text-muted mb-3">
               Move {selectedIds.size} workout(s) to:
             </p>
             <select
               value={bulkRegionId}
               onChange={(e) => setBulkRegionId(e.target.value)}
-              className="w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm mb-4"
+              className="mt-2 w-full bg-transparent border border-bone/25 px-3 py-2 focus:outline-none focus:border-steel text-bone text-sm mb-4"
             >
               <option value="">Select a region...</option>
               {activeRegions.map((r) => (
@@ -292,13 +294,16 @@ export default function WorkoutsAdminPage() {
               >
                 Cancel
               </Button>
-              <Button
-                className="flex-1"
+              <ChamferButton
+                variant="steel"
+                size="sm"
+                arrow={false}
+                className="flex-1 justify-center"
                 onClick={handleBulkChangeRegion}
                 disabled={!bulkRegionId}
               >
                 Move
-              </Button>
+              </ChamferButton>
             </div>
           </div>
         </div>

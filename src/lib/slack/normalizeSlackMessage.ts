@@ -53,8 +53,14 @@ export async function normalizeSlackMessage(
 
     // Extract structured fields from event_payload
     const title = extractTitle(eventPayload, message);
-    const { event_date, event_time } = extractDateTime(eventPayload);
+    let { event_date } = extractDateTime(eventPayload);
+    const { event_time } = extractDateTime(eventPayload);
     const location_text = extractLocation(eventPayload);
+
+    // Fallback: extract date from block text (Slackblast bot puts DATE in blocks, not metadata)
+    if (!event_date && blocks.length > 0) {
+        event_date = extractDateFromBlocks(blocks);
+    }
 
     // Extract Q information
     const q_slack_user_id = extractQSlackUserId(eventPayload, event_kind);
@@ -216,6 +222,30 @@ function parseDate(dateStr: string): string | null {
         return date.toISOString().split('T')[0];
     }
 
+    return null;
+}
+
+/**
+ * Extract date from Slack blocks (Slackblast bot puts DATE in mrkdwn text)
+ * Looks for patterns like "*DATE*: 2026-04-02" or "DATE: 2026-04-02"
+ */
+function extractDateFromBlocks(blocks: unknown[]): string | null {
+    for (const block of blocks) {
+        const b = block as Record<string, unknown>;
+        const text = (b.text as Record<string, unknown>)?.text as string | undefined;
+        if (!text) continue;
+
+        const match = text.match(/\*?DATE\*?:\s*(\d{4}-\d{2}-\d{2})/i);
+        if (match) {
+            return match[1];
+        }
+
+        // Also try US date format: MM/DD/YYYY
+        const usMatch = text.match(/\*?DATE\*?:\s*(\d{1,2}\/\d{1,2}\/\d{4})/i);
+        if (usMatch) {
+            return parseDate(usMatch[1]);
+        }
+    }
     return null;
 }
 
