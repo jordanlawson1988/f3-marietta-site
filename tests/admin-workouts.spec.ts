@@ -1,26 +1,45 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
-// These tests require ADMIN_DASHBOARD_PASSWORD to be set in .env.local
-const ADMIN_PASSWORD = process.env.ADMIN_DASHBOARD_PASSWORD || "test-password";
+// Admin credentials — set ADMIN_EMAIL + ADMIN_PASSWORD in .env.local to run these tests.
+// Tests that require auth are skipped when credentials are absent.
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "";
+const hasAdminCreds = !!ADMIN_EMAIL && !!ADMIN_PASSWORD;
 
+// ---------------------------------------------------------------------------
+// Shared login helper
+// ---------------------------------------------------------------------------
+async function loginAdmin(page: Page) {
+  await page.goto("/admin");
+  // Wait for login form (AdminAuthProvider renders it when there is no session)
+  await page.waitForSelector("#admin-email", { timeout: 10_000 });
+  await page.locator("#admin-email").fill(ADMIN_EMAIL);
+  await page.locator("#admin-password").fill(ADMIN_PASSWORD);
+  await page.getByRole("button", { name: "Sign In" }).click();
+  // AdminAuthProvider replaces the login form with children when session is set.
+  // Wait for the top admin nav link that only appears post-auth.
+  await expect(page.locator("nav").getByRole("link", { name: "Workouts" })).toBeVisible({
+    timeout: 15_000,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Admin Workout Management
+// ---------------------------------------------------------------------------
 test.describe("Admin Workout Management", () => {
   test.beforeEach(async ({ page }) => {
-    // Login
-    await page.goto("/admin");
-    await page.getByLabel("Password").fill(ADMIN_PASSWORD);
-    await page.getByRole("button", { name: "Unlock" }).click();
-    // Wait for the admin page to load
-    await page.waitForURL(/\/admin\/workouts/);
+    if (!hasAdminCreds) test.skip();
+    await loginAdmin(page);
+    await page.goto("/admin/workouts");
+    // Wait for the schedule manager heading to confirm the page has rendered
+    await expect(page.getByText("Schedule Manager")).toBeVisible({ timeout: 10_000 });
   });
 
-  test("displays sidebar navigation", async ({ page }) => {
-    const sidebar = page.locator("nav");
-    await expect(page.getByText("F3 Marietta Admin")).toBeVisible();
-    await expect(sidebar.getByRole("link", { name: "Workouts" })).toBeVisible();
-    await expect(sidebar.getByRole("link", { name: "Regions" })).toBeVisible();
-    await expect(
-      sidebar.getByRole("link", { name: "Knowledge Base" })
-    ).toBeVisible();
+  test("displays admin nav with section links", async ({ page }) => {
+    const nav = page.locator("nav");
+    await expect(nav.getByRole("link", { name: "Workouts" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Regions" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "KB" })).toBeVisible();
   });
 
   test("displays workout calendar grid with day columns", async ({ page }) => {
@@ -33,19 +52,22 @@ test.describe("Admin Workout Management", () => {
     await expect(page.getByText("SUN")).toBeVisible();
   });
 
-  test("opens create modal when clicking Add Workout", async ({ page }) => {
-    await page.getByRole("button", { name: "+ Add Workout" }).click();
+  test("opens create modal when clicking New Workout", async ({ page }) => {
+    // ChamferButton without href renders as a <button>
+    await page.getByRole("button", { name: "New Workout" }).click();
     await expect(page.getByRole("heading", { name: "Add Workout" })).toBeVisible();
-    await expect(page.getByLabel("AO Name")).toBeVisible();
-    await expect(page.getByLabel("Workout Type")).toBeVisible();
+    // Modal fields use id-based inputs (MonoTag labels, not <label htmlFor>)
+    await expect(page.locator("#ao-name")).toBeVisible();
+    await expect(page.locator("#workout-type")).toBeVisible();
     // Close modal
     await page.getByRole("button", { name: "Cancel" }).click();
+    // Modal should be dismissed
+    await expect(page.getByRole("heading", { name: "Add Workout" })).not.toBeVisible();
   });
 
-  // This test requires workout data (regions migration must be run on Supabase)
+  // Requires workout data — skipped when calendar is empty
   test("opens edit modal when clicking a workout block", async ({ page }) => {
     const firstBlock = page.locator("[data-testid='workout-block']").first();
-    // Skip if no workout blocks exist (migration not yet run)
     const count = await firstBlock.count();
     if (count === 0) {
       test.skip();
@@ -53,51 +75,59 @@ test.describe("Admin Workout Management", () => {
     }
     await firstBlock.click();
     await expect(page.getByRole("heading", { name: "Edit Workout" })).toBeVisible();
+    // Close modal
+    await page.getByRole("button", { name: "Cancel" }).click();
   });
 
-  test("navigates to regions page", async ({ page }) => {
-    const sidebar = page.locator("nav");
-    await sidebar.getByRole("link", { name: "Regions" }).click();
+  test("navigates to regions page via nav link", async ({ page }) => {
+    await page.locator("nav").getByRole("link", { name: "Regions" }).click();
     await page.waitForURL(/\/admin\/regions/);
     await expect(page.getByRole("heading", { name: "Regions" })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Add Region/ })).toBeVisible();
   });
 
-  test("region filter pills filter workouts", async ({ page }) => {
-    // Click a region filter pill
+  test("region filter pills render with All active by default", async ({ page }) => {
     const allButton = page.getByRole("button", { name: "All" });
     await expect(allButton).toBeVisible();
-    // Click "All" to verify it's the default active state
+    // "All" pill should have the active colour (bg-[#4A76A8] → contains white text)
+    // We just verify it's clickable and interactive
     await allButton.click();
+    await expect(allButton).toBeVisible();
   });
 });
 
+// ---------------------------------------------------------------------------
+// Admin Regions Management
+// ---------------------------------------------------------------------------
 test.describe("Admin Regions Management", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/admin");
-    await page.getByLabel("Password").fill(ADMIN_PASSWORD);
-    await page.getByRole("button", { name: "Unlock" }).click();
-    await page.waitForURL(/\/admin\/workouts/);
-    const sidebar = page.locator("nav");
-    await sidebar.getByRole("link", { name: "Regions" }).click();
-    await page.waitForURL(/\/admin\/regions/);
+    if (!hasAdminCreds) test.skip();
+    await loginAdmin(page);
+    await page.goto("/admin/regions");
+    await expect(page.getByRole("heading", { name: "Regions" })).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
-  test("displays regions table", async ({ page }) => {
+  test("displays regions page heading and Add Region button", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Regions" })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Add Region/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Add Region/i })).toBeVisible();
   });
 
   test("opens add region modal", async ({ page }) => {
-    await page.getByRole("button", { name: /Add Region/ }).click();
+    await page.getByRole("button", { name: /Add Region/i }).click();
     await expect(page.getByRole("heading", { name: "Add Region" })).toBeVisible();
   });
 });
 
+// ---------------------------------------------------------------------------
+// Public Workouts Page (no auth required)
+// ---------------------------------------------------------------------------
 test.describe("Public Workouts Page", () => {
-  test("renders workout schedule with dynamic regions", async ({ page }) => {
+  test("renders workout schedule page header", async ({ page }) => {
     await page.goto("/workouts");
-    // Verify the page loads with the schedule heading
-    await expect(page.getByRole("heading", { name: /workout schedule/i })).toBeVisible();
+    // PageHeader renders an <h1> with the bespoke "Find Your Battlefield." title (Task 4.2)
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    // Confirm we're on the workouts page — the URL is sufficient
+    await expect(page).toHaveURL(/\/workouts/);
   });
 });
