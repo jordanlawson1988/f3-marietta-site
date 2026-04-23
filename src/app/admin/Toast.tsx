@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { Check, X, AlertCircle } from "lucide-react";
 
 interface ToastProps {
   message: string;
@@ -21,24 +20,12 @@ export function Toast({ message, type = "success", onDismiss, duration = 3000 }:
   const isSuccess = type === "success";
 
   return (
-    <div className="fixed top-4 right-4 z-[100] animate-in slide-in-from-top-2 fade-in duration-200">
-      <div
-        className={`flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border ${
-          isSuccess
-            ? "bg-green-900/90 border-green-700 text-green-100"
-            : "bg-red-900/90 border-red-700 text-red-100"
-        }`}
-      >
-        {isSuccess ? (
-          <Check className="h-5 w-5 text-green-400 shrink-0" />
-        ) : (
-          <AlertCircle className="h-5 w-5 text-red-400 shrink-0" />
-        )}
-        <span className="text-sm font-medium">{message}</span>
-        <button onClick={onDismiss} className="ml-2 opacity-60 hover:opacity-100">
-          <X className="h-4 w-4" />
-        </button>
-      </div>
+    <div
+      className={`fixed bottom-6 right-6 z-50 bg-ink text-bone clip-chamfer px-5 py-3 font-mono text-[12px] tracking-[.1em] uppercase shadow-[0_10px_30px_rgba(12,12,12,.35)] border ${
+        isSuccess ? "border-steel" : "border-rust"
+      }`}
+    >
+      {message}
     </div>
   );
 }
