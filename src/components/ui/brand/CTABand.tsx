@@ -6,6 +6,7 @@ type Variant = "steel" | "ink" | "bone" | "gradient";
 
 type Props = {
   variant?: Variant;
+  id?: string;
   title: ReactNode;
   kicker?: ReactNode;
   primary: { label: string; href: string };
@@ -14,7 +15,7 @@ type Props = {
   className?: string;
 };
 
-export function CTABand({ variant = "steel", title, kicker, primary, secondary, watermark, className = "" }: Props) {
+export function CTABand({ variant = "steel", id, title, kicker, primary, secondary, watermark, className = "" }: Props) {
   const bg =
     variant === "gradient" ? "text-bone" :
     variant === "steel" ? "bg-steel text-bone" :
@@ -27,7 +28,7 @@ export function CTABand({ variant = "steel", title, kicker, primary, secondary, 
   const kickerColor = variant === "bone" ? "text-muted" : "text-bone/75";
 
   return (
-    <section className={`relative overflow-hidden ${bg} ${className}`} style={bgStyle}>
+    <section id={id} className={`relative overflow-hidden ${bg} ${className}`} style={bgStyle}>
       {variant !== "bone" && variant !== "gradient" && <TopoBackground variant="dark" />}
       {watermark && <div className="pointer-events-none absolute inset-0 opacity-[.06] select-none" aria-hidden="true">{watermark}</div>}
       <div className="relative z-10 max-w-[1320px] mx-auto px-7 py-24 md:py-28 grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-10 items-end">
