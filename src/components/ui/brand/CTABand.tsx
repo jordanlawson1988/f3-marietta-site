@@ -25,7 +25,7 @@ export function CTABand({ variant = "steel", id, title, kicker, primary, seconda
     ? { background: "linear-gradient(180deg, #24446a 0%, #1a3552 100%)" } as React.CSSProperties
     : undefined;
   const primaryVariant = variant === "bone" ? "ink" : "bone";
-  const kickerColor = variant === "bone" ? "text-muted" : "text-bone/75";
+  const kickerColor = variant === "bone" ? "text-ink-2" : "text-bone/75";
 
   return (
     <section id={id} className={`relative overflow-hidden ${bg} ${className}`} style={bgStyle}>

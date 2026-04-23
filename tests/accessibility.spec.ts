@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 test.describe('Accessibility - Landmarks', () => {
     test('homepage should have main landmark', async ({ page }) => {
@@ -105,4 +106,37 @@ test.describe('Accessibility - Keyboard Navigation', () => {
         const focusedElement = page.locator(':focus');
         await expect(focusedElement).toBeTruthy();
     });
+});
+
+test.describe('A11y redesign', () => {
+    const pages = [
+        '/',
+        '/about',
+        '/workouts',
+        '/backblasts',
+        '/new-here',
+        '/contact',
+        '/fng',
+        '/glossary',
+        '/community',
+        '/what-to-expect',
+    ];
+
+    for (const path of pages) {
+        test(`${path} has no critical accessibility violations`, async ({ page }) => {
+            await page.goto(path);
+            // Wait for page to stabilize (scroll-reveal animations, etc.)
+            await page.waitForLoadState('networkidle');
+            const results = await new AxeBuilder({ page })
+                .withTags(['wcag2a', 'wcag2aa'])
+                .analyze();
+            const critical = results.violations.filter(
+                (v) => v.impact === 'critical' || v.impact === 'serious',
+            );
+            expect(
+                critical,
+                critical.map((v) => `${v.id}: ${v.help}\n  ${v.nodes.map(n => n.html).join('\n  ')}`).join('\n\n'),
+            ).toHaveLength(0);
+        });
+    }
 });

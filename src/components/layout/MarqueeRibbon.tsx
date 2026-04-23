@@ -21,12 +21,10 @@ export function MarqueeRibbon({ variant = "primary", tokens = DEFAULT_TOKENS, cl
         {doubled.map((t, i) => (
           <span
             key={i}
-            className={`font-display font-semibold uppercase tracking-[.15em] text-[18px] px-8 ${
-              i % 3 === 2 ? "text-steel" : "text-bone"
-            }`}
+            className="font-display font-semibold uppercase tracking-[.15em] text-[18px] px-8 text-bone"
           >
             {t}
-            <span className="inline-block w-1.5 h-1.5 rounded-full mx-4 align-middle" style={{ backgroundColor: i % 3 === 2 ? "var(--steel)" : "var(--bone)" }} />
+            <span className="inline-block w-1.5 h-1.5 rounded-full mx-4 align-middle opacity-50" style={{ backgroundColor: "var(--bone)" }} />
           </span>
         ))}
       </div>

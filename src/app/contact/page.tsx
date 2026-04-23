@@ -49,10 +49,10 @@ export default function ContactPage() {
             encType="text/plain"
             className="bg-bone-2 border border-line-soft p-8"
           >
-            <MonoTag>// Send a Message</MonoTag>
+            <MonoTag variant="ink">// Send a Message</MonoTag>
             <div className="mt-6 grid gap-5">
               <label className="block">
-                <span className="block font-mono text-[11px] tracking-[.15em] uppercase text-muted mb-2">Topic</span>
+                <span className="block font-mono text-[11px] tracking-[.15em] uppercase text-ink-2 mb-2">Topic</span>
                 <select name="topic" className="w-full border border-line-soft bg-transparent px-3 py-2 font-mono text-[13px] tracking-[.05em] uppercase focus:outline-none focus:border-ink">
                   <option>General</option>
                   <option>FNG Inquiry</option>
@@ -61,15 +61,15 @@ export default function ContactPage() {
                 </select>
               </label>
               <label className="block">
-                <span className="block font-mono text-[11px] tracking-[.15em] uppercase text-muted mb-2">Name</span>
+                <span className="block font-mono text-[11px] tracking-[.15em] uppercase text-ink-2 mb-2">Name</span>
                 <input required name="name" className="w-full border border-line-soft bg-transparent px-3 py-2 focus:outline-none focus:border-ink" />
               </label>
               <label className="block">
-                <span className="block font-mono text-[11px] tracking-[.15em] uppercase text-muted mb-2">Email</span>
+                <span className="block font-mono text-[11px] tracking-[.15em] uppercase text-ink-2 mb-2">Email</span>
                 <input required type="email" name="email" className="w-full border border-line-soft bg-transparent px-3 py-2 focus:outline-none focus:border-ink" />
               </label>
               <label className="block">
-                <span className="block font-mono text-[11px] tracking-[.15em] uppercase text-muted mb-2">Message</span>
+                <span className="block font-mono text-[11px] tracking-[.15em] uppercase text-ink-2 mb-2">Message</span>
                 <textarea required name="message" rows={5} className="w-full border border-line-soft bg-transparent px-3 py-2 focus:outline-none focus:border-ink" />
               </label>
               <div className="pt-1">

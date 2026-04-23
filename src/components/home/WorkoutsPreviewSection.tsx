@@ -36,7 +36,7 @@ export async function WorkoutsPreviewSection() {
         <div className="mt-10 flex justify-center">
           <Link
             href="/workouts"
-            className="inline-flex items-center gap-2 font-display font-semibold uppercase tracking-[.1em] text-[14px] text-steel hover:gap-3 transition-all"
+            className="inline-flex items-center gap-2 font-display font-bold uppercase tracking-[.1em] text-[14px] text-steel-2 hover:gap-3 transition-all"
           >
             View all posts <span aria-hidden="true">→</span>
           </Link>

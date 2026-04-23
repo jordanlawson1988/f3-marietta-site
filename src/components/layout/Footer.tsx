@@ -68,7 +68,7 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-16 pt-6 border-t border-ink-3 flex flex-col md:flex-row justify-between gap-3 font-mono text-[11px] tracking-[.1em] uppercase text-bone/40">
+        <div className="mt-16 pt-6 border-t border-ink-3 flex flex-col md:flex-row justify-between gap-3 font-mono text-[11px] tracking-[.1em] uppercase text-bone/70">
           <span>// F3 Marietta · Marietta, GA · Est. 2024</span>
           <span>A Region of F3 Nation · Peer-Led · Free of Charge</span>
         </div>

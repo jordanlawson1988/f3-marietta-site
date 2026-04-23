@@ -9,7 +9,7 @@ type Props = {
 };
 
 const variantClass: Record<Variant, string> = {
-  active:   "bg-steel/15 text-steel border-steel/40",
+  active:   "bg-steel/15 text-steel-2 border-steel/40",
   launch:   "bg-rust/15 text-rust border-rust/40",
   archived: "bg-muted/15 text-muted border-muted/40",
   draft:    "bg-brass/15 text-brass border-brass/40",
