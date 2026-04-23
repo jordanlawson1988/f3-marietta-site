@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { Section } from "@/components/ui/Section";
-import { Hero } from "@/components/ui/Hero";
 import YouTubeEmbed from "@/components/ui/YouTubeEmbed";
 import FAQSection from "./FAQSection";
 import Link from "next/link";
@@ -69,13 +68,7 @@ export default function NewHerePage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Hero
-                title="NEW TO F3?"
-                subtitle="Everything you need to know before your first workout. No sign-up, no fees — just show up."
-                ctaText="Find a Workout"
-                ctaLink="/workouts"
-                backgroundImage="/images/workouts-bg.jpg"
-            />
+            {/* TODO(redesign): replaced by PageHeader in Wave 4 */}
 
             {/* What to Expect — Videos */}
             <Section>

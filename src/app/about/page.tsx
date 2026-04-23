@@ -1,15 +1,9 @@
 import { Section } from "@/components/ui/Section";
-import { Hero } from "@/components/ui/Hero";
 
 export default function AboutPage() {
     return (
         <div className="flex flex-col min-h-screen">
-            <Hero
-                title="ABOUT F3 MARIETTA"
-                subtitle="Planting, growing, and serving small workout groups for men."
-                ctaLink="/workouts"
-                backgroundImage="/images/about-bg.jpg"
-            />
+            {/* TODO(redesign): replaced by PageHeader in Wave 4 */}
 
             <Section>
                 <div className="max-w-3xl mx-auto space-y-8">

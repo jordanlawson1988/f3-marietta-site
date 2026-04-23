@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Hero } from '@/components/ui/Hero';
 import { Section } from '@/components/ui/Section';
 import { getBackblastsPaginated, getAOList, createExcerpt } from '@/lib/backblast/getBackblastsPaginated';
 import { ChevronLeft, ChevronRight, Calendar, Users, User } from 'lucide-react';
@@ -100,11 +99,7 @@ export default async function BackblastsPage({ searchParams }: BackblastsPagePro
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Hero
-                title="BACKBLASTS"
-                subtitle="Workout recaps from our AOs. See what you missed—or relive the pain."
-                backgroundImage="/images/workouts-bg.jpg"
-            />
+            {/* TODO(redesign): replaced by PageHeader in Wave 4 */}
 
             <Section>
                 <div className="max-w-6xl mx-auto">

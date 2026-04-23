@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { DraftWithEvent } from '@/types/automation';
-import StatusBadge from '@/components/ui/StatusBadge';
+import { StatusChip } from '@/components/ui/brand/StatusChip';
 import CaptionEditor from '@/components/ui/CaptionEditor';
 import ImageUpload from '@/components/ui/ImageUpload';
 
@@ -140,7 +140,7 @@ export default function DraftCard({
             PAX: {f3_event.pax_count}
           </span>
         )}
-        <StatusBadge status={draft.status} />
+        <StatusChip variant="active">{draft.status}</StatusChip>
       </div>
 
       {/* Image Upload */}

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { DraftWithEvent } from '@/types/automation';
-import StatusBadge from '@/components/ui/StatusBadge';
+import { StatusChip } from '@/components/ui/brand/StatusChip';
 
 type StatusFilter = 'all' | 'pending' | 'approved' | 'posted' | 'rejected' | 'edited';
 
@@ -130,7 +130,7 @@ export default function HistoryPage() {
                       {draft.f3_event.q_name ?? 'Unknown'}
                     </td>
                     <td className="px-4 py-3">
-                      <StatusBadge status={draft.status} />
+                      <StatusChip variant="active">{draft.status}</StatusChip>
                     </td>
                     <td className="px-4 py-3 text-foreground/70 max-w-xs">
                       {truncate(draft.caption, 80)}

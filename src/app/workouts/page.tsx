@@ -1,5 +1,4 @@
 import { Section } from "@/components/ui/Section";
-import { Hero } from "@/components/ui/Hero";
 import { Button } from "@/components/ui/Button";
 import { getWorkoutSchedule } from "@/lib/workouts/getWorkoutSchedule";
 import { WorkoutSchedule } from "./WorkoutSchedule";
@@ -17,13 +16,7 @@ export default async function WorkoutsPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Hero
-                title="WORKOUT SCHEDULE"
-                subtitle="Find a workout near you. Just show up."
-                ctaText="New to F3?"
-                ctaLink="/new-here"
-                backgroundImage="/images/workouts-bg.jpg"
-            />
+            {/* TODO(redesign): replaced by PageHeader in Wave 4 */}
 
             <Section>
                 <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-8">

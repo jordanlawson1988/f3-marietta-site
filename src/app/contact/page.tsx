@@ -1,17 +1,12 @@
 import { Mail, Share2 } from "lucide-react";
 import { Section } from "@/components/ui/Section";
-import { Hero } from "@/components/ui/Hero";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { ContactForm } from "./ContactForm";
 
 export default function ContactPage() {
     return (
         <div className="flex flex-col min-h-screen">
-            <Hero
-                title="CONTACT US"
-                subtitle="Have questions? Want to start an AO? Reach out."
-                backgroundImage="/images/contact-bg.jpg"
-            />
+            {/* TODO(redesign): replaced by PageHeader in Wave 4 */}
 
             <Section>
                 <div className="max-w-2xl mx-auto">

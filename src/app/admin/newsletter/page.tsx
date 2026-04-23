@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Newsletter } from '@/types/automation';
-import StatusBadge from '@/components/ui/StatusBadge';
+import { StatusChip } from '@/components/ui/brand/StatusChip';
 import NewsletterPreview from '@/components/ui/NewsletterPreview';
 
 function formatDate(dateStr: string | null): string {
@@ -128,7 +128,7 @@ export default function NewsletterPage() {
       {currentDraft ? (
         <div className="bg-card border border-border rounded-lg p-6 space-y-5">
           <div className="flex flex-wrap items-center gap-3">
-            <StatusBadge status={currentDraft.status} />
+            <StatusChip variant="active">{currentDraft.status}</StatusChip>
             <span className="text-sm text-foreground/50">
               Week of {formatDate(currentDraft.week_start)} &ndash;{' '}
               {formatDate(currentDraft.week_end)}
@@ -213,7 +213,7 @@ export default function NewsletterPage() {
                         {nl.title ?? 'Untitled'}
                       </td>
                       <td className="px-4 py-3">
-                        <StatusBadge status={nl.status} />
+                        <StatusChip variant="active">{nl.status}</StatusChip>
                       </td>
                       <td className="px-4 py-3 text-foreground/50 whitespace-nowrap">
                         {formatTimestamp(nl.posted_at)}

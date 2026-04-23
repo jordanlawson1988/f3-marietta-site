@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Hero } from "@/components/ui/Hero";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -10,13 +9,7 @@ import { FitnessIcon, FellowshipIcon, FaithIcon } from "@/components/ui/F3Icons"
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      <Hero
-        title="F3 MARIETTA"
-        subtitle="Fitness, Fellowship, and Faith. Free, peer-led workouts for men in Marietta, GA."
-        ctaText="Find a Workout"
-        ctaLink="/workouts"
-        backgroundImage="/images/MariettaHomePage.jpeg"
-      />
+      {/* TODO(redesign): replaced by HomeHero in Wave 3 */}
 
       {/* 1. What is F3? (Moved to top) */}
       <Section className="bg-background pt-12 md:pt-20">

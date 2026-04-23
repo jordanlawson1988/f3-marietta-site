@@ -1,16 +1,11 @@
 import { Section } from "@/components/ui/Section";
-import { Hero } from "@/components/ui/Hero";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import Image from "next/image";
 
 export default function CommunityPage() {
     return (
         <div className="flex flex-col min-h-screen">
-            <Hero
-                title="SERVING MARIETTA"
-                subtitle="Building better men for a better community."
-                backgroundImage="/images/community-bg.jpg"
-            />
+            {/* TODO(redesign): replaced by PageHeader in Wave 4 */}
 
             <Section>
                 <div className="text-center max-w-3xl mx-auto mb-16">
