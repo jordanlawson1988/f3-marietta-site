@@ -66,7 +66,7 @@ export const metadata: Metadata = {
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingAssistant } from "@/components/ui/FloatingAssistant";
-import { ReleaseNotes } from "@/components/ui/ReleaseNotes";
+import { TopBar } from "@/components/layout/TopBar";
 
 export default function RootLayout({
   children,
@@ -78,13 +78,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${oswald.variable} ${jetbrainsMono.variable} ${dmSerif.variable} antialiased bg-bone text-ink font-sans flex flex-col min-h-screen`}
       >
+        <TopBar />
         <Navbar />
-        <main className="flex-grow">
-          {children}
-        </main>
+        <main className="flex-grow">{children}</main>
         <Footer />
         <FloatingAssistant />
-        <ReleaseNotes />
       </body>
     </html>
   );
