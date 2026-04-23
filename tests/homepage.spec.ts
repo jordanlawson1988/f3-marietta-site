@@ -1,75 +1,54 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Homepage', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto('/');
-    });
+test.describe("Home page (redesign)", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+  });
 
-    test('should display the hero section with F3 Marietta title', async ({ page }) => {
-        const heroTitle = page.getByRole('heading', { name: 'F3 MARIETTA', level: 1 });
-        await expect(heroTitle).toBeVisible();
-    });
+  test("renders hero H1 and lede", async ({ page }) => {
+    const h1 = page.locator("h1").first();
+    await expect(h1).toContainText(/Hold the/i);
+    await expect(h1).toContainText(/Battlefield/i);
+    await expect(h1).toContainText(/Leave no man/i);
+    await expect(page.getByText(/Free, peer-led workouts/i).first()).toBeVisible();
+  });
 
-    test('should display the hero subtitle', async ({ page }) => {
-        const subtitle = page.getByText('Fitness, Fellowship, and Faith. Free, peer-led workouts for men in Marietta, GA.');
-        await expect(subtitle).toBeVisible();
-    });
+  test("hero CTAs are visible and linked", async ({ page }) => {
+    const primary = page.getByRole("link", { name: /Find a Workout/i }).first();
+    await expect(primary).toBeVisible();
+    await expect(primary).toHaveAttribute("href", /\/workouts/);
+  });
 
-    test('should have a "Find a Workout" CTA button in hero', async ({ page }) => {
-        const ctaButton = page.getByRole('link', { name: 'Find a Workout' }).first();
-        await expect(ctaButton).toBeVisible();
-        await expect(ctaButton).toHaveAttribute('href', '/workouts');
-    });
+  test("Three F's section renders with three cards", async ({ page }) => {
+    await expect(page.locator("#about")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Fitness$/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Fellowship$/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Faith$/ })).toBeVisible();
+  });
 
-    test('should display the "What is F3?" section', async ({ page }) => {
-        const sectionTitle = page.getByRole('heading', { name: 'WHAT IS F3?' });
-        await expect(sectionTitle).toBeVisible();
-    });
+  test("creed pull quote is present", async ({ page }) => {
+    await expect(page.getByText(/Leave no man behind/i).first()).toBeVisible();
+    await expect(page.getByText(/where you found him/i)).toBeVisible();
+  });
 
-    test('should display the three F3 pillars', async ({ page }) => {
-        const fitnessHeading = page.getByRole('heading', { name: 'Fitness', level: 3 });
-        const fellowshipHeading = page.getByRole('heading', { name: 'Fellowship', level: 3 });
-        const faithHeading = page.getByRole('heading', { name: 'Faith', level: 3 });
+  test("workouts preview has a filter and at least one AO card", async ({ page }) => {
+    await expect(page.locator("#workouts")).toBeVisible();
+    await expect(page.getByPlaceholder(/Search AOs/i)).toBeVisible();
+  });
 
-        await expect(fitnessHeading).toBeVisible();
-        await expect(fellowshipHeading).toBeVisible();
-        await expect(faithHeading).toBeVisible();
-    });
+  test("backblasts preview section renders", async ({ page }) => {
+    await expect(page.locator("#reports")).toBeVisible();
+    await expect(page.getByRole("link", { name: /All reports/i })).toBeVisible();
+  });
 
-    test('should display the "Who is F3 Marietta?" section', async ({ page }) => {
-        const sectionTitle = page.getByRole('heading', { name: 'WHO IS F3 MARIETTA?' });
-        await expect(sectionTitle).toBeVisible();
-    });
+  test("impact section shows 4 numeric tiles", async ({ page }) => {
+    const tiles = page.locator("text=/HIM|Workouts Led|Active AOs|FNGs/i");
+    await expect(tiles.first()).toBeVisible();
+  });
 
-    test('should have "Read Our Story" link to About page', async ({ page }) => {
-        const readMoreLink = page.getByRole('link', { name: 'Read Our Story' });
-        await expect(readMoreLink).toBeVisible();
-        await expect(readMoreLink).toHaveAttribute('href', '/about');
-    });
-
-    test('should display the 5 Core Principles', async ({ page }) => {
-        const principlesTitle = page.getByRole('heading', { name: 'THE 5 CORE PRINCIPLES' });
-        await expect(principlesTitle).toBeVisible();
-
-        // Check each principle is listed
-        await expect(page.getByText('Free of charge')).toBeVisible();
-        await expect(page.getByText('Open to all men', { exact: true })).toBeVisible();
-        await expect(page.getByText('Held outdoors, rain or shine, heat or cold')).toBeVisible();
-        await expect(page.getByText('Peer-led in a rotating fashion')).toBeVisible();
-        await expect(page.getByText('Ends with a Circle of Trust (COT)')).toBeVisible();
-    });
-
-    test('should display the blockquote', async ({ page }) => {
-        const quote = page.getByText('Leave no man behind, but leave no man where you found him.');
-        await expect(quote).toBeVisible();
-    });
-
-    test('should display the "Ready to Join Us?" CTA section', async ({ page }) => {
-        const ctaTitle = page.getByRole('heading', { name: 'READY TO JOIN US?' });
-        await expect(ctaTitle).toBeVisible();
-
-        const findLocation = page.getByRole('link', { name: 'Find a Location' });
-        await expect(findLocation).toBeVisible();
-        await expect(findLocation).toHaveAttribute('href', '/workouts');
-    });
+  test("join CTA and footer render", async ({ page }) => {
+    await expect(page.locator("#new")).toBeVisible();
+    await expect(page.getByText(/Plan Your First Post/i)).toBeVisible();
+    await expect(page.getByText(/A Region of F3 Nation/i)).toBeVisible();
+  });
 });
