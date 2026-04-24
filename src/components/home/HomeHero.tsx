@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { ChamferButton } from "@/components/ui/brand/ChamferButton";
-import { CornerBracket } from "@/components/ui/brand/CornerBracket";
 import { EyebrowLabel } from "@/components/ui/brand/EyebrowLabel";
 import { MeterBar } from "@/components/ui/brand/MeterBar";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
@@ -39,7 +38,7 @@ export function HomeHero({ weeklyPax }: Props) {
       {/* Content grid */}
       <div className="relative z-10 flex-1 max-w-[1320px] mx-auto w-full px-7 py-16 grid grid-cols-1 md:grid-cols-[1.3fr_1fr] gap-12 items-center">
         <div>
-          <EyebrowLabel variant="steel" withRule>Marietta Region · F3 Nation</EyebrowLabel>
+          <EyebrowLabel variant="steel" withRule>Marietta Region &middot; F3 Nation</EyebrowLabel>
           <h1 className="mt-7 font-display font-bold uppercase leading-[.86] text-[clamp(48px,7.2vw,120px)] tracking-[-.01em]">
             <span className="block overflow-hidden"><span className="inline-block" style={{ animation: "word-rise .9s cubic-bezier(.2,.8,.2,1) both" }}>Remove your</span></span>
             <span className="block overflow-hidden"><span className="inline-block text-steel relative" style={{ animation: "word-rise .9s .1s cubic-bezier(.2,.8,.2,1) both" }}>
@@ -74,36 +73,26 @@ export function HomeHero({ weeklyPax }: Props) {
           </div>
         </div>
 
-        {/* Emblem card */}
+        {/* Emblem — raw logo, no contrast/invert overlays */}
         <div className="relative aspect-square max-w-[520px] w-full ml-auto">
           <div
             aria-hidden="true"
             className="absolute -inset-10 rounded-full border border-dashed border-steel/40"
             style={{ animation: "rotate-ring 60s linear infinite" }}
           />
-          <div
-            className="relative h-full w-full border border-bone/18 bg-bone/5 backdrop-blur-[6px] flex items-center justify-center"
-            style={{ clipPath: "polygon(22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%, 0 22px)" }}
-          >
-            <CornerBracket corner="tl" color="steel" />
-            <CornerBracket corner="tr" color="steel" />
-            <CornerBracket corner="bl" color="steel" />
-            <CornerBracket corner="br" color="steel" />
-            <div className="relative w-[82%] aspect-square" style={{ animation: "float-logo 8s ease-in-out infinite" }}>
-              <Image
-                src="/images/new-f3-marietta-logo.png"
-                alt="F3 Marietta cannon emblem"
-                fill
-                className="object-contain"
-                style={{ filter: "invert(1) contrast(1.1) drop-shadow(0 20px 40px rgba(0,0,0,.5))" }}
-                priority
-              />
-            </div>
+          <div className="relative w-full aspect-square flex items-center justify-center" style={{ animation: "float-logo 8s ease-in-out infinite" }}>
+            <Image
+              src="/images/new-f3-marietta-logo.png"
+              alt="F3 Marietta cannon emblem"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
-          <div className="absolute -top-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">// ID · F3.MAR.01</div>
-          <div className="absolute -top-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">REV · 2025</div>
-          <div className="absolute -bottom-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">Fitness · Fellowship · Faith</div>
-          <div className="absolute -bottom-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-steel">// Gloom · 05:30 EDT</div>
+          <div className="absolute -top-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">// ID &middot; F3.MAR.01</div>
+          <div className="absolute -top-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">REV &middot; 2025</div>
+          <div className="absolute -bottom-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">Fitness &middot; Fellowship &middot; Faith</div>
+          <div className="absolute -bottom-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-steel">// Gloom &middot; 05:30 EDT</div>
         </div>
       </div>
     </section>

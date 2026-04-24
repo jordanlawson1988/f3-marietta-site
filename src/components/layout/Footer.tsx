@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Facebook, Instagram } from "lucide-react";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
+import { SOCIAL_LINKS } from "@/lib/socialLinks";
 
 const REGION_LINKS = [
   { label: "About", href: "/about" },
@@ -20,6 +22,27 @@ const CONNECT_LINKS = [
   { label: "Contact", href: "/contact" },
   { label: "F3 Nation", href: "https://f3nation.com", external: true },
 ];
+
+// Lucide doesn't ship an X (Twitter rebrand) glyph — use a 24x24 inline mark.
+function XMark({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+const SOCIALS = [
+  { id: "facebook", label: "Facebook", href: SOCIAL_LINKS.facebook, Icon: Facebook },
+  { id: "instagram", label: "Instagram", href: SOCIAL_LINKS.instagram, Icon: Instagram },
+  { id: "x", label: "X", href: SOCIAL_LINKS.x, Icon: XMark },
+] as const;
 
 export function Footer() {
   return (
@@ -42,6 +65,25 @@ export function Footer() {
             <p className="text-[14px] text-bone/60 max-w-[280px] leading-[1.6]">
               Free, peer-led workouts for men in Marietta, GA. Rain or shine, heat or cold — we muster at 05:30.
             </p>
+
+            <div className="mt-6">
+              <MonoTag variant="bone" className="block mb-3">{`// Follow the Region`}</MonoTag>
+              <ul className="flex items-center gap-3">
+                {SOCIALS.filter((s) => s.href).map(({ id, label, href, Icon }) => (
+                  <li key={id}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`F3 Marietta on ${label}`}
+                      className="inline-flex h-10 w-10 items-center justify-center border border-bone/25 text-bone hover:text-ink hover:bg-bone transition-colors"
+                    >
+                      <Icon className="h-[18px] w-[18px]" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {[
