@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getImpactStats } from "@/lib/stats/getImpactStats";
 import { getRecentBackblastPhotos } from "@/lib/backblast/getRecentBackblastPhotos";
+import { GENERIC_BACKBLAST_FALLBACK } from "@/lib/backblast/getBackblastImage";
 import { ChamferButton } from "@/components/ui/brand/ChamferButton";
 import { EyebrowLabel } from "@/components/ui/brand/EyebrowLabel";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
@@ -11,7 +12,7 @@ export async function ImpactSection() {
     getImpactStats(),
     getRecentBackblastPhotos(1),
   ]);
-  const backgroundPhoto = recentPhotos[0] ?? "/images/MariettaHomePage.jpeg";
+  const backgroundPhoto = recentPhotos[0] ?? GENERIC_BACKBLAST_FALLBACK;
   const tiles = [
     { num: stats.uniqueHim, label: "Unique HIM Posted" },
     { num: stats.workoutsLed, label: "Workouts Led" },
