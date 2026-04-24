@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/brand/PageHeader";
 import { CTABand } from "@/components/ui/brand/CTABand";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import { excerptFromEvent } from "@/lib/backblast/getBackblastsPaginated";
+import { getBackblastImage } from "@/lib/backblast/getBackblastImage";
 import type { F3Event } from "@/types/f3Event";
 
 type Params = Promise<{ id: string }>;
@@ -57,6 +58,7 @@ export default async function BackblastDetail({ params }: { params: Params }) {
         variant="ink"
         title={evt.title ?? "Backblast"}
         kicker={excerptFromEvent(evt, 180) || undefined}
+        backgroundImage={getBackblastImage(evt.id)}
       />
 
       <article className="bg-bone py-16">

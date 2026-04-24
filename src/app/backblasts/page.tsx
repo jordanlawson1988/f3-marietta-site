@@ -34,6 +34,7 @@ export default async function BackblastsPage({ searchParams }: { searchParams: S
         title={<>From the<br />Gloom.</>}
         kicker={<>Every post produces a backblast. {total} reports on record.</>}
         meter={{ left: `Records · ${total}`, right: "Source · Slack + Slackblast Bot" }}
+        backgroundImage="/images/HomePage2.jpeg"
       />
 
       <section className="bg-bone py-14">
