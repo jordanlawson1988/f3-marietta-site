@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import { StatusChip } from "@/components/ui/brand/StatusChip";
-import { createExcerpt } from "@/lib/backblast/getBackblastsPaginated";
+import { excerptFromEvent } from "@/lib/backblast/getBackblastsPaginated";
 import type { F3EventRow } from "@/lib/backblast/getBackblastsPaginated";
 
 type Props = { item: F3EventRow; className?: string };
@@ -14,7 +14,7 @@ function formatDate(iso: string | null): string {
 
 export function BackblastListItem({ item, className = "" }: Props) {
   const title = item.title ?? "Backblast";
-  const excerpt = createExcerpt(item.content_text, 140);
+  const excerpt = excerptFromEvent(item, 140);
   return (
     <Link
       href={`/backblasts/${item.id}`}

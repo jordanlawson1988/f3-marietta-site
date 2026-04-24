@@ -5,6 +5,7 @@ import { getSql } from "@/lib/db";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
 import { CTABand } from "@/components/ui/brand/CTABand";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
+import { excerptFromEvent } from "@/lib/backblast/getBackblastsPaginated";
 import type { F3Event } from "@/types/f3Event";
 
 type Params = Promise<{ id: string }>;
@@ -55,11 +56,7 @@ export default async function BackblastDetail({ params }: { params: Params }) {
         eyebrow={`${formatDate(evt.event_date)} · ${evt.ao_display_name ?? "F3 Marietta"}${evt.q_name ? ` · Q · ${evt.q_name}` : ""}`}
         variant="ink"
         title={evt.title ?? "Backblast"}
-        kicker={
-          evt.content_text
-            ? evt.content_text.slice(0, 180).replace(/<@[A-Z0-9]+>/g, "")
-            : undefined
-        }
+        kicker={excerptFromEvent(evt, 180) || undefined}
       />
 
       <article className="bg-bone py-16">

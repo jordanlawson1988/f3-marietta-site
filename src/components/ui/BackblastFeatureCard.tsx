@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
-import { createExcerpt } from "@/lib/backblast/getBackblastsPaginated";
+import { excerptFromEvent } from "@/lib/backblast/getBackblastsPaginated";
 import type { F3EventRow } from "@/lib/backblast/getBackblastsPaginated";
 
 type Props = { item: F3EventRow; className?: string };
@@ -14,7 +14,7 @@ function formatDate(iso: string | null): string {
 
 export function BackblastFeatureCard({ item, className = "" }: Props) {
   const title = item.title ?? "Backblast";
-  const excerpt = createExcerpt(item.content_text, 220);
+  const excerpt = excerptFromEvent(item, 220);
 
   return (
     <Link

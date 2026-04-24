@@ -107,7 +107,24 @@ export async function getAOList(): Promise<string[]> {
 }
 
 /**
- * Create a short excerpt from content text
+ * Truncate at a word boundary (unless the boundary would be too early),
+ * appending an ellipsis.
+ */
+function truncateAtBoundary(text: string, maxLength: number): string {
+    if (text.length <= maxLength) return text;
+    const truncated = text.slice(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+    if (lastSpace > maxLength * 0.7) {
+        return truncated.slice(0, lastSpace) + '...';
+    }
+    return truncated + '...';
+}
+
+/**
+ * Legacy: create a short excerpt from plain content_text, stripping Slack
+ * user IDs entirely. Retained for callers that only have content_text.
+ * Prefer `excerptFromEvent` when you have the full event (uses content_html
+ * so resolved @Knope/@E720 handles survive into the preview).
  */
 export function createExcerpt(text: string | null, maxLength: number = 100): string {
     if (!text) return '';
@@ -118,16 +135,33 @@ export function createExcerpt(text: string | null, maxLength: number = 100): str
         .replace(/\s+/g, ' ')
         .trim();
 
-    if (cleaned.length <= maxLength) {
-        return cleaned;
+    return truncateAtBoundary(cleaned, maxLength);
+}
+
+/**
+ * Build a preview excerpt for a backblast. Prefers content_html (which has
+ * Slack user IDs already resolved to handles like @Knope) and strips tags
+ * + entities. Falls back to content_text with IDs stripped out if HTML is
+ * missing.
+ */
+export function excerptFromEvent(
+    event: { content_html: string | null; content_text: string | null },
+    maxLength: number = 180,
+): string {
+    if (event.content_html) {
+        const decoded = event.content_html
+            .replace(/<[^>]*>/g, ' ')        // strip tags
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&#39;/g, "'")
+            .replace(/&quot;/g, '"')
+            // Any stray Slack IDs that slipped through (display_name missing in slack_users cache)
+            .replace(/@U[A-Z0-9]{8,}/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        return truncateAtBoundary(decoded, maxLength);
     }
-
-    const truncated = cleaned.slice(0, maxLength);
-    const lastSpace = truncated.lastIndexOf(' ');
-
-    if (lastSpace > maxLength * 0.7) {
-        return truncated.slice(0, lastSpace) + '...';
-    }
-
-    return truncated + '...';
+    return createExcerpt(event.content_text, maxLength);
 }
