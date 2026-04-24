@@ -31,8 +31,8 @@ export function HomeHero({ weeklyPax }: Props) {
         <MeterBar
           variant="ink"
           className="!border-t-0 !px-0"
-          left={<MonoTag variant="bone">Coordinates · 33.9526° N, 84.5499° W</MonoTag>}
-          right={<MonoTag variant="bone">{`Muster Log · ${weeklyPax || 42} men posted this week`}</MonoTag>}
+          left={<MonoTag variant="bone">Marietta Region · F3 Nation</MonoTag>}
+          right={<MonoTag variant="bone">{`Muster Log · ${weeklyPax} ${weeklyPax === 1 ? "man" : "men"} posted this week`}</MonoTag>}
         />
       </div>
 
@@ -40,17 +40,17 @@ export function HomeHero({ weeklyPax }: Props) {
       <div className="relative z-10 flex-1 max-w-[1320px] mx-auto w-full px-7 py-16 grid grid-cols-1 md:grid-cols-[1.3fr_1fr] gap-12 items-center">
         <div>
           <EyebrowLabel variant="steel" withRule>Marietta Region · F3 Nation</EyebrowLabel>
-          <h1 className="mt-7 font-display font-bold uppercase leading-[.86] text-[clamp(56px,9vw,148px)] tracking-[-.01em]">
-            <span className="block overflow-hidden"><span className="inline-block" style={{ animation: "word-rise .9s cubic-bezier(.2,.8,.2,1) both" }}>Hold the</span></span>
+          <h1 className="mt-7 font-display font-bold uppercase leading-[.86] text-[clamp(48px,7.2vw,120px)] tracking-[-.01em]">
+            <span className="block overflow-hidden"><span className="inline-block" style={{ animation: "word-rise .9s cubic-bezier(.2,.8,.2,1) both" }}>Remove your</span></span>
             <span className="block overflow-hidden"><span className="inline-block text-steel relative" style={{ animation: "word-rise .9s .1s cubic-bezier(.2,.8,.2,1) both" }}>
-              Battlefield.
+              obstacles,
               <span className="absolute left-0 right-0 bottom-[.12em] h-[.06em] bg-steel origin-left" style={{ animation: "scope-underline 1.2s .6s cubic-bezier(.2,.8,.2,1) both" }} />
             </span></span>
-            <span className="block overflow-hidden"><span className="inline-block" style={{ animation: "word-rise .9s .2s cubic-bezier(.2,.8,.2,1) both" }}>Leave no man</span></span>
-            <span className="block overflow-hidden"><span className="inline-block text-bone/55" style={{ animation: "word-rise .9s .3s cubic-bezier(.2,.8,.2,1) both" }}>behind.</span></span>
+            <span className="block overflow-hidden"><span className="inline-block" style={{ animation: "word-rise .9s .2s cubic-bezier(.2,.8,.2,1) both" }}>unlock your</span></span>
+            <span className="block overflow-hidden"><span className="inline-block text-bone/55" style={{ animation: "word-rise .9s .3s cubic-bezier(.2,.8,.2,1) both" }}>potential.</span></span>
           </h1>
           <p className="mt-8 max-w-[540px] text-[18px] leading-[1.55] text-bone/82">
-            Free, peer-led workouts for men in Marietta, GA. We start in the gloom at 05:15, rain or shine — and we finish as better husbands, fathers, friends, and leaders.
+            Free, peer-led workouts for men in Marietta, GA. We start in the gloom at 05:30, rain or shine — and we finish as better husbands, fathers, friends, and leaders.
           </p>
           <div className="mt-9 flex flex-wrap gap-3.5">
             <ChamferButton href="/workouts" variant="steel" size="lg">Find a Workout</ChamferButton>
@@ -59,7 +59,7 @@ export function HomeHero({ weeklyPax }: Props) {
 
           <div className="mt-10 max-w-[560px] grid grid-cols-3 gap-7 border-t border-bone/12 pt-7">
             {[
-              { num: "5:15", em: "am", lbl: "First Whistle" },
+              { num: "5:30", em: "am", lbl: "First Whistle" },
               { num: "$0", em: "", lbl: "Always Free" },
               { num: "4", em: "/wk", lbl: "Active AOs" },
             ].map((m) => (
@@ -91,7 +91,7 @@ export function HomeHero({ weeklyPax }: Props) {
             <CornerBracket corner="br" color="steel" />
             <div className="relative w-[82%] aspect-square" style={{ animation: "float-logo 8s ease-in-out infinite" }}>
               <Image
-                src="/icons/f3mariettalogo-main.png"
+                src="/images/new-f3-marietta-logo.png"
                 alt="F3 Marietta cannon emblem"
                 fill
                 className="object-contain"
@@ -102,8 +102,8 @@ export function HomeHero({ weeklyPax }: Props) {
           </div>
           <div className="absolute -top-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">// ID · F3.MAR.01</div>
           <div className="absolute -top-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">REV · 2025</div>
-          <div className="absolute -bottom-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">LAT 33.95° / LON -84.55°</div>
-          <div className="absolute -bottom-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-steel">// Gloom · 05:15 EDT</div>
+          <div className="absolute -bottom-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">Fitness · Fellowship · Faith</div>
+          <div className="absolute -bottom-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-steel">// Gloom · 05:30 EDT</div>
         </div>
       </div>
     </section>

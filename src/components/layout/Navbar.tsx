@@ -33,7 +33,7 @@ export function Navbar() {
       <div className="max-w-[1320px] mx-auto flex items-center justify-between gap-6 px-7 py-3.5">
         <Link href="/" className="flex items-center gap-3.5 group">
           <Image
-            src="/icons/f3mariettalogo-main.png"
+            src="/images/new-f3-marietta-logo.png"
             alt="F3 Marietta cannon emblem"
             width={56}
             height={56}

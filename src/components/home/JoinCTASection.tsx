@@ -14,7 +14,7 @@ export function JoinCTASection() {
       primary={{ label: "Plan Your First Post", href: "/new-here" }}
       watermark={
         <span className="absolute -bottom-16 right-0 font-display font-bold uppercase text-bone text-[clamp(200px,30vw,480px)] leading-none">
-          05:15
+          05:30
         </span>
       }
     />

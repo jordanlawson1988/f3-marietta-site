@@ -1,38 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { randomUUID } from "crypto";
 import { lexiconEntries, exiconEntries, GlossaryEntry } from "@/../data/f3Glossary";
-import { searchKnowledgeDocs } from "@/../data/f3Knowledge";
+import { searchKnowledgeDocs, getAssistantPersona } from "@/../data/f3Knowledge";
 import { searchGlossaryEntries } from "@/lib/searchGlossary";
 import { checkRateLimit } from "@/lib/security/rateLimiter";
 
-// Force Node.js runtime (not Edge) for OpenAI and fs compatibility
+// Force Node.js runtime (not Edge) for fs and Gemini SDK compatibility.
 export const runtime = "nodejs";
 
-// Helper to normalize mobile keyboard quirks (smart quotes, special whitespace, etc.)
+// Gemini model. Flash is fast, cheap, and right-sized for short F3 answers.
+const GEMINI_MODEL = "gemini-2.5-flash";
+
+// Helper to normalize mobile keyboard quirks (smart quotes, special whitespace).
 function normalizeQuery(input: string): string {
     return input
-        // Smart quotes and curly apostrophes → straight versions
-        .replace(/[\u2018\u2019\u201A\u201B]/g, "'")  // Single curly quotes
-        .replace(/[\u201C\u201D\u201E\u201F]/g, '"')  // Double curly quotes
-        .replace(/[\u2032\u2035]/g, "'")              // Prime marks
-        // Special whitespace → regular space
-        .replace(/[\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, ' ')
-        // Normalize dashes
-        .replace(/[\u2013\u2014\u2015]/g, '-')
-        // Remove zero-width characters
-        .replace(/[\u200B-\u200D\uFEFF]/g, '')
-        // Collapse multiple spaces
+        .replace(/[‘’‚‛]/g, "'")
+        .replace(/[“”„‟]/g, '"')
+        .replace(/[′‵]/g, "'")
+        .replace(/[  -​  　]/g, ' ')
+        .replace(/[–—―]/g, '-')
+        .replace(/[​-‍﻿]/g, '')
         .replace(/\s+/g, ' ')
         .trim();
 }
 
-// Helper to normalize query and extract core term
 function extractCoreTerm(query: string): string {
-    // First normalize mobile keyboard quirks
     let term = normalizeQuery(query).toLowerCase();
-
-    // Remove common question prefixes (order matters - longer prefixes first)
     const prefixes = [
         "what is an ", "what is a ", "what is the ", "what is ",
         "what's an ", "what's a ", "what's the ", "what's ",
@@ -49,18 +43,11 @@ function extractCoreTerm(query: string): string {
             break;
         }
     }
-
-    // Remove trailing punctuation
     term = term.replace(/[?.,!]+$/, "");
-
-    // Remove any remaining leading articles
     term = term.replace(/^(a |an |the )/, "");
-
     return term.trim();
 }
 
-
-// Use shared search logic - wrapper for compatibility
 function getRelevantEntries(query: string, entries: GlossaryEntry[], limit = 10): GlossaryEntry[] {
     if (!query) return [];
     return searchGlossaryEntries(entries, query).slice(0, limit);
@@ -100,42 +87,47 @@ async function getKnowledgeBaseContext(query: string): Promise<string | null> {
     }
 }
 
-// Lazy singleton for OpenAI client (avoid re-instantiation per request)
-let _openai: OpenAI | null = null;
-function getOpenAI(): OpenAI {
-    if (!_openai) {
-        const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
-        _openai = new OpenAI({ apiKey });
+// Lazy singleton — only construct the Gemini client on first request so unit
+// tests / cold starts that never hit the endpoint don't fail on missing key.
+let _gemini: GoogleGenAI | null = null;
+function getGemini(): GoogleGenAI {
+    if (!_gemini) {
+        const apiKey = process.env.GOOGLE_AI_API_KEY;
+        if (!apiKey) throw new Error("GOOGLE_AI_API_KEY is not set");
+        _gemini = new GoogleGenAI({ apiKey });
     }
-    return _openai;
+    return _gemini;
 }
 
-async function callOpenAI(query: string, context: string | null): Promise<string> {
-    const openai = getOpenAI();
+function buildSystemInstruction(queryContext: string | null): string {
+    const persona = getAssistantPersona();
+    const contextBlock = queryContext
+        ? `\n\n--- QUERY-SPECIFIC F3 CONTEXT ---\nWhen relevant, ground your answer in this retrieved content:\n${queryContext}`
+        : `\n\n--- QUERY-SPECIFIC F3 CONTEXT ---\nNo specific Lexicon/Exicon/Knowledge matches were retrieved for this query. Answer from your loaded F3 persona above. If the question isn't about F3, redirect per the Topic Boundary rules.`;
 
-    const systemPromptBase = `
-You are the F3 Marietta AI assistant.
-Always answer as helpfully and concisely as possible.
-If you are not sure, be honest and suggest checking f3marietta.com or f3nation.com.
-Focus on F3, F3 Marietta, workouts, locations, Lexicon/Exicon, and FAQ topics.
-`;
+    return `${persona}${contextBlock}`;
+}
 
-    const systemPrompt = context
-        ? `${systemPromptBase}\n\nUse the following F3 Marietta knowledge base context if relevant:\n${context}`
-        : `${systemPromptBase}\n\nYou do not have any special context for this question; answer from your general knowledge of F3.`;
+async function callGemini(query: string, queryContext: string | null): Promise<string> {
+    const gemini = getGemini();
+    const systemInstruction = buildSystemInstruction(queryContext);
 
-    const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: query },
-        ],
-        max_tokens: 500,
-        temperature: 0.5,
+    const response = await gemini.models.generateContent({
+        model: GEMINI_MODEL,
+        contents: query,
+        config: {
+            systemInstruction,
+            maxOutputTokens: 400,
+            temperature: 0.55,
+            topP: 0.9,
+        },
     });
 
-    return completion.choices[0]?.message?.content || "I couldn't generate an answer at this time.";
+    const text = response.text;
+    if (!text || text.trim().length === 0) {
+        return "Couldn't generate an answer. Check the Glossary page or ask in Slack.";
+    }
+    return text.trim();
 }
 
 export async function POST(request: NextRequest) {
@@ -155,23 +147,15 @@ export async function POST(request: NextRequest) {
 
         console.log(`[${requestId}] Assistant request: "${query.slice(0, 50)}${query.length > 50 ? '...' : ''}"`);
 
-        // 1. Normalize and check for direct match
+        // 1. Normalize and check for direct glossary match — skip the LLM entirely.
         const coreTerm = extractCoreTerm(query);
         const allEntries = [...lexiconEntries, ...exiconEntries];
-
-        // Debug logging to diagnose mobile vs desktop matching issues
-        console.log(`[${requestId}] Raw query: "${query}"`);
-        console.log(`[${requestId}] Extracted coreTerm: "${coreTerm}"`);
-        console.log(`[${requestId}] Query char codes: ${[...query].map(c => c.charCodeAt(0)).join(',')}`);
 
         const directMatch = allEntries.find(
             (e) => e.term.toLowerCase() === coreTerm
         );
 
-        console.log(`[${requestId}] Direct match found: ${directMatch ? directMatch.term : 'none'}`);
-
         if (directMatch) {
-            // Direct match found! Return immediately without OpenAI.
             const isLexicon = lexiconEntries.some((l) => l.id === directMatch.id);
             const type = isLexicon ? "Lexicon" : "Exicon";
             const url = `/glossary#${directMatch.id}`;
@@ -191,25 +175,21 @@ export async function POST(request: NextRequest) {
         }
 
         // 2. Check API Key
-        if (!process.env.OPENAI_API_KEY) {
-            console.error(`[${requestId}] OPENAI_API_KEY is not set`);
+        if (!process.env.GOOGLE_AI_API_KEY) {
+            console.error(`[${requestId}] GOOGLE_AI_API_KEY is not set`);
             return NextResponse.json(
                 { error: "service_unavailable", message: "The AI assistant is temporarily unavailable. Please try again later." },
                 { status: 503 }
             );
         }
 
-        // 3. Get Context
-        const context = await getKnowledgeBaseContext(query);
+        // 3. Retrieve query-specific context (may be null)
+        const queryContext = await getKnowledgeBaseContext(query);
 
-        // 4. Call OpenAI
-        const answerText = await callOpenAI(query, context);
+        // 4. Call Gemini with persona-loaded system instruction
+        const answerText = await callGemini(query, queryContext);
 
-        // 5. Build Related Entries/Pages (Best effort based on context)
-        // We can re-run getRelevantEntries locally to populate this if context was null, 
-        // or just use what we found in getKnowledgeBaseContext if we refactored to return it.
-        // For simplicity, let's re-run the cheap local search to populate "related" even if we used fallback.
-
+        // 5. Build Related Entries/Pages from the same local search
         const relevantLexicon = getRelevantEntries(query, lexiconEntries, 3);
         const relevantExicon = getRelevantEntries(query, exiconEntries, 3);
         const allRelevantGlossary = [...relevantLexicon, ...relevantExicon];
@@ -225,10 +205,6 @@ export async function POST(request: NextRequest) {
             };
         });
 
-        // For related pages, we'd need the docs results. 
-        // Since getKnowledgeBaseContext swallows them, we might miss them here if we don't re-fetch or refactor.
-        // But the user asked for "fallback to plain OpenAI", so missing related links in fallback case is acceptable.
-        // We will try to fetch them again safely.
         let relatedPages: { title: string; url: string }[] = [];
         try {
             const relevantDocs = searchKnowledgeDocs(query, 3);

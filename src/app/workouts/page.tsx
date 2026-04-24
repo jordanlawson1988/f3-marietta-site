@@ -4,7 +4,7 @@ import { CTABand } from "@/components/ui/brand/CTABand";
 import { WorkoutsFilter } from "@/components/home/WorkoutsFilter";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
 import { getWorkoutSchedule } from "@/lib/workouts/getWorkoutSchedule";
-import type { WorkoutScheduleRow } from "@/types/workout";
+import type { WorkoutWithRegion } from "@/types/workout";
 
 export const metadata: Metadata = {
   title: "Workouts",
@@ -13,18 +13,27 @@ export const metadata: Metadata = {
 
 export default async function WorkoutsPage() {
   const schedule = await getWorkoutSchedule();
-  const flat: WorkoutScheduleRow[] = [];
+  const flat: WorkoutWithRegion[] = [];
   for (const day of Object.values(schedule)) {
-    for (const region of day.regions) flat.push(...region.workouts);
+    for (const region of day.regions) {
+      for (const w of region.workouts) {
+        flat.push({
+          ...w,
+          region_name: region.region.name,
+          region_slug: region.region.slug,
+          region_is_primary: region.region.is_primary,
+        });
+      }
+    }
   }
 
   return (
     <>
       <PageHeader
         eyebrow="§ Posts of Assembly"
-        title={<>Find Your<br />Battlefield.</>}
-        kicker={<>Beatdowns at 05:15 weekdays, 07:00 Saturdays. Pick a day. Pick a post. Fall in.</>}
-        meter={{ left: "Coordinates · 33.9526° N, 84.5499° W", right: `Active AOs · ${flat.length}` }}
+        title={<>Find Your<br />Beatdown.</>}
+        kicker={<>Beatdowns at 05:30 weekdays, 07:00 Saturdays. Pick a day. Pick a post. Fall in.</>}
+        meter={{ left: "Marietta Region · F3 Nation", right: `Active AOs · ${flat.length}` }}
       />
 
       <section className="bg-bone py-20">

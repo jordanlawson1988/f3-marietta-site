@@ -30,7 +30,7 @@ export function Footer() {
             <div className="flex items-center gap-3 mb-4">
               <div className="rounded-full bg-bone p-1">
                 <Image
-                  src="/icons/f3mariettalogo-main.png"
+                  src="/images/new-f3-marietta-logo.png"
                   alt="F3 Marietta"
                   width={72}
                   height={72}
@@ -40,7 +40,7 @@ export function Footer() {
               <span className="font-display font-bold uppercase tracking-[.06em] text-[26px]">F3 Marietta</span>
             </div>
             <p className="text-[14px] text-bone/60 max-w-[280px] leading-[1.6]">
-              Free, peer-led workouts for men in Marietta, GA. Rain or shine, heat or cold — we muster at 05:15.
+              Free, peer-led workouts for men in Marietta, GA. Rain or shine, heat or cold — we muster at 05:30.
             </p>
           </div>
 

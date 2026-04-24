@@ -13,7 +13,7 @@ function formatDate(iso: string | null): string {
 }
 
 export function BackblastFeatureCard({ item, className = "" }: Props) {
-  const title = item.title ?? "Battlefield Report";
+  const title = item.title ?? "Backblast";
   const excerpt = createExcerpt(item.content_text, 220);
 
   return (
@@ -22,7 +22,7 @@ export function BackblastFeatureCard({ item, className = "" }: Props) {
       className={`relative block bg-ink text-bone overflow-hidden border border-ink-3 p-11 min-h-[520px] group ${className}`}
     >
       <Image
-        src="/icons/f3mariettalogo-main.png"
+        src="/images/new-f3-marietta-logo.png"
         alt=""
         aria-hidden="true"
         width={400}

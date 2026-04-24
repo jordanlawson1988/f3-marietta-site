@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 const STEPS = [
-  { num: "01", name: "Arrive", body: "Show up 5 minutes early at 05:10. The workout starts at 05:15 sharp. Wear clothes you can get wet and muddy." },
+  { num: "01", name: "Arrive", body: "Show up 5 minutes early at 05:25. The workout starts at 05:30 sharp. Wear clothes you can get wet and muddy." },
   { num: "02", name: "Circle Up", body: "Introduce yourself by first name. Say 'FNG' — Friendly New Guy — so the Q knows to watch out for you." },
   { num: "03", name: "Warm-Up", body: "The Q leads a warm-up. SSH, Don Quixotes, Imperial Walkers. Everybody goes at their own pace. Modify any exercise." },
   { num: "04", name: "The Thang", body: "45 minutes of peer-led exercise outdoors. Bodyweight, maybe a ruck, maybe a run. Heavy, skinny, fast, slow — we move as a unit." },

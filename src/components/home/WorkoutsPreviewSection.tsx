@@ -3,14 +3,21 @@ import { getWorkoutSchedule } from "@/lib/workouts/getWorkoutSchedule";
 import { SectionHead } from "@/components/ui/brand/SectionHead";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
 import { WorkoutsFilter } from "./WorkoutsFilter";
-import type { WorkoutScheduleRow } from "@/types/workout";
+import type { WorkoutWithRegion } from "@/types/workout";
 
 export async function WorkoutsPreviewSection() {
   const schedule = await getWorkoutSchedule();
-  const flat: WorkoutScheduleRow[] = [];
+  const flat: WorkoutWithRegion[] = [];
   for (const day of Object.values(schedule)) {
     for (const region of day.regions) {
-      flat.push(...region.workouts);
+      for (const w of region.workouts) {
+        flat.push({
+          ...w,
+          region_name: region.region.name,
+          region_slug: region.region.slug,
+          region_is_primary: region.region.is_primary,
+        });
+      }
     }
   }
 
@@ -20,10 +27,10 @@ export async function WorkoutsPreviewSection() {
         <ScrollReveal>
           <SectionHead
             eyebrow="§ 02 · Posts of Assembly"
-            h2={<>Find Your<br />Battlefield.</>}
+            h2={<>Find Your<br />Beatdown.</>}
             kicker={
               <>
-                Every AO runs 05:15 to 06:00 (or 07:00 on Saturdays). Beatdowns, rucks, Q-school, and runs rotating through the week. Pick a day. Pick a post. Fall in.
+                Every AO runs 05:30 to 06:15 (or 07:00 on Saturdays). Beatdowns, rucks, Q-school, and runs rotating through the week. Pick a day. Pick a post. Fall in.
               </>
             }
           />

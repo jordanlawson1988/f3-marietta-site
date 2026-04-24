@@ -15,7 +15,7 @@ export async function BackblastsPreviewSection() {
         <ScrollReveal>
           <SectionHead
             eyebrow="§ 03 · From the Gloom"
-            h2={<>Battlefield<br />Reports.</>}
+            h2={<>Backblasts.</>}
             kicker={<>Every post produces a record. Here are the most recent backblasts from across the region.</>}
           />
         </ScrollReveal>

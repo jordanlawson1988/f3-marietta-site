@@ -54,7 +54,7 @@ export default async function BackblastDetail({ params }: { params: Params }) {
       <PageHeader
         eyebrow={`${formatDate(evt.event_date)} · ${evt.ao_display_name ?? "F3 Marietta"}${evt.q_name ? ` · Q · ${evt.q_name}` : ""}`}
         variant="ink"
-        title={evt.title ?? "Battlefield Report"}
+        title={evt.title ?? "Backblast"}
         kicker={
           evt.content_text
             ? evt.content_text.slice(0, 180).replace(/<@[A-Z0-9]+>/g, "")
