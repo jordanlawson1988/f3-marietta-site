@@ -3,10 +3,10 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
 import { BackblastListItem } from "@/components/ui/BackblastListItem";
-import { BackblastFeatureCard } from "@/components/ui/BackblastFeatureCard";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import { MarqueeRibbon } from "@/components/layout/MarqueeRibbon";
 import { getBackblastsPaginated, getAOList } from "@/lib/backblast/getBackblastsPaginated";
+import { getBackblastImage } from "@/lib/backblast/getBackblastImage";
 
 export const metadata: Metadata = {
   title: "Backblasts",
@@ -34,7 +34,7 @@ export default async function BackblastsPage({ searchParams }: { searchParams: S
         title={<>From the<br />Gloom.</>}
         kicker={<>Every post produces a backblast. {total} reports on record.</>}
         meter={{ left: `Records · ${total}`, right: "Source · Slack + Slackblast Bot" }}
-        backgroundImage="/images/HomePage2.jpeg"
+        backgroundImage={getBackblastImage(rows[0]?.id, rows[0]?.image_url) || "/images/HomePage2.jpeg"}
       />
 
       <section className="bg-bone py-14">
@@ -67,20 +67,12 @@ export default async function BackblastsPage({ searchParams }: { searchParams: S
               No backblasts match the filter.
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {rows.map((item, i) =>
-                i % 4 === 0 ? (
-                  <ScrollReveal key={item.id} className="lg:col-span-2">
-                    <BackblastFeatureCard item={item} />
-                  </ScrollReveal>
-                ) : (
-                  <ScrollReveal key={item.id}>
-                    <div className="border border-line-soft bg-bone">
-                      <BackblastListItem item={item} />
-                    </div>
-                  </ScrollReveal>
-                )
-              )}
+            <div className="flex flex-col gap-5">
+              {rows.map((item, i) => (
+                <ScrollReveal key={item.id} delayMs={Math.min(i, 6) * 40}>
+                  <BackblastListItem item={item} variant="expanded" />
+                </ScrollReveal>
+              ))}
             </div>
           )}
 

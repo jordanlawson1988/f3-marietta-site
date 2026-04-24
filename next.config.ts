@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "img.youtube.com",
       },
+      {
+        // Slackblast bot hosts uploaded backblast photos here.
+        protocol: "https",
+        hostname: "storage.googleapis.com",
+      },
+      {
+        protocol: "https",
+        hostname: "files.slack.com",
+      },
     ],
   },
   turbopack: {

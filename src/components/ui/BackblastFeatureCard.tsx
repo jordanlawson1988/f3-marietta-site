@@ -16,7 +16,7 @@ function formatDate(iso: string | null): string {
 export function BackblastFeatureCard({ item, className = "" }: Props) {
   const title = item.title ?? "Backblast";
   const excerpt = excerptFromEvent(item, 220);
-  const photo = getBackblastImage(item.id);
+  const photo = getBackblastImage(item.id, item.image_url);
 
   return (
     <Link

@@ -1,12 +1,17 @@
 import Image from "next/image";
 import { getImpactStats } from "@/lib/stats/getImpactStats";
+import { getRecentBackblastPhotos } from "@/lib/backblast/getRecentBackblastPhotos";
 import { ChamferButton } from "@/components/ui/brand/ChamferButton";
 import { EyebrowLabel } from "@/components/ui/brand/EyebrowLabel";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
 import { TopoBackground } from "@/components/ui/brand/TopoBackground";
 
 export async function ImpactSection() {
-  const stats = await getImpactStats();
+  const [stats, recentPhotos] = await Promise.all([
+    getImpactStats(),
+    getRecentBackblastPhotos(1),
+  ]);
+  const backgroundPhoto = recentPhotos[0] ?? "/images/MariettaHomePage.jpeg";
   const tiles = [
     { num: stats.uniqueHim, label: "Unique HIM Posted" },
     { num: stats.workoutsLed, label: "Workouts Led" },
@@ -16,9 +21,10 @@ export async function ImpactSection() {
 
   return (
     <section className="relative bg-ink text-bone py-28 overflow-hidden">
-      {/* Real PAX photo — heavy ink gradient keeps text legible */}
+      {/* Real PAX photo (most recent backblast with a photo). Heavy ink
+          gradient keeps text legible no matter what the photo looks like. */}
       <Image
-        src="/images/MariettaHomePage.jpeg"
+        src={backgroundPhoto}
         alt=""
         aria-hidden="true"
         fill

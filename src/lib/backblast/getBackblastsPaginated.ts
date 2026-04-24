@@ -11,6 +11,12 @@ export interface F3EventRow {
     pax_count: number | null;
     content_text: string | null;
     content_html: string | null;
+    /**
+     * First uploaded photo URL from the Slack backblast (content_json.blocks
+     * where type='image'). Null when no photo was attached — consumers fall
+     * back to the region-photo pool in that case.
+     */
+    image_url: string | null;
     created_at: string;
 }
 
@@ -57,23 +63,37 @@ export async function getBackblastsPaginated(
 
         if (ao && searchPattern) {
             countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern})`;
-            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern}) ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
+            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern}) ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
         } else if (ao) {
             countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao}`;
-            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
+            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
         } else if (searchPattern) {
             countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern})`;
-            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern}) ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
+            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern}) ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
         } else {
             countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind}`;
-            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
+            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
         }
 
         const total: number = countResult[0]?.total ?? 0;
         const totalPages = Math.ceil(total / pageSize);
 
+        const enriched: F3EventRow[] = (rows as Array<Record<string, unknown>>).map((r) => ({
+            id: r.id as string,
+            ao_display_name: (r.ao_display_name as string | null) ?? null,
+            event_kind: r.event_kind as EventKind,
+            title: (r.title as string | null) ?? null,
+            event_date: (r.event_date as string | null) ?? null,
+            q_name: (r.q_name as string | null) ?? null,
+            pax_count: (r.pax_count as number | null) ?? null,
+            content_text: (r.content_text as string | null) ?? null,
+            content_html: (r.content_html as string | null) ?? null,
+            image_url: extractFirstImageUrl(r.content_json),
+            created_at: r.created_at as string,
+        }));
+
         return {
-            rows: rows as F3EventRow[],
+            rows: enriched,
             total,
             page,
             pageSize,
@@ -104,6 +124,30 @@ export async function getAOList(): Promise<string[]> {
         console.error('Error fetching AO list:', error);
         return [];
     }
+}
+
+/**
+ * Scan Slack Block Kit for the first uploaded image URL. Slackblast bot
+ * posts photos as `{ type: 'image', image_url: 'https://storage.googleapis.com/...' }`
+ * blocks inside `content_json.blocks` (mirrored from raw_envelope_json.event.blocks).
+ * Returns null when no image block is present.
+ */
+export function extractFirstImageUrl(contentJson: unknown): string | null {
+    if (!contentJson || typeof contentJson !== "object") return null;
+    const blocks = (contentJson as { blocks?: unknown }).blocks;
+    if (!Array.isArray(blocks)) return null;
+    for (const block of blocks) {
+        if (!block || typeof block !== "object") continue;
+        const b = block as Record<string, unknown>;
+        if (b.type !== "image") continue;
+        // Direct Slackblast-style image block
+        const url = b.image_url;
+        if (typeof url === "string" && url.length > 0) return url;
+        // Slack file-backed image block (slack_file.url_private)
+        const slackFile = b.slack_file as { url_private?: string } | undefined;
+        if (slackFile?.url_private) return slackFile.url_private;
+    }
+    return null;
 }
 
 /**
