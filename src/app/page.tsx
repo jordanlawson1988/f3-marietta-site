@@ -8,7 +8,13 @@ import { JoinCTASection } from "@/components/home/JoinCTASection";
 import { MarqueeRibbon } from "@/components/layout/MarqueeRibbon";
 import { getWeeklyPaxCount } from "@/lib/stats/getWeeklyPaxCount";
 
-export const revalidate = 3600;
+/**
+ * ISR safety net. Primary refresh path is on-demand:
+ * /api/slack/events calls revalidatePath('/') on every upsert/delete.
+ * This short interval catches cases where the webhook didn't fire or
+ * the revalidation call failed (e.g., function cold-start timeout).
+ */
+export const revalidate = 300;
 
 export default async function Home() {
   const weeklyPax = await getWeeklyPaxCount();
