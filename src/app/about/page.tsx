@@ -6,11 +6,17 @@ import { CTABand } from "@/components/ui/brand/CTABand";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
 import { MarqueeRibbon } from "@/components/layout/MarqueeRibbon";
+import { PaxMosaic } from "@/components/about/PaxMosaic";
+import { BrotherhoodGallery } from "@/components/about/BrotherhoodGallery";
 
 export const metadata: Metadata = {
   title: "About",
-  description: "F3 Marietta history, mission, and leadership.",
+  description: "F3 Marietta history, mission, leadership, and the men in the gloom.",
 };
+
+// Both photo galleries pull recent backblasts from the DB. ISR keeps the
+// page fast while still surfacing newly-posted PAX photos within 5 minutes.
+export const revalidate = 300;
 
 const TIMELINE = [
   { date: "JUN 2024", title: "Battlefield Launch", body: "The Battlefield stands up at Marietta High School. First muster, 6 PAX." },
@@ -30,6 +36,10 @@ export default function AboutPage() {
         meter={{ left: "Coordinates · 33.9526° N, 84.5499° W", right: "Region · Marietta, GA" }}
       />
 
+      {/* Real PAX photos pulled from the most-recent backblasts. Hidden if
+          the database doesn't have enough real photos to render honestly. */}
+      <PaxMosaic />
+
       <section className="bg-bone py-24">
         <div className="max-w-[1320px] mx-auto px-7">
           <ScrollReveal>
@@ -46,11 +56,16 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="bg-bone-2 py-24">
+      {/* Editorial 3-photo gallery. Lives between the mission statement
+          and the timeline so the abstract framing ("plant/grow/serve")
+          gets immediately grounded in real faces and real beatdowns. */}
+      <BrotherhoodGallery />
+
+      <section className="bg-bone py-24">
         <div className="max-w-[1320px] mx-auto px-7">
           <ScrollReveal>
             <SectionHead
-              eyebrow="§ 02 · The Record"
+              eyebrow="§ 03 · The Record"
               h2={<>A short history.</>}
               align="left"
             />
