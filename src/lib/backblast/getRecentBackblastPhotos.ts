@@ -33,11 +33,27 @@ export async function getRecentBackblastPhotosWithMeta(
 ): Promise<RecentBackblastPhoto[]> {
   try {
     const sql = getSql();
-    // Over-fetch since not every backblast has an attached photo.
+    // Over-fetch since not every backblast has an attached photo. The
+    // window-function dedupe matches getBackblastsPaginated — Slackblast
+    // sometimes ends up with two rows for one workout when a Q hits
+    // "New Backblast" twice; we surface only the freshest per
+    // (channel, AO, date, kind) so galleries don't show two takes of
+    // the same beatdown.
     const rows = await sql`
       SELECT content_json, event_date, created_at
       FROM f3_events
       WHERE event_kind = 'backblast' AND is_deleted = false
+        AND id NOT IN (
+          SELECT id FROM (
+            SELECT id, row_number() OVER (
+              PARTITION BY slack_channel_id, ao_display_name, event_date, event_kind
+              ORDER BY slack_message_ts DESC
+            ) AS rn
+            FROM f3_events
+            WHERE event_date IS NOT NULL AND is_deleted = false
+          ) ranked
+          WHERE rn > 1
+        )
       ORDER BY event_date DESC NULLS LAST, created_at DESC
       LIMIT ${Math.max(limit * 4, 24)}
     `;

@@ -56,23 +56,42 @@ export async function getBackblastsPaginated(
     const kind = eventKind ?? 'backblast';
     const searchPattern = search ? `%${search}%` : null;
 
+    // Slackblast lets a Q hit "New Backblast" twice for the same workout
+    // (e.g. once with the wrong PAX count, then again 20min later with the
+    // corrected list). We end up with two f3_events rows for the same
+    // (channel, AO, date, kind). Filter the older duplicate out at read
+    // time — keep the row with the highest slack_message_ts. Rows where
+    // event_date IS NULL are NOT deduped (different days that lost their
+    // parsed date should still each appear separately).
+    const DEDUP_FILTER = sql.unsafe(`AND id NOT IN (
+        SELECT id FROM (
+            SELECT id, row_number() OVER (
+                PARTITION BY slack_channel_id, ao_display_name, event_date, event_kind
+                ORDER BY slack_message_ts DESC
+            ) AS rn
+            FROM f3_events
+            WHERE event_date IS NOT NULL AND is_deleted = false
+        ) ranked
+        WHERE rn > 1
+    )`);
+
     try {
         // Use separate queries for each filter combination to stay with tagged templates
         let countResult;
         let rows;
 
         if (ao && searchPattern) {
-            countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern})`;
-            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern}) ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
+            countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern}) ${DEDUP_FILTER}`;
+            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern}) ${DEDUP_FILTER} ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
         } else if (ao) {
-            countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao}`;
-            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
+            countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} ${DEDUP_FILTER}`;
+            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND ao_display_name = ${ao} ${DEDUP_FILTER} ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
         } else if (searchPattern) {
-            countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern})`;
-            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern}) ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
+            countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern}) ${DEDUP_FILTER}`;
+            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} AND (q_name ILIKE ${searchPattern} OR ao_display_name ILIKE ${searchPattern} OR content_text ILIKE ${searchPattern} OR title ILIKE ${searchPattern}) ${DEDUP_FILTER} ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
         } else {
-            countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind}`;
-            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
+            countResult = await sql`SELECT count(*)::int AS total FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} ${DEDUP_FILTER}`;
+            rows = await sql`SELECT id, ao_display_name, event_kind, title, event_date, q_name, pax_count, content_text, content_html, content_json, created_at FROM f3_events WHERE is_deleted = false AND event_kind = ${kind} ${DEDUP_FILTER} ORDER BY event_date DESC NULLS LAST, created_at DESC LIMIT ${pageSize} OFFSET ${offset}`;
         }
 
         const total: number = countResult[0]?.total ?? 0;
