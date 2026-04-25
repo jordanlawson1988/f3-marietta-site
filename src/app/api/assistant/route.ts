@@ -28,11 +28,14 @@ function normalizeQuery(input: string): string {
 function extractCoreTerm(query: string): string {
     let term = normalizeQuery(query).toLowerCase();
     const prefixes = [
+        "tell me what is an ", "tell me what is a ", "tell me what is the ", "tell me what is ",
+        "tell me what's an ", "tell me what's a ", "tell me what's the ", "tell me what's ",
+        "tell me about the ", "tell me about a ", "tell me about an ", "tell me about ",
+        "can you tell me what is ", "can you tell me about ",
         "what is an ", "what is a ", "what is the ", "what is ",
         "what's an ", "what's a ", "what's the ", "what's ",
         "whats an ", "whats a ", "whats the ", "whats ",
         "define the ", "define a ", "define an ", "define ",
-        "tell me about the ", "tell me about a ", "tell me about an ", "tell me about ",
         "explain the ", "explain a ", "explain an ", "explain ",
         "how do i ", "how do you ", "how does ", "how to ",
         "what are ", "who is ", "who are ",
@@ -117,7 +120,11 @@ async function callGemini(query: string, queryContext: string | null): Promise<s
         contents: query,
         config: {
             systemInstruction,
-            maxOutputTokens: 400,
+            // Gemini 2.5 Flash defaults to dynamic "thinking" — those tokens
+            // count against maxOutputTokens AND add several seconds of latency.
+            // For 1–4 sentence definitional answers, disable it entirely.
+            thinkingConfig: { thinkingBudget: 0 },
+            maxOutputTokens: 600,
             temperature: 0.55,
             topP: 0.9,
         },
