@@ -53,15 +53,16 @@ test.describe("mobile global nav", () => {
     await expect(page.locator('button[aria-label="Open F3 AMA assistant"]')).toBeVisible();
   });
 
-  test("topbar muster label fits on a single line at iPhone width", async ({ page }) => {
+  test("topbar muster link fits on a single line at iPhone width", async ({ page }) => {
     await page.goto("/");
-    // The visible mobile variant is the second span; the desktop one is hidden.
-    const muster = page.locator("text=/Next Muster · /").first();
-    await expect(muster).toBeVisible();
-    const box = await muster.boundingBox();
-    // 44px is the rough single-line height bound at this font-size; allow up
-    // to 36px for descender padding. If the string wraps to 2 lines this
-    // doubles to ~50px+. Asserting <40 catches wrap regressions.
+    // Mobile shows the link as "Next · MON 5:30am · The Battlefield →".
+    // Locate via the link role rather than literal text so future copy
+    // tweaks don't fragility-break this regression guard.
+    const musterLink = page.getByRole("link", { name: /next muster:/i });
+    await expect(musterLink).toBeVisible();
+    const box = await musterLink.boundingBox();
+    // 44px is the rough single-line height bound at this font-size. The
+    // pre-fix bar wrapped to 2 lines hitting ~50px+. <40 catches wraps.
     expect(box?.height).toBeLessThan(40);
   });
 });
