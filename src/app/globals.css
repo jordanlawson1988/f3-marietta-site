@@ -131,6 +131,17 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 1;
   transform: translateY(0);
 }
+/* Belt-and-suspenders: respect reduced-motion AND guarantee that if JS or
+ * IntersectionObserver fails for any reason, content stays visible.
+ * Without this, the "opacity:0 until observed" default is an a11y +
+ * availability hazard. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
 
 /* ========== Backblast prose (preserved from old globals, retonalized) ========== */
 
