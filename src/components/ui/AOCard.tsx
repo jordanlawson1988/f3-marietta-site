@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import { StatusChip } from "@/components/ui/brand/StatusChip";
+import { slugifyAo } from "@/lib/stats/getNextMarietteMuster";
 import type { WorkoutScheduleRow } from "@/types/workout";
 
 type Props = {
@@ -23,10 +24,16 @@ function formatTime(hhmmss: string): string {
 export function AOCard({ workout, code, status = "active", qName, className = "" }: Props) {
   const dayLabel = DAY_LABELS[workout.day_of_week % 7];
   const timeLabel = formatTime(workout.start_time);
+  // Anchor for deep links from the TopBar "Next Muster" link. scroll-margin
+  // clears the sticky 56-72px navbar so the card lands below the chrome,
+  // not behind it.
+  const anchorId = `ao-${slugifyAo(workout.ao_name)}`;
 
   return (
     <article
-      className={`group relative bg-bone border border-line-soft p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-ink hover:shadow-[0_10px_30px_rgba(12,12,12,.08)] ${className}`}
+      id={anchorId}
+      style={{ scrollMarginTop: "120px" }}
+      className={`group relative bg-bone border border-line-soft p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-ink hover:shadow-[0_10px_30px_rgba(12,12,12,.08)] target:ring-2 target:ring-steel ${className}`}
     >
       <span
         aria-hidden="true"
