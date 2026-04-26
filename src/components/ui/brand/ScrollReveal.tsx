@@ -14,7 +14,13 @@ export function ScrollReveal({
   children,
   as: Component = "div",
   className = "",
-  threshold = 0.12,
+  // Threshold MUST stay at 0 (any pixel visible triggers reveal). Anything
+  // higher silently breaks for elements taller than the viewport: the max
+  // possible intersectionRatio of an element taller than the root is
+  // viewportHeight / elementHeight. On the /workouts page the WorkoutsFilter
+  // wrapper is ~7700px tall on a ~660px iPhone — max ratio ~0.086, so a
+  // 0.12 threshold could NEVER fire and every card stayed at opacity:0.
+  threshold = 0,
   delayMs = 0,
 }: Props) {
   const ref = useRef<HTMLElement | null>(null);

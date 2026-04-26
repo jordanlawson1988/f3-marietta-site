@@ -47,10 +47,21 @@ for (const phoneName of PHONES) {
     await page.goto("/");
     const section = page.locator("section#workouts");
     await section.scrollIntoViewIfNeeded();
-    await page.addStyleTag({
-      content: `.reveal { opacity: 1 !important; transform: none !important; }`,
-    });
-    await page.waitForTimeout(400);
+    // Do NOT bypass ScrollReveal — the original version of this test forced
+    // opacity:1 via addStyleTag and silently masked a real production bug
+    // where IntersectionObserver never fired (threshold higher than the max
+    // possible intersection ratio for a tall element on a small viewport).
+    // Wait for the FIRST article card to actually paint (opacity > 0.5)
+    // — this is the real-world signal that the cards are visible.
+    await page.waitForFunction(
+      () => {
+        const card = document.querySelector("section#workouts article");
+        if (!card) return false;
+        return Number(getComputedStyle(card).opacity) > 0.5;
+      },
+      undefined,
+      { timeout: 5000 },
+    );
 
     const stats = await page.evaluate(() => {
       const sec = document.querySelector("section#workouts")!;
@@ -85,6 +96,40 @@ for (const phoneName of PHONES) {
     await expect(marietta).toBeVisible();
     // Real start_time is 06:00:00 → "6:00am" via AOCard.formatTime.
     await expect(marietta).toContainText("6:00am");
+    await ctx.close();
+  });
+
+  test(`/workouts page on ${phoneName}: cards visible (ScrollReveal regression guard)`, async ({
+    browser,
+  }) => {
+    // Production regression Apr 26: the WorkoutsFilter wrapper on /workouts
+    // is ~7700px tall on phone widths. With the old threshold:0.12 the
+    // IntersectionObserver could never fire (max possible ratio = viewport
+    // height / element height ≈ 0.086 < 0.12) and every card stayed at
+    // opacity:0. User saw kicker + endless empty bone. This test asserts
+    // the cards become visibly opaque on a real phone viewport WITHOUT
+    // bypassing ScrollReveal.
+    const ctx = await browser.newContext({ ...devices[phoneName] });
+    const page = await ctx.newPage();
+    await page.goto("/workouts");
+    // Scroll the first article into view — same gesture a real user makes
+    // when they reach the workouts list. This guarantees the wrapping
+    // ScrollReveal element overlaps the viewport.
+    await page.locator("article").first().scrollIntoViewIfNeeded();
+    // Wait for the card to actually become visible (opacity > 0.5).
+    await page.waitForFunction(
+      () => {
+        const card = document.querySelector("article");
+        if (!card) return false;
+        return Number(getComputedStyle(card).opacity) > 0.5;
+      },
+      undefined,
+      { timeout: 5000 },
+    );
+    const firstCard = page.locator("article").first();
+    await expect(firstCard).toBeVisible();
+    const opacity = await firstCard.evaluate((el) => getComputedStyle(el).opacity);
+    expect(Number(opacity)).toBeGreaterThan(0.5);
     await ctx.close();
   });
 }
