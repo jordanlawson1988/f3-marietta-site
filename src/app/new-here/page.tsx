@@ -1,126 +1,81 @@
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
-import { Section } from "@/components/ui/Section";
-import { Hero } from "@/components/ui/Hero";
-import YouTubeEmbed from "@/components/ui/YouTubeEmbed";
-import FAQSection from "./FAQSection";
-import Link from "next/link";
+import type { Metadata } from "next";
+import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
+import { CTABand } from "@/components/ui/brand/CTABand";
+import { MonoTag } from "@/components/ui/brand/MonoTag";
+import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 
-// ── Video data ──────────────────────────────────────────────────────────────
-const videos = [
-    { title: "Mission of F3", videoId: "mQ1uxuR65So" },
-    { title: "What is F3?", videoId: "rGo03Y1ZZ3I" },
-    { title: "What F3 Typically Looks Like", videoId: "WIYUXUwq2gM" },
-    { title: "Basic F3 Exercises", videoId: "NvBUQ3x2Z-E" },
+export const metadata: Metadata = {
+  title: "New Here",
+  description: "How to post at your first F3 Marietta workout.",
+};
+
+const STEPS = [
+  { num: "01", name: "Arrive", body: "Show up 5 minutes early at 05:25. The workout starts at 05:30 sharp. Wear clothes you can get wet and muddy." },
+  { num: "02", name: "Circle Up", body: "Introduce yourself by first name. Say 'FNG' — Friendly New Guy — so the Q knows to watch out for you." },
+  { num: "03", name: "Warm-Up", body: "The Q leads a warm-up. SSH, Don Quixotes, Imperial Walkers. Everybody goes at their own pace. Modify any exercise." },
+  { num: "04", name: "The Thang", body: "45 minutes of peer-led exercise outdoors. Bodyweight, maybe a ruck, maybe a run. Heavy, skinny, fast, slow — we move as a unit." },
+  { num: "05", name: "COT", body: "Circle of Trust closes every workout. Name-o-rama, a reflection or prayer, and a charge back into the day." },
 ];
 
-function VideoCard({ title, videoId }: { title: string; videoId: string }) {
-    return (
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-border">
-                <h3 className="font-bold font-heading text-foreground">{title}</h3>
-            </div>
-            <YouTubeEmbed videoId={videoId} title={title} />
-        </div>
-    );
-}
+const BRING = [
+  "Shoes you can get wet",
+  "A t-shirt and shorts you don't mind sacrificing",
+  "A good attitude",
+  "Nothing else — no cash, no equipment",
+];
 
-// ── FAQ data ────────────────────────────────────────────────────────────────
-interface FAQ {
-    question: string;
-    answer: string;
-    tags: string[];
-    category: string;
-}
-
-function getFAQs(): FAQ[] {
-    try {
-        const faqDir = path.join(process.cwd(), "data", "content", "faq");
-        const files = fs.readdirSync(faqDir).filter(f => f.endsWith('.md') && f !== 'README.md');
-
-        const faqs = files.map(file => {
-            const content = fs.readFileSync(path.join(faqDir, file), 'utf-8');
-            const { data, content: body } = matter(content);
-
-            const answerMatch = body.match(/### Answer\s+([\s\S]*?)(?=###|$)/);
-            const answer = answerMatch ? answerMatch[1].trim() : '';
-
-            return {
-                question: data.title || '',
-                answer: answer,
-                tags: data.tags || [],
-                category: data.category || ''
-            };
-        });
-
-        return faqs
-            .filter(faq => faq.tags.includes('FNG') && faq.question && faq.answer)
-            .sort((a, b) => a.question.localeCompare(b.question));
-    } catch (error) {
-        console.error("Error reading FAQ files:", error);
-        return [];
-    }
-}
-
-// ── Page ────────────────────────────────────────────────────────────────────
 export default function NewHerePage() {
-    const faqs = getFAQs();
+  return (
+    <>
+      <PageHeader
+        eyebrow="§ First Whistle"
+        title={<>Your First<br />Post.</>}
+        kicker={<>The workout is free. Peer-led. Held outdoors rain or shine. Here&apos;s how to show up.</>}
+      />
 
-    return (
-        <div className="flex flex-col min-h-screen">
-            <Hero
-                title="NEW TO F3?"
-                subtitle="Everything you need to know before your first workout. No sign-up, no fees — just show up."
-                ctaText="Find a Workout"
-                ctaLink="/workouts"
-                backgroundImage="/images/workouts-bg.jpg"
-            />
+      <section className="bg-bone py-20">
+        <div className="max-w-[1320px] mx-auto px-7 grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-14">
+          <div className="border-y border-line-soft">
+            {STEPS.map((s, i) => (
+              <ScrollReveal
+                key={s.num}
+                delayMs={i * 60}
+                className={`flex items-start gap-8 py-9 ${i < STEPS.length - 1 ? "border-b border-line-soft" : ""}`}
+              >
+                <div className="font-display font-bold uppercase text-steel leading-none text-[clamp(54px,7vw,88px)]">{s.num}</div>
+                <div className="flex-1 pt-2">
+                  <h3 className="font-display font-bold uppercase text-[24px] tracking-[-.01em]">{s.name}</h3>
+                  <p className="mt-2 text-[16px] leading-[1.6] text-muted max-w-xl">{s.body}</p>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
 
-            {/* What to Expect — Videos */}
-            <Section>
-                <div className="text-center mb-10">
-                    <h2 className="text-2xl md:text-3xl font-bold font-heading mb-3">WHAT TO EXPECT</h2>
-                    <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                        Watch these short videos to learn what a typical workout looks like and some basic exercises you might encounter.
-                    </p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-                    {videos.map((video) => (
-                        <VideoCard key={video.videoId} title={video.title} videoId={video.videoId} />
-                    ))}
-                </div>
-            </Section>
-
-            {/* FAQ */}
-            <Section className="bg-muted/30">
-                <div className="max-w-3xl mx-auto">
-                    <div className="text-center mb-10">
-                        <h2 className="text-2xl md:text-3xl font-bold font-heading mb-3">FREQUENTLY ASKED QUESTIONS</h2>
-                        <p className="text-muted-foreground text-lg">
-                            Got questions? We&apos;ve got answers.
-                        </p>
-                    </div>
-                    <FAQSection faqs={faqs} />
-                </div>
-            </Section>
-
-            {/* CTA */}
-            <Section className="text-center">
-                <div className="bg-muted/50 border border-border rounded-xl px-6 py-8 max-w-2xl mx-auto">
-                    <h3 className="text-xl font-bold font-heading mb-2">Ready to Post?</h3>
-                    <p className="text-muted-foreground mb-4">
-                        Find a workout location and time that works for you. All you need is yourself —
-                        no sign-up required, just show up.
-                    </p>
-                    <Link
-                        href="/workouts"
-                        className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-primary text-primary-foreground font-bold uppercase tracking-wider hover:bg-primary/90 transition-colors"
-                    >
-                        Find a Workout
-                    </Link>
-                </div>
-            </Section>
+          <div>
+            <ScrollReveal>
+              <ClipFrame padding="p-8">
+                <MonoTag>// What to Bring</MonoTag>
+                <ul className="mt-5 space-y-3">
+                  {BRING.map((b) => (
+                    <li key={b} className="flex items-start gap-3 text-[15px] text-ink">
+                      <span className="mt-2 inline-block w-1.5 h-1.5 bg-steel" aria-hidden="true" />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </ClipFrame>
+            </ScrollReveal>
+          </div>
         </div>
-    );
+      </section>
+
+      <CTABand
+        variant="gradient"
+        title={<>Plan your<br />first post.</>}
+        kicker={<>Find a workout, grab a buddy, and show up. We&apos;ll handle the rest.</>}
+        primary={{ label: "Find a Workout", href: "/workouts" }}
+      />
+    </>
+  );
 }

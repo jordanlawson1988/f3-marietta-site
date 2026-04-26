@@ -225,7 +225,10 @@ async function handleF3EventUpsert(
             await upsertChildRecords(eventId, normalized);
         }
 
-        // Trigger revalidation
+        // Trigger revalidation — home carries BackblastsPreviewSection,
+        // ImpactSection background, JoinCTASection background, and the
+        // Muster Log count, so it needs to refresh alongside /backblasts.
+        revalidatePath('/');
         revalidatePath('/backblasts');
         if (eventId) {
             revalidatePath(`/backblasts/${eventId}`);
@@ -303,6 +306,7 @@ async function handleMessageDeleted(channelId: string, messageTs: string) {
         console.error('Error soft-deleting f3_event:', error);
     }
 
+    revalidatePath('/');
     revalidatePath('/backblasts');
 }
 

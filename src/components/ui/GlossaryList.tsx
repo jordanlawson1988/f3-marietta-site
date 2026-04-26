@@ -1,120 +1,127 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { searchGlossaryEntries } from "@/lib/searchGlossary";
-import { GlossaryEntry } from "@/../data/f3Glossary";
-import { cn } from "@/lib/utils";
+import { useState, useMemo } from "react";
+import { lexiconEntries, exiconEntries } from "@/../data/f3Glossary";
 
-interface GlossaryListProps {
-    title: string;
-    entries: GlossaryEntry[];
-    showCategoryFilter?: boolean;
-    highlightId?: string;
+const allEntries = [...lexiconEntries, ...exiconEntries];
+
+function normalizeFirstChar(term: string): string {
+  const first = term.replace(/^[^A-Za-z0-9]/, "").charAt(0).toUpperCase();
+  return /[0-9]/.test(first) ? "#" : first;
 }
 
-export function GlossaryList({ title, entries, showCategoryFilter = false, highlightId }: GlossaryListProps) {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [fadedHighlightId, setFadedHighlightId] = useState<string | null>(null);
+function groupByLetter(
+  entries: typeof allEntries
+): Record<string, typeof allEntries> {
+  const groups: Record<string, typeof allEntries> = {};
+  for (const entry of entries) {
+    const letter = normalizeFirstChar(entry.term);
+    if (!groups[letter]) groups[letter] = [];
+    groups[letter].push(entry);
+  }
+  return groups;
+}
 
-    const filteredEntries = useMemo(() => {
-        return searchGlossaryEntries(entries, searchQuery);
-    }, [entries, searchQuery]);
+function sortedLetters(groups: Record<string, unknown>): string[] {
+  return Object.keys(groups).sort((a, b) => {
+    if (a === "#") return 1;
+    if (b === "#") return -1;
+    return a.localeCompare(b);
+  });
+}
 
-    // Derive active highlight: show if highlightId is set and hasn't been faded yet
-    // When highlightId changes (e.g. "A" → "B"), fadedHighlightId is still "A",
-    // so "B" !== "A" → highlight shows. After 3s timeout sets fadedHighlightId = "B" → fades.
-    const activeHighlight = highlightId && fadedHighlightId !== highlightId ? highlightId : undefined;
+export function GlossaryList() {
+  const [searchQuery, setSearchQuery] = useState("");
 
-    // Scroll to target and schedule fade-out
-    useEffect(() => {
-        if (!highlightId) return;
-
-        // Wait for DOM to update, then scroll
-        const scrollTimer = setTimeout(() => {
-            const el = document.getElementById(highlightId);
-            if (el) {
-                el.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-        }, 100);
-
-        // Fade out highlight after 3 seconds
-        const fadeTimer = setTimeout(() => {
-            setFadedHighlightId(highlightId);
-        }, 3000);
-
-        return () => {
-            clearTimeout(scrollTimer);
-            clearTimeout(fadeTimer);
-        };
-    }, [highlightId]);
-
-    return (
-        <div className="max-w-4xl mx-auto mb-8">
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-6">
-                <div className="text-lg font-bold text-muted-foreground">
-                    {title} ({filteredEntries.length})
-                </div>
-
-                {/* Search */}
-                <div className="w-full md:w-auto relative">
-                    <input
-                        type="text"
-                        placeholder={`Search ${title}...`}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full md:w-64 px-4 py-2 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4">
-                {filteredEntries.slice(0, 100).map((entry, index) => (
-                    <Card
-                        key={`${entry.id}-${index}`}
-                        id={entry.id}
-                        className={cn(
-                            "transition-all duration-300",
-                            activeHighlight === entry.id
-                                ? "ring-2 ring-primary hover:border-primary/30"
-                                : "hover:border-primary/30"
-                        )}
-                    >
-                        <CardHeader className="pb-2">
-                            <div className="flex justify-between items-start">
-                                <CardTitle className="text-xl text-primary">{entry.term}</CardTitle>
-                                {showCategoryFilter && entry.category && (
-                                    <span className="text-xs font-mono bg-muted px-2 py-1 rounded text-muted-foreground">
-                                        {entry.category}
-                                    </span>
-                                )}
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-foreground font-medium mb-1">{entry.shortDescription}</p>
-                            {entry.longDescription && (
-                                <p className="text-sm text-muted-foreground mt-2 border-t pt-2 border-border/50">
-                                    {entry.longDescription}
-                                </p>
-                            )}
-                        </CardContent>
-                    </Card>
-                ))}
-
-                {filteredEntries.length > 100 && (
-                    <div className="text-center py-8 text-muted-foreground italic">
-                        Showing first 100 results. Use search to find more.
-                    </div>
-                )}
-
-                {filteredEntries.length === 0 && (
-                    <div className="text-center py-12">
-                        <p className="text-lg text-muted-foreground">No results found for &quot;{searchQuery}&quot;</p>
-                        <Button variant="link" onClick={() => setSearchQuery("")}>Clear Search</Button>
-                    </div>
-                )}
-            </div>
-        </div>
+  const filteredEntries = useMemo(() => {
+    if (!searchQuery.trim()) return allEntries;
+    const q = searchQuery.toLowerCase();
+    return allEntries.filter(
+      (e) =>
+        e.term.toLowerCase().includes(q) ||
+        e.shortDescription.toLowerCase().includes(q) ||
+        (e.longDescription && e.longDescription.toLowerCase().includes(q))
     );
+  }, [searchQuery]);
+
+  const groups = useMemo(() => groupByLetter(filteredEntries), [filteredEntries]);
+  const letters = useMemo(() => sortedLetters(groups), [groups]);
+
+  return (
+    <div>
+      {/* Search bar */}
+      <div className="relative mb-4">
+        <svg
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search terms..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-9 pr-4 py-3 border border-line-soft bg-transparent font-mono text-[13px] tracking-[.05em] uppercase focus:outline-none focus:border-ink"
+        />
+      </div>
+
+      {/* Term count */}
+      <p className="font-mono text-[11px] tracking-[.1em] uppercase text-muted mb-10">
+        {filteredEntries.length} term{filteredEntries.length !== 1 ? "s" : ""}
+        {searchQuery.trim() ? " matched" : " total"}
+      </p>
+
+      {/* Letter groups */}
+      {letters.length === 0 ? (
+        <div className="py-16 text-center">
+          <p className="font-mono text-[13px] tracking-[.05em] uppercase text-muted">
+            No results for &ldquo;{searchQuery}&rdquo;
+          </p>
+          <button
+            onClick={() => setSearchQuery("")}
+            className="mt-4 font-mono text-[11px] tracking-[.1em] uppercase text-ink underline underline-offset-4"
+          >
+            Clear search
+          </button>
+        </div>
+      ) : (
+        letters.map((letter) => (
+          <div
+            key={letter}
+            id={letter}
+            className="py-12 border-b border-line-soft"
+          >
+            <div className="font-display font-bold uppercase text-steel text-[clamp(56px,8vw,96px)] leading-none">
+              {letter}
+            </div>
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
+              {groups[letter].map((t) => (
+                <div key={t.id} className="flex flex-col">
+                  <span className="font-mono text-[11px] tracking-[.15em] uppercase text-muted">
+                    // {t.term}
+                  </span>
+                  <span className="font-display font-bold uppercase text-[22px] tracking-[-.01em] mt-1">
+                    {t.term}
+                  </span>
+                  <span className="mt-1 text-[14px] leading-[1.55] text-ink/80">
+                    {t.shortDescription}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
 }

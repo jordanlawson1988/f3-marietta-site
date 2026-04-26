@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>F3 Marietta — Fitness. Fellowship. Faith.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bone:#f1ece1;
+    --bone-2:#e7e0d1;
+    --bone-3:#d9d1bf;
+    --ink:#0c0c0c;
+    --ink-2:#171717;
+    --ink-3:#1f1f1f;
+    --line:#2b2a27;
+    --line-soft:rgba(12,12,12,.12);
+    --line-softer:rgba(12,12,12,.06);
+    --ember:#2f5d88;      /* Marietta steel blue (primary accent) */
+    --ember-2:#22476a;
+    --ember-warm:#b84a1a; /* restrained rust — used sparingly for alerts */
+    --olive:#5a5a2e;
+    --brass:#c9a24a;
+    --muted:#6b655a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bone);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .display{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.01em;line-height:.92}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .serif{font-family:'DM Serif Display',serif}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+
+  /* Topographic line texture (subtle) */
+  .topo-bg{
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(47,93,136,.07), transparent 60%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'><g fill='none' stroke='%230c0c0c' stroke-opacity='0.06' stroke-width='1'><path d='M0,400 C100,350 200,450 300,400 S500,350 600,400 S800,450 900,400' /><path d='M0,350 C100,300 200,400 300,350 S500,300 600,350 S800,400 900,350' /><path d='M0,300 C100,250 200,350 300,300 S500,250 600,300 S800,350 900,300' /><path d='M0,450 C100,400 200,500 300,450 S500,400 600,450 S800,500 900,450' /><path d='M0,500 C100,450 200,550 300,500 S500,450 600,500 S800,550 900,500' /><path d='M0,250 C100,200 200,300 300,250 S500,200 600,250 S800,300 900,250' /><path d='M0,200 C100,150 200,250 300,200 S500,150 600,200 S800,250 900,200' /><path d='M0,550 C100,500 200,600 300,550 S500,500 600,550 S800,600 900,550' /><path d='M0,150 C100,100 200,200 300,150 S500,100 600,150 S800,200 900,150' /><path d='M0,600 C100,550 200,650 300,600 S500,550 600,600 S800,650 900,600' /><path d='M0,100 C100,50 200,150 300,100 S500,50 600,100 S800,150 900,100' /><path d='M0,650 C100,600 200,700 300,650 S500,600 600,650 S800,700 900,650' /></g></svg>");
+  }
+  .topo-bg-dark{
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'><g fill='none' stroke='%23f1ece1' stroke-opacity='0.05' stroke-width='1'><path d='M0,400 C100,350 200,450 300,400 S500,350 600,400 S800,450 900,400' /><path d='M0,350 C100,300 200,400 300,350 S500,300 600,350 S800,400 900,350' /><path d='M0,300 C100,250 200,350 300,300 S500,250 600,300 S800,350 900,300' /><path d='M0,450 C100,400 200,500 300,450 S500,400 600,450 S800,500 900,450' /><path d='M0,500 C100,450 200,550 300,500 S500,450 600,500 S800,550 900,500' /><path d='M0,250 C100,200 200,300 300,250 S500,200 600,250 S800,300 900,250' /><path d='M0,200 C100,150 200,250 300,200 S500,150 600,200 S800,250 900,200' /><path d='M0,550 C100,500 200,600 300,550 S500,500 600,550 S800,600 900,550' /><path d='M0,150 C100,100 200,200 300,150 S500,100 600,150 S800,200 900,150' /><path d='M0,600 C100,550 200,650 300,600 S500,550 600,600 S800,650 900,600' /><path d='M0,100 C100,50 200,150 300,100 S500,50 600,100 S800,150 900,100' /><path d='M0,650 C100,600 200,700 300,650 S500,600 600,650 S800,700 900,650' /></g></svg>");
+  }
+  .grain::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.35'/></svg>");
+    mix-blend-mode:multiply;opacity:.15;
+  }
+
+  /* Layout */
+  .wrap{max-width:1320px;margin:0 auto;padding:0 28px}
+  @media (max-width:640px){.wrap{padding:0 18px}}
+
+  /* ========== TOP BAR ========== */
+  .topbar{
+    background:var(--ink);color:var(--bone);
+    border-bottom:1px solid #2a2a2a;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+  }
+  .topbar .inner{display:flex;justify-content:space-between;align-items:center;padding:8px 28px;gap:24px;max-width:1320px;margin:0 auto}
+  .topbar .dot{width:6px;height:6px;border-radius:50%;background:var(--ember-warm);display:inline-block;margin-right:8px;animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(184,74,26,.5)}50%{opacity:.6;box-shadow:0 0 0 6px rgba(184,74,26,0)}}
+  .topbar .right{display:flex;gap:18px;opacity:.7}
+  @media(max-width:720px){.topbar .right{display:none}}
+
+  /* ========== NAV ========== */
+  nav.main{
+    position:sticky;top:0;z-index:50;
+    background:rgba(241,236,225,.92);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  nav.main .row{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;max-width:1320px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:14px}
+  .brand img{height:56px;width:56px;border-radius:50%;object-fit:cover;border:1.5px solid var(--ink)}
+  .brand .name{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:20px;line-height:1}
+  .brand .sub{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+  nav.main ul{display:flex;list-style:none;margin:0;padding:0;gap:6px;align-items:center}
+  nav.main ul a{
+    padding:10px 14px;font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    border-radius:4px;position:relative;transition:color .2s;
+  }
+  nav.main ul a:hover{color:var(--ember)}
+  nav.main ul a.active{color:var(--ember)}
+  nav.main ul a.active::after{content:"";position:absolute;left:14px;right:14px;bottom:4px;height:2px;background:var(--ember)}
+  .cta-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--ink);color:var(--bone);
+    padding:12px 20px;font-family:'Oswald',sans-serif;font-weight:600;
+    text-transform:uppercase;letter-spacing:.1em;font-size:13px;
+    border:1.5px solid var(--ink);transition:all .2s;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+  }
+  .cta-btn:hover{background:var(--ember);border-color:var(--ember)}
+  .cta-btn.outline{background:transparent;color:var(--ink)}
+  .cta-btn.outline:hover{background:var(--ink);color:var(--bone)}
+  .cta-btn .arrow{display:inline-block;transition:transform .2s}
+  .cta-btn:hover .arrow{transform:translateX(4px)}
+  .burger{display:none;background:none;border:none;padding:8px;color:var(--ink)}
+  @media (max-width:960px){
+    nav.main ul{display:none}
+    .burger{display:block}
+    .brand .sub{display:none}
+  }
+  .mobile-menu{display:none;background:var(--ink);color:var(--bone);padding:20px 28px;flex-direction:column;gap:4px}
+  .mobile-menu.open{display:flex}
+  .mobile-menu a{padding:12px 0;font-family:'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #2a2a2a}
+
+  /* ========== HERO ========== */
+  .hero{
+    position:relative;background:var(--ink);color:var(--bone);
+    min-height:calc(100vh - 98px);display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+  .hero .bg-photo{
+    position:absolute;inset:0;
+    background:
+      linear-gradient(180deg, rgba(12,12,12,.55) 0%, rgba(12,12,12,.4) 40%, rgba(12,12,12,.85) 100%),
+      linear-gradient(90deg, rgba(12,12,12,.75) 0%, rgba(12,12,12,.2) 50%, rgba(12,12,12,.4) 100%);
+    z-index:1;
+  }
+  .hero .bg-photo::before{
+    content:"";position:absolute;inset:0;
+    background-image:
+      radial-gradient(ellipse at 28% 35%, rgba(47,93,136,.32), transparent 60%),
+      radial-gradient(ellipse at 78% 72%, rgba(30,58,95,.45), transparent 70%),
+      radial-gradient(ellipse at 55% 90%, rgba(184,74,26,.08), transparent 55%),
+      linear-gradient(180deg, #10141a 0%, #0a0d12 100%);
+    z-index:-1;
+  }
+  .hero .bg-photo::after{
+    content:"";position:absolute;inset:0;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800' viewBox='0 0 1200 800'><g fill='none' stroke='%23f1ece1' stroke-opacity='0.06' stroke-width='1'><path d='M0,600 Q150,500 300,550 T600,500 T900,520 T1200,480 L1200,800 L0,800 Z' fill='%23f1ece1' fill-opacity='0.03'/><path d='M0,640 Q150,540 300,590 T600,540 T900,560 T1200,520' /><path d='M0,680 Q150,580 300,630 T600,580 T900,600 T1200,560' /><path d='M0,720 Q150,620 300,670 T600,620 T900,640 T1200,600' /></g></svg>");
+    background-size:cover;background-position:bottom;
+  }
+  .hero .meter{
+    position:relative;z-index:2;border-bottom:1px solid rgba(241,236,225,.12);
+    padding:14px 28px;display:flex;justify-content:space-between;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(241,236,225,.6);
+    max-width:1320px;margin:0 auto;width:100%;
+  }
+  .hero .meter .ticks{display:flex;gap:2px;align-items:center}
+  .hero .meter .ticks span{width:2px;height:10px;background:rgba(241,236,225,.25)}
+  .hero .meter .ticks span.hot{background:var(--ember);height:14px}
+
+  .hero .content{position:relative;z-index:2;flex:1;display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:center;max-width:1320px;margin:0 auto;padding:60px 28px;width:100%}
+  @media (max-width:960px){.hero .content{grid-template-columns:1fr;gap:32px}}
+
+  .hero .eyebrow{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ember);margin-bottom:28px;
+  }
+  .hero .eyebrow::before{content:"";width:28px;height:1px;background:var(--ember)}
+  .hero h1{
+    font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;
+    font-size:clamp(56px,9vw,148px);line-height:.86;letter-spacing:-.01em;margin:0 0 24px;
+  }
+  .hero h1 .line{display:block;overflow:hidden}
+  .hero h1 .word{display:inline-block;animation:rise .9s cubic-bezier(.2,.8,.2,1) both}
+  .hero h1 .word.d2{animation-delay:.1s}
+  .hero h1 .word.d3{animation-delay:.2s}
+  .hero h1 .ember{color:var(--ember);display:inline-block;position:relative}
+  .hero h1 .ember::after{content:"";position:absolute;left:0;right:0;bottom:.12em;height:.06em;background:var(--ember);animation:scope 1.2s .6s cubic-bezier(.2,.8,.2,1) both;transform-origin:left}
+  @keyframes rise{from{transform:translateY(102%)}to{transform:translateY(0)}}
+  @keyframes scope{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+  .hero p.lede{font-size:18px;max-width:540px;color:rgba(241,236,225,.82);margin:0 0 36px;line-height:1.55}
+  .hero .ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:40px}
+  .cta-big{
+    display:inline-flex;align-items:center;gap:12px;
+    background:var(--ember);color:var(--bone);
+    padding:18px 28px;font-family:'Oswald',sans-serif;font-weight:600;
+    text-transform:uppercase;letter-spacing:.1em;font-size:15px;
+    border:none;transition:all .2s;
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  }
+  .cta-big:hover{background:var(--ember-2)}
+  .cta-big.ghost{background:transparent;border:1.5px solid rgba(241,236,225,.3);color:var(--bone);clip-path:none}
+  .cta-big.ghost:hover{border-color:var(--bone)}
+
+  .hero .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;border-top:1px solid rgba(241,236,225,.12);padding-top:28px;max-width:560px}
+  .hero .metric .num{font-family:'Oswald',sans-serif;font-size:42px;font-weight:700;line-height:1;color:var(--bone)}
+  .hero .metric .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(241,236,225,.55);margin-top:6px}
+
+  /* Hero right: the emblem card */
+  .emblem{position:relative;aspect-ratio:1;max-width:520px;margin-left:auto}
+  .emblem .frame{
+    position:absolute;inset:0;border:1px solid rgba(241,236,225,.18);
+    display:grid;place-items:center;background:rgba(241,236,225,.02);
+    backdrop-filter:blur(6px);
+  }
+  .emblem .corner{position:absolute;width:22px;height:22px;border:2px solid var(--ember)}
+  .emblem .corner.tl{top:-1px;left:-1px;border-right:none;border-bottom:none}
+  .emblem .corner.tr{top:-1px;right:-1px;border-left:none;border-bottom:none}
+  .emblem .corner.bl{bottom:-1px;left:-1px;border-right:none;border-top:none}
+  .emblem .corner.br{bottom:-1px;right:-1px;border-left:none;border-top:none}
+  .emblem img{width:82%;height:auto;filter:invert(1) contrast(1.1) drop-shadow(0 20px 40px rgba(0,0,0,.5));animation:float 8s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .emblem .readout{
+    position:absolute;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;
+    color:rgba(241,236,225,.7);text-transform:uppercase;
+  }
+  .emblem .r1{top:-28px;left:0}
+  .emblem .r2{top:-28px;right:0;text-align:right}
+  .emblem .r3{bottom:-28px;left:0}
+  .emblem .r4{bottom:-28px;right:0;text-align:right;color:var(--ember)}
+  .emblem .ring{
+    position:absolute;inset:-40px;border:1px dashed rgba(241,236,225,.1);border-radius:50%;
+    animation:spin 60s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media(max-width:960px){.emblem{max-width:340px;margin:0 auto}}
+
+  /* Marquee ribbon */
+  .marquee{
+    background:var(--ink);color:var(--bone);
+    padding:14px 0;overflow:hidden;white-space:nowrap;
+    border-top:1px solid #2a2a2a;border-bottom:1px solid #2a2a2a;
+  }
+  .marquee .track span:nth-child(3n+2){color:var(--ember)}
+  .marquee .track{display:inline-flex;gap:48px;animation:scroll 40s linear infinite;font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:16px}
+  .marquee .track span{display:inline-flex;align-items:center;gap:16px}
+  .marquee .track svg{flex-shrink:0}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+
+  /* ========== 3 F's Section ========== */
+  section.principles{padding:120px 0 100px;background:var(--bone);position:relative;overflow:hidden}
+  .section-head{display:grid;grid-template-columns:1fr 2fr;gap:48px;margin-bottom:72px;align-items:end}
+  @media(max-width:800px){.section-head{grid-template-columns:1fr;gap:16px}}
+  .section-head .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ember);display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .section-head .eyebrow::before{content:"";width:24px;height:1px;background:var(--ember)}
+  .section-head h2{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;font-size:clamp(42px,6vw,88px);line-height:.9;margin:0}
+  .section-head p.kicker{font-size:17px;max-width:560px;color:var(--muted);margin:0;line-height:1.6}
+
+  .f3-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line-soft)}
+  @media(max-width:800px){.f3-grid{grid-template-columns:1fr}}
+  .f-card{
+    padding:48px 40px;background:var(--bone);position:relative;
+    border-right:1px solid var(--line-soft);transition:background .3s;cursor:default;
+  }
+  .f-card:last-child{border-right:none}
+  @media(max-width:800px){.f-card{border-right:none;border-bottom:1px solid var(--line-soft)}.f-card:last-child{border-bottom:none}}
+  .f-card:hover{background:var(--ink);color:var(--bone)}
+  .f-card:hover .num,.f-card:hover .name{color:var(--ember)}
+  .f-card .num{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.2em;color:var(--muted);transition:color .3s}
+  .f-card .name{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;font-size:64px;line-height:.9;margin:28px 0 20px;transition:color .3s}
+  .f-card .desc{font-size:15px;line-height:1.6;color:var(--muted);margin:0 0 36px}
+  .f-card:hover .desc{color:rgba(241,236,225,.75)}
+  .f-card .icon{width:64px;height:64px;border:1.5px solid currentColor;border-radius:50%;display:grid;place-items:center;margin-bottom:20px;opacity:.85}
+  .f-card .rule{border:none;border-top:1px solid currentColor;opacity:.2;margin:0 0 20px}
+  .f-card .tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.6}
+
+  /* The 5 principles */
+  section.creed{padding:100px 0;background:var(--ink);color:var(--bone);position:relative;overflow:hidden}
+  section.creed .quote{
+    font-family:'DM Serif Display',serif;font-size:clamp(36px,5vw,64px);line-height:1.05;max-width:960px;margin:0 auto 80px;text-align:center;
+    font-style:italic;
+  }
+  section.creed .quote em{color:var(--ember);font-style:italic}
+  .creed-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(241,236,225,.1);border:1px solid rgba(241,236,225,.1)}
+  @media(max-width:900px){.creed-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:500px){.creed-grid{grid-template-columns:1fr}}
+  .principle{background:var(--ink);padding:32px 24px;position:relative;transition:background .3s}
+  .principle:hover{background:var(--ink-3)}
+  .principle .n{font-family:'Oswald',sans-serif;font-size:72px;font-weight:700;line-height:.9;color:var(--ember);margin-bottom:20px}
+  .principle h4{font-family:'Oswald',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.03em;font-size:18px;margin:0 0 10px;line-height:1.1}
+  .principle p{font-size:13px;color:rgba(241,236,225,.6);margin:0;line-height:1.55}
+
+  /* ========== WORKOUTS / AOs ========== */
+  section.workouts{padding:120px 0 100px;background:var(--bone-2);position:relative}
+  .wo-controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;align-items:center}
+  .chip{
+    padding:10px 16px;border:1px solid var(--line-soft);background:var(--bone);
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    cursor:pointer;transition:all .2s;
+  }
+  .chip.on{background:var(--ink);color:var(--bone);border-color:var(--ink)}
+  .chip:hover:not(.on){border-color:var(--ink)}
+  .search{flex:1;min-width:240px;max-width:320px;position:relative}
+  .search input{
+    width:100%;padding:12px 16px 12px 40px;background:var(--bone);
+    border:1px solid var(--line-soft);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border .2s;
+  }
+  .search input:focus{border-color:var(--ink)}
+  .search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+
+  .aos{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+  .ao{
+    background:var(--bone);border:1px solid var(--line-soft);padding:28px;
+    position:relative;transition:all .25s;cursor:pointer;overflow:hidden;
+  }
+  .ao::before{content:"";position:absolute;top:0;left:0;width:100%;height:3px;background:var(--ember);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+  .ao:hover::before{transform:scaleX(1)}
+  .ao:hover{border-color:var(--ink);transform:translateY(-2px);box-shadow:0 20px 40px -20px rgba(0,0,0,.25)}
+  .ao .top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
+  .ao .code{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase}
+  .ao .status{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;
+    padding:4px 8px;text-transform:uppercase;
+  }
+  .ao .status.active{background:var(--ember);color:var(--bone)}
+  .ao .status.launch{background:var(--ember-warm);color:var(--bone)}
+  .ao h3{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;font-size:34px;line-height:.95;margin:0 0 8px}
+  .ao .loc{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.05em;margin-bottom:20px;display:flex;align-items:center;gap:6px}
+  .ao .rows{display:grid;gap:8px;padding-top:20px;border-top:1px solid var(--line-soft)}
+  .ao .r{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+  .ao .r .d{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .ao .r .t{font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;letter-spacing:.02em}
+  .ao .r .k{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ember);text-transform:uppercase;letter-spacing:.1em}
+  .ao .footer{display:flex;justify-content:space-between;align-items:center;margin-top:22px;padding-top:20px;border-top:1px solid var(--line-soft);font-size:12px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em}
+  .ao .footer .q{display:flex;align-items:center;gap:8px;color:var(--muted)}
+  .ao .footer .q b{color:var(--ink);font-weight:700}
+  .ao .footer .go{color:var(--ember);display:flex;align-items:center;gap:6px;transition:gap .2s}
+  .ao:hover .footer .go{gap:10px}
+
+  /* ========== BATTLEFIELD REPORT (Backblasts) ========== */
+  section.reports{padding:120px 0 100px;background:var(--bone)}
+  .reports-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:48px}
+  @media(max-width:900px){.reports-grid{grid-template-columns:1fr}}
+  .report-feature{
+    background:var(--ink);color:var(--bone);padding:44px;position:relative;overflow:hidden;
+    min-height:520px;display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .report-feature .tag{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ember);margin-bottom:20px}
+  .report-feature h3{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(36px,4vw,56px);line-height:.95;text-transform:uppercase;margin:0 0 24px;max-width:580px}
+  .report-feature .excerpt{font-size:16px;color:rgba(241,236,225,.75);line-height:1.65;max-width:580px;margin:0 0 32px}
+  .report-feature .meta{display:flex;gap:24px;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:rgba(241,236,225,.55);padding-top:24px;border-top:1px solid rgba(241,236,225,.15)}
+  .report-feature .meta b{color:var(--bone);font-weight:700}
+  .report-feature .backdrop{position:absolute;right:-80px;bottom:-80px;width:520px;opacity:.08;pointer-events:none}
+
+  .report-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--line-soft)}
+  .report-item{padding:24px;border-bottom:1px solid var(--line-soft);cursor:pointer;transition:background .2s;position:relative}
+  .report-item:last-child{border-bottom:none}
+  .report-item:hover{background:var(--bone-2)}
+  .report-item .row1{display:flex;gap:10px;align-items:center;margin-bottom:8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+  .report-item .row1 .ao-tag{background:var(--ink);color:var(--bone);padding:3px 8px}
+  .report-item h4{font-family:'Oswald',sans-serif;font-weight:600;font-size:20px;text-transform:uppercase;margin:0 0 8px;line-height:1.1;letter-spacing:.02em}
+  .report-item p{font-size:13px;color:var(--muted);margin:0;line-height:1.5}
+  .report-item .arrow{position:absolute;right:24px;top:28px;opacity:0;transition:all .2s}
+  .report-item:hover .arrow{opacity:1;right:20px}
+
+  /* ========== COMMUNITY / IMPACT ========== */
+  section.impact{padding:100px 0;background:var(--ink);color:var(--bone);position:relative;overflow:hidden}
+  .impact-row{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  @media(max-width:900px){.impact-row{grid-template-columns:1fr;gap:32px}}
+  .impact h2{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(48px,6vw,96px);line-height:.88;text-transform:uppercase;margin:0 0 28px}
+  .impact h2 em{font-family:'DM Serif Display',serif;font-style:italic;font-weight:400;color:var(--ember);text-transform:none}
+  .impact .lede{font-size:18px;color:rgba(241,236,225,.75);max-width:500px;margin-bottom:32px;line-height:1.6}
+  .impact-stats{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(241,236,225,.15)}
+  .impact-stats .stat{padding:36px 28px;border-right:1px solid rgba(241,236,225,.15);border-bottom:1px solid rgba(241,236,225,.15)}
+  .impact-stats .stat:nth-child(2n){border-right:none}
+  .impact-stats .stat:nth-child(n+3){border-bottom:none}
+  .impact-stats .num{font-family:'Oswald',sans-serif;font-size:64px;font-weight:700;line-height:.9;color:var(--ember);margin-bottom:8px}
+  .impact-stats .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:rgba(241,236,225,.6)}
+
+  /* ========== JOIN CTA ========== */
+  section.join{padding:120px 0;background:linear-gradient(180deg,#24446a 0%,#1a3552 100%);color:var(--bone);position:relative;overflow:hidden}
+  .join-inner{display:grid;grid-template-columns:1.5fr 1fr;gap:48px;align-items:end}
+  @media(max-width:800px){.join-inner{grid-template-columns:1fr;gap:32px}}
+  .join h2{font-family:'Oswald',sans-serif;font-weight:700;font-size:clamp(56px,9vw,160px);line-height:.86;text-transform:uppercase;margin:0;letter-spacing:-.01em;color:var(--bone)}
+  .join .ask{font-size:18px;max-width:420px;line-height:1.55;margin:0 0 24px;color:rgba(241,236,225,.85)}
+  .join .cta-big{background:var(--bone);color:var(--ink)}
+  .join .cta-big:hover{background:var(--ink);color:var(--bone)}
+  .join .bg-num{position:absolute;right:-40px;bottom:-80px;font-family:'Oswald',sans-serif;font-weight:700;font-size:480px;line-height:.8;color:rgba(241,236,225,.06);pointer-events:none}
+
+  /* ========== FOOTER ========== */
+  footer{background:var(--ink);color:var(--bone);padding:80px 0 24px;position:relative}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:48px;margin-bottom:64px}
+  @media(max-width:800px){.foot-grid{grid-template-columns:1fr 1fr;gap:32px}}
+  @media(max-width:500px){.foot-grid{grid-template-columns:1fr}}
+  .foot-brand img{height:72px;width:72px;border-radius:50%;border:1.5px solid var(--bone);object-fit:cover;background:var(--bone);padding:4px}
+  .foot-brand h4{font-family:'Oswald',sans-serif;font-weight:700;font-size:28px;text-transform:uppercase;margin:16px 0 8px;letter-spacing:.04em}
+  .foot-brand p{color:rgba(241,236,225,.6);font-size:14px;line-height:1.6;max-width:280px;margin:0}
+  .foot-col h5{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(241,236,225,.5);margin:0 0 20px}
+  .foot-col ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+  .foot-col a{font-family:'Oswald',sans-serif;font-size:16px;text-transform:uppercase;letter-spacing:.04em;color:var(--bone);transition:color .2s}
+  .foot-col a:hover{color:var(--ember)}
+  .foot-bottom{display:flex;justify-content:space-between;padding-top:24px;border-top:1px solid rgba(241,236,225,.12);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(241,236,225,.4);flex-wrap:wrap;gap:12px}
+
+  /* Scroll reveals */
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:translateY(0)}
+
+  /* Tweaks panel */
+  #tweaks{
+    position:fixed;bottom:24px;right:24px;z-index:100;
+    background:var(--ink);color:var(--bone);padding:18px;width:280px;
+    border:1px solid #333;font-family:'JetBrains Mono',monospace;font-size:12px;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);display:none;
+  }
+  #tweaks.on{display:block}
+  #tweaks h6{font-family:'Oswald',sans-serif;font-size:14px;margin:0 0 14px;text-transform:uppercase;letter-spacing:.1em;display:flex;justify-content:space-between;align-items:center}
+  #tweaks .row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #2a2a2a}
+  #tweaks label{font-size:11px;opacity:.8}
+  #tweaks select, #tweaks input[type=color]{background:#171717;color:var(--bone);border:1px solid #333;padding:4px 6px;font-family:inherit;font-size:11px}
+  #tweaks button.close{background:none;border:none;color:var(--bone);cursor:pointer}
+</style>
+</head>
+<body class="topo-bg">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="inner">
+    <div><span class="dot"></span>GLOOM STATUS: ACTIVE · NEXT MUSTER 05:15</div>
+    <div class="right">
+      <span>MARIETTA, GA</span>
+      <span>EST. 2024 · REGION 2025</span>
+      <span>F3 NATION</span>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="main">
+  <div class="row">
+    <a href="#top" class="brand">
+      <img src="assets/logo-cannon.png" alt="F3 Marietta"/>
+      <div>
+        <div class="name">F3 Marietta</div>
+        <div class="sub">Fitness · Fellowship · Faith</div>
+      </div>
+    </a>
+    <ul>
+      <li><a href="#home" class="active">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#workouts">Workouts</a></li>
+      <li><a href="#reports">Backblasts</a></li>
+      <li><a href="#new">New Here?</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li style="margin-left:8px"><a href="#workouts" class="cta-btn">Find a Workout <span class="arrow">→</span></a></li>
+    </ul>
+    <button class="burger" id="burger" aria-label="Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#home">Home</a>
+    <a href="#about">About</a>
+    <a href="#workouts">Workouts</a>
+    <a href="#reports">Backblasts</a>
+    <a href="#new">New Here?</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero" id="home">
+  <div class="meter">
+    <div>COORDINATES · 33.9526° N, 84.5499° W</div>
+    <div class="ticks" aria-hidden="true">
+      <span></span><span></span><span class="hot"></span><span></span><span></span><span></span><span class="hot"></span><span></span><span></span><span></span><span></span><span class="hot"></span><span></span><span></span>
+    </div>
+    <div>MUSTER LOG · <b style="color:var(--ember)">42</b> MEN POSTED THIS WEEK</div>
+  </div>
+  <div class="bg-photo"></div>
+  <div class="content">
+    <div>
+      <div class="eyebrow">Marietta Region · F3 Nation</div>
+      <h1>
+        <span class="line"><span class="word">Hold the</span></span>
+        <span class="line"><span class="word d2 ember">Battlefield.</span></span>
+        <span class="line"><span class="word d3">Leave no man</span></span>
+        <span class="line"><span class="word d3" style="color:rgba(241,236,225,.55)">behind.</span></span>
+      </h1>
+      <p class="lede">Free, peer-led workouts for men in Marietta, GA. We start in the gloom at 05:15, rain or shine — and we finish as better husbands, fathers, friends, and leaders.</p>
+      <div class="ctas">
+        <a href="#workouts" class="cta-big">Find a Workout <span class="arrow">→</span></a>
+        <a href="#about" class="cta-big ghost">What is F3?</a>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="num">5:15<span style="color:var(--ember)">am</span></div><div class="lbl">First Whistle</div></div>
+        <div class="metric"><div class="num">$0</div><div class="lbl">Always Free</div></div>
+        <div class="metric"><div class="num">4<span style="color:var(--ember)">/wk</span></div><div class="lbl">Active AOs</div></div>
+      </div>
+    </div>
+    <div class="emblem">
+      <div class="ring"></div>
+      <div class="readout r1">// ID · F3.MAR.01</div>
+      <div class="readout r2">REV · 2025</div>
+      <div class="frame">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <img src="assets/logo-cannon.png" alt="F3 Marietta emblem"/>
+      </div>
+      <div class="readout r3">LAT 33.95° / LON -84.55°</div>
+      <div class="readout r4">// GLOOM · 05:15 EDT</div>
+    </div>
+  </div>
+</header>
+
+<!-- MARQUEE -->
+<div class="marquee">
+  <div class="track">
+    <span>FITNESS <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>FELLOWSHIP <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>FAITH <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>RAIN OR SHINE <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>PEER-LED <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>FREE OF CHARGE <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>FITNESS <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>FELLOWSHIP <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>FAITH <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>RAIN OR SHINE <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>PEER-LED <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+    <span>FREE OF CHARGE <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="2"/></svg></span>
+  </div>
+</div>
+
+<!-- PRINCIPLES (3 F's) -->
+<section class="principles" id="about">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">§ 01 · The Mission</div>
+        <h2>Three F's.<br/>One Brotherhood.</h2>
+      </div>
+      <p class="kicker">F3 is a national network of free, peer-led workouts for men. We plant, grow, and serve small workout groups to invigorate male community leadership — right here in Marietta.</p>
+    </div>
+
+    <div class="f3-grid reveal">
+      <div class="f-card">
+        <div class="num">// 01</div>
+        <div class="icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5l11 11M14 3l7 7M3 14l7 7M8 4l-4 4 12 12 4-4z"/></svg>
+        </div>
+        <div class="name">Fitness</div>
+        <hr class="rule"/>
+        <p class="desc">Start together. End together. The workout is open to every man at every fitness level. Heavy or skinny, fast or slow — we move as one unit. No man left behind.</p>
+        <div class="tag">→ 45–60 min · Bodyweight · Outdoors</div>
+      </div>
+      <div class="f-card">
+        <div class="num">// 02</div>
+        <div class="icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
+        </div>
+        <div class="name">Fellowship</div>
+        <hr class="rule"/>
+        <p class="desc">The bonds built in the gloom don't end at the whistle. Second F — coffee, cookouts, service projects, accountability groups — that brotherhood is what gets you through the other 23 hours.</p>
+        <div class="tag">→ 2nd F · Coffeeteria · Service</div>
+      </div>
+      <div class="f-card">
+        <div class="num">// 03</div>
+        <div class="icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L4 12l8 10 8-10-8-10z"/><path d="M4 12h16"/></svg>
+        </div>
+        <div class="name">Faith</div>
+        <hr class="rule"/>
+        <p class="desc">Not a denomination. A belief in something bigger than yourself. Every workout closes with a Circle of Trust — name-o-rama, a prayer or reflection, and a charge back into the day.</p>
+        <div class="tag">→ COT · Reflection · Prayer</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CREED / 5 PRINCIPLES -->
+<section class="creed topo-bg-dark">
+  <div class="wrap">
+    <p class="quote">"Leave no man behind,<br/>but leave no man <em>where you found him.</em>"</p>
+    <div class="creed-grid">
+      <div class="principle"><div class="n">1</div><h4>Free of Charge</h4><p>No fees. No membership. No catch. You show up.</p></div>
+      <div class="principle"><div class="n">2</div><h4>Open to All Men</h4><p>Any age, any fitness level. The door is always open.</p></div>
+      <div class="principle"><div class="n">3</div><h4>Held Outdoors</h4><p>Rain or shine. Heat or cold. We embrace the elements.</p></div>
+      <div class="principle"><div class="n">4</div><h4>Peer-Led</h4><p>No instructors. Men take turns Q-ing the workout.</p></div>
+      <div class="principle"><div class="n">5</div><h4>Ends in COT</h4><p>Circle of Trust. Reflection. Charge back into the day.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKOUTS / AOs -->
+<section class="workouts" id="workouts">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">§ 02 · Posts of Assembly</div>
+        <h2>Find Your<br/>Battlefield.</h2>
+      </div>
+      <p class="kicker">Four active AOs across Marietta. Show up — in workout clothes, ready to sweat. You don't need to sign up. You don't need to be in shape. You just need to post.</p>
+    </div>
+
+    <div class="wo-controls reveal">
+      <div class="chip on" data-filter="all">All AOs</div>
+      <div class="chip" data-filter="mon">Mon</div>
+      <div class="chip" data-filter="tue">Tue</div>
+      <div class="chip" data-filter="wed">Wed</div>
+      <div class="chip" data-filter="thu">Thu</div>
+      <div class="chip" data-filter="fri">Fri</div>
+      <div class="chip" data-filter="sat">Sat</div>
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input id="aoSearch" placeholder="Search AOs or locations…"/>
+      </div>
+    </div>
+
+    <div class="aos reveal" id="aoGrid">
+      <!-- populated via JS -->
+    </div>
+  </div>
+</section>
+
+<!-- BACKBLASTS / REPORTS -->
+<section class="reports" id="reports">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">§ 03 · From the Gloom</div>
+        <h2>Battlefield<br/>Reports.</h2>
+      </div>
+      <p class="kicker">Backblasts — the after-action logs written by the Q who led the beatdown. Read what happened, who posted, and what was said in the Circle of Trust.</p>
+    </div>
+
+    <div class="reports-grid">
+      <div class="report-feature reveal">
+        <div class="tag">// LATEST · 04.22.26 · THE BATTLEFIELD</div>
+        <h3>Ruck Club & the Kettlebell Thruster That Broke Slumlord</h3>
+        <p class="excerpt">14 HIM posted in 48° and drizzle for a Q-sourced beatdown — warmup loop of the track, into Dora 1-2-3 at the pull-up bars, finishing with a quarter-mile ruck under field lights. YHC called an audible when the kettlebells came out and the mumblechatter got real.</p>
+        <div class="meta">
+          <span>Q · <b>SLUMLORD</b></span>
+          <span>PAX · <b>14</b></span>
+          <span>FNGs · <b>2</b></span>
+          <span>Time · <b>45m</b></span>
+        </div>
+        <img src="assets/logo-cannon.png" alt="" class="backdrop"/>
+      </div>
+
+      <div class="report-list reveal" id="reportList">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section class="impact topo-bg-dark">
+  <div class="wrap">
+    <div class="impact-row">
+      <div class="reveal">
+        <h2>Built in Marietta. <em>Forged</em> in the gloom.</h2>
+        <p class="lede">F3 Marietta launched at The Battlefield at Marietta High School in June 2024. Eighteen months later, the region is official and growing — one post, one FNG, one Circle of Trust at a time.</p>
+        <a href="#new" class="cta-big">Your First Post <span class="arrow">→</span></a>
+      </div>
+      <div class="impact-stats reveal">
+        <div class="stat"><div class="num">187</div><div class="lbl">Unique HIM Posted</div></div>
+        <div class="stat"><div class="num">412</div><div class="lbl">Workouts Led</div></div>
+        <div class="stat"><div class="num">4</div><div class="lbl">Active AOs</div></div>
+        <div class="stat"><div class="num">32</div><div class="lbl">FNGs This Year</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN CTA -->
+<section class="join" id="new">
+  <div class="wrap" style="position:relative;z-index:2">
+    <div class="join-inner">
+      <h2>Post.<br/>That's it.</h2>
+      <div>
+        <p class="ask">No sign-up. No fee. No catch. Show up five minutes early, tell us your name, and fall in. We'll handle the rest.</p>
+        <a href="#workouts" class="cta-big">Plan Your First Post <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+  <div class="bg-num">05:15</div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <img src="assets/logo-cannon.png" alt="F3 Marietta"/>
+        <h4>F3 Marietta</h4>
+        <p>A region of F3 Nation · Marietta, GA. Fitness · Fellowship · Faith. Free, peer-led workouts for men since 2024.</p>
+      </div>
+      <div class="foot-col">
+        <h5>// Region</h5>
+        <ul>
+          <li><a href="#about">About F3</a></li>
+          <li><a href="#workouts">Find a Workout</a></li>
+          <li><a href="#reports">Backblasts</a></li>
+          <li><a href="#new">New Here?</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>// Resources</h5>
+        <ul>
+          <li><a href="#">Glossary</a></li>
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">What to Expect</a></li>
+          <li><a href="#">Leadership</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>// Connect</h5>
+        <ul>
+          <li><a href="#">Slack</a></li>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">Newsletter</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>// F3 MARIETTA · MARIETTA, GA · EST. 2024</div>
+      <div>A REGION OF F3 NATION · PEER-LED · FREE OF CHARGE</div>
+    </div>
+  </div>
+</footer>
+
+<!-- TWEAKS -->
+<div id="tweaks">
+  <h6>Tweaks <button class="close" id="tweaksClose">✕</button></h6>
+  <div class="row">
+    <label>Accent color</label>
+    <input type="color" id="twAccent" value="#2f5d88"/>
+  </div>
+  <div class="row">
+    <label>Hero headline</label>
+    <select id="twHero">
+      <option value="battlefield">Hold the Battlefield</option>
+      <option value="gloom">Into the Gloom</option>
+      <option value="cannon">Fire the Cannon</option>
+    </select>
+  </div>
+  <div class="row">
+    <label>Background</label>
+    <select id="twBg">
+      <option value="bone">Bone (default)</option>
+      <option value="ink">Ink (dark mode)</option>
+    </select>
+  </div>
+</div>
+
+<script>
+// ================ DATA ================
+const AOs = [
+  { code:"F3.MAR.01", name:"The Battlefield", loc:"Marietta High School · 1171 Whitlock Ave", status:"active",
+    q:"Q-Source rotating", days:[
+      {d:"mon",t:"05:15"},{d:"wed",t:"05:15"},{d:"fri",t:"05:15"}
+    ]},
+  { code:"F3.MAR.02", name:"The Last Stand", loc:"Kennesaw Mountain · Stilesboro Rd", status:"active",
+    q:"Hillbilly", days:[
+      {d:"tue",t:"05:15"},{d:"thu",t:"05:15"}
+    ]},
+  { code:"F3.MAR.03", name:"The Powder Keg", loc:"Laurel Park · Woodlawn Dr", status:"active",
+    q:"Slumlord", days:[
+      {d:"sat",t:"07:00"}
+    ]},
+  { code:"F3.MAR.04", name:"The Magazine", loc:"East Cobb Park · Roswell Rd", status:"launch",
+    q:"OPEN — needs a Q", days:[
+      {d:"wed",t:"05:30"},{d:"fri",t:"05:30"}
+    ]},
+  { code:"F3.MAR.05", name:"Redoubt", loc:"Marietta Square · Park Square", status:"active",
+    q:"Sundial", days:[
+      {d:"mon",t:"05:30"},{d:"thu",t:"05:30"}
+    ]},
+  { code:"F3.MAR.06", name:"Cannonball", loc:"Brown Park · Allgood Rd", status:"launch",
+    q:"OPEN — needs a Q", days:[
+      {d:"sat",t:"06:30"}
+    ]},
+];
+
+const REPORTS = [
+  { ao:"THE LAST STAND", date:"04.21.26", q:"HILLBILLY", title:"Kennesaw Hill Repeats Before Sunrise", excerpt:"Nine HIM hit four repeats of the powerline cut. Mumblechatter evaporated by round two." },
+  { ao:"THE POWDER KEG", date:"04.20.26", q:"SUNDIAL", title:"Saturday Bootcamp: Dora, Then Donuts", excerpt:"22 HIM. Partner work at the pavilion, merkin ladder, and a jailbreak home. Coffeeteria after." },
+  { ao:"REDOUBT", date:"04.18.26", q:"OPEN-TAB", title:"Square Dance: Bench Blasters & Curb PT", excerpt:"Small and fast. Six HIM, 42 minutes. Name-o-rama at the fountain. FNG: Gatsby." },
+  { ao:"THE BATTLEFIELD", date:"04.17.26", q:"SLUMLORD", title:"Q-School Warm-Up · Welcome 3 FNGs", excerpt:"14 HIM posted. Three FNGs EH'd by Tollbooth. Ruck finish under the field lights." },
+  { ao:"THE LAST STAND", date:"04.16.26", q:"CABOOSE", title:"Thursday Thumper at the Monument", excerpt:"Seven HIM. Heavy legs. COT on fatherhood after a brutal tabata set at the overlook." },
+];
+
+// ================ RENDER ================
+const aoGrid = document.getElementById('aoGrid');
+function renderAOs(filter="all", query=""){
+  const q = query.trim().toLowerCase();
+  aoGrid.innerHTML = AOs.filter(a => {
+    const matchDay = filter==="all" || a.days.some(d=>d.d===filter);
+    const matchQ = !q || a.name.toLowerCase().includes(q) || a.loc.toLowerCase().includes(q);
+    return matchDay && matchQ;
+  }).map(a => `
+    <div class="ao">
+      <div class="top">
+        <div class="code">${a.code}</div>
+        <div class="status ${a.status}">${a.status==="active"?"● ACTIVE":"▲ LAUNCHING"}</div>
+      </div>
+      <h3>${a.name}</h3>
+      <div class="loc">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        ${a.loc}
+      </div>
+      <div class="rows">
+        ${a.days.map(d=>`
+          <div class="r"><span class="d">${ {mon:"Monday",tue:"Tuesday",wed:"Wednesday",thu:"Thursday",fri:"Friday",sat:"Saturday",sun:"Sunday"}[d.d] }</span>
+          <span class="t">${d.t} <span class="k">· GLOOM</span></span></div>
+        `).join("")}
+      </div>
+      <div class="footer">
+        <div class="q">Q · <b>${a.q}</b></div>
+        <div class="go">Directions →</div>
+      </div>
+    </div>
+  `).join("") || `<div style="padding:40px;text-align:center;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:13px">// NO AOS MATCH FILTER · ADJUST CRITERIA</div>`;
+}
+renderAOs();
+
+// Filter chips
+document.querySelectorAll('.chip').forEach(c=>{
+  c.addEventListener('click', ()=>{
+    document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');
+    renderAOs(c.dataset.filter, document.getElementById('aoSearch').value);
+  });
+});
+document.getElementById('aoSearch').addEventListener('input', (e)=>{
+  const active = document.querySelector('.chip.on').dataset.filter;
+  renderAOs(active, e.target.value);
+});
+
+// Reports
+document.getElementById('reportList').innerHTML = REPORTS.map(r=>`
+  <div class="report-item">
+    <div class="row1">
+      <span class="ao-tag">${r.ao}</span>
+      <span>${r.date}</span>
+      <span>· Q · ${r.q}</span>
+    </div>
+    <h4>${r.title}</h4>
+    <p>${r.excerpt}</p>
+    <span class="arrow">→</span>
+  </div>
+`).join("");
+
+// Mobile menu
+document.getElementById('burger').addEventListener('click', ()=>{
+  document.getElementById('mobileMenu').classList.toggle('open');
+});
+
+// Active nav link on scroll
+const sections = ['home','about','workouts','reports','new','contact'];
+const navLinks = document.querySelectorAll('nav.main ul a');
+function updateActive(){
+  const y = window.scrollY + 120;
+  let current = sections[0];
+  sections.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && el.offsetTop <= y) current = id;
+  });
+  navLinks.forEach(a=>{
+    a.classList.toggle('active', a.getAttribute('href') === '#'+current);
+  });
+}
+window.addEventListener('scroll', updateActive, {passive:true});
+
+// Reveal on scroll
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// ================ TWEAKS ================
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "#2f6e89",
+  "heroVariant": "battlefield",
+  "bg": "bone"
+}/*EDITMODE-END*/;
+
+let tweaks = {...TWEAK_DEFAULTS};
+function applyTweaks(){
+  document.documentElement.style.setProperty('--ember', tweaks.accent);
+  // Darken accent
+  const hex = tweaks.accent.replace('#','');
+  const r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+  const d = `rgb(${Math.max(0,r-30)},${Math.max(0,g-30)},${Math.max(0,b-30)})`;
+  document.documentElement.style.setProperty('--ember-2', d);
+
+  // Hero variant
+  const h1 = document.querySelector('.hero h1');
+  if(tweaks.heroVariant==="battlefield"){
+    h1.innerHTML = `<span class="line"><span class="word">Hold the</span></span><span class="line"><span class="word d2 ember">Battlefield.</span></span><span class="line"><span class="word d3">Leave no man</span></span><span class="line"><span class="word d3" style="color:rgba(241,236,225,.55)">behind.</span></span>`;
+  } else if(tweaks.heroVariant==="gloom"){
+    h1.innerHTML = `<span class="line"><span class="word">Into the</span></span><span class="line"><span class="word d2 ember">Gloom.</span></span><span class="line"><span class="word d3">Every</span></span><span class="line"><span class="word d3" style="color:rgba(241,236,225,.55)">morning.</span></span>`;
+  } else {
+    h1.innerHTML = `<span class="line"><span class="word">Fire the</span></span><span class="line"><span class="word d2 ember">Cannon.</span></span><span class="line"><span class="word d3">Rally the</span></span><span class="line"><span class="word d3" style="color:rgba(241,236,225,.55)">Region.</span></span>`;
+  }
+
+  document.body.style.background = tweaks.bg === "ink" ? "#0c0c0c" : "";
+  document.body.style.color = tweaks.bg === "ink" ? "var(--bone)" : "";
+}
+applyTweaks();
+
+// Edit mode plumbing
+window.addEventListener('message', (e)=>{
+  if(e.data?.type==='__activate_edit_mode') document.getElementById('tweaks').classList.add('on');
+  if(e.data?.type==='__deactivate_edit_mode') document.getElementById('tweaks').classList.remove('on');
+});
+window.parent.postMessage({type:'__edit_mode_available'}, '*');
+
+document.getElementById('tweaksClose').onclick = ()=> document.getElementById('tweaks').classList.remove('on');
+
+function postEdit(patch){
+  Object.assign(tweaks, patch);
+  applyTweaks();
+  window.parent.postMessage({type:'__edit_mode_set_keys', edits: patch}, '*');
+}
+document.getElementById('twAccent').addEventListener('input', (e)=>postEdit({accent:e.target.value}));
+document.getElementById('twHero').addEventListener('change', (e)=>postEdit({heroVariant:e.target.value}));
+document.getElementById('twBg').addEventListener('change', (e)=>postEdit({bg:e.target.value}));
+</script>
+</body>
+</html>

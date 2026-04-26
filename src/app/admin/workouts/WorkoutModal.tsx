@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
 import { X } from "lucide-react";
 import type { WorkoutScheduleRow } from "@/types/workout";
 import type { Region } from "@/types/region";
+import { ChamferButton } from "@/components/ui/brand/ChamferButton";
+import { MonoTag } from "@/components/ui/brand/MonoTag";
 
 const WORKOUT_TYPE_SUGGESTIONS = [
   "Bootcamp",
@@ -126,28 +127,26 @@ export function WorkoutModal({
   };
 
   const inputClass =
-    "w-full px-3 py-2 rounded bg-[#0A1A2F] border border-[#23334A] focus:border-[#4A76A8] focus:outline-none text-white text-sm";
-  const labelClass =
-    "block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1";
+    "mt-2 w-full bg-transparent border border-bone/25 px-3 py-2 focus:outline-none focus:border-steel text-bone text-sm";
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#112240] rounded-lg border border-[#23334A] w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-ink/80 backdrop-blur-sm z-50">
+      <div className="fixed right-0 top-0 bottom-0 w-full max-w-xl bg-ink text-bone border-l border-steel/30 clip-chamfer overflow-auto p-8">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 border-b border-[#23334A] sticky top-0 bg-[#112240]">
-          <h3 className="text-lg font-bold">
+        <div className="flex justify-between items-center mb-8 pb-4 border-b border-bone/15">
+          <h3 className="font-display font-bold uppercase tracking-wide text-lg">
             {isEdit ? "Edit Workout" : "Add Workout"}
           </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <button onClick={onClose} className="text-muted hover:text-bone transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-4 space-y-4">
+        <div className="space-y-5">
           {/* AO Name */}
           <div>
-            <label htmlFor="ao-name" className={labelClass}>AO Name</label>
+            <MonoTag variant="bone">// AO Name</MonoTag>
             <input
               id="ao-name"
               type="text"
@@ -161,7 +160,7 @@ export function WorkoutModal({
           {/* Workout Type + Day */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="workout-type" className={labelClass}>Workout Type</label>
+              <MonoTag variant="bone">// Workout Type</MonoTag>
               <input
                 id="workout-type"
                 type="text"
@@ -177,7 +176,7 @@ export function WorkoutModal({
               </datalist>
             </div>
             <div>
-              <label className={labelClass}>Day of Week</label>
+              <MonoTag variant="bone">// Day of Week</MonoTag>
               <select
                 value={dayOfWeek}
                 onChange={(e) => setDayOfWeek(parseInt(e.target.value))}
@@ -195,7 +194,7 @@ export function WorkoutModal({
           {/* Start/End Time */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>Start Time</label>
+              <MonoTag variant="bone">// Start Time</MonoTag>
               <input
                 type="time"
                 value={startTime}
@@ -204,7 +203,7 @@ export function WorkoutModal({
               />
             </div>
             <div>
-              <label className={labelClass}>End Time</label>
+              <MonoTag variant="bone">// End Time</MonoTag>
               <input
                 type="time"
                 value={endTime}
@@ -216,7 +215,7 @@ export function WorkoutModal({
 
           {/* Region */}
           <div>
-            <label className={labelClass}>Region</label>
+            <MonoTag variant="bone">// Region</MonoTag>
             <select
               value={regionId}
               onChange={(e) => setRegionId(e.target.value)}
@@ -228,14 +227,14 @@ export function WorkoutModal({
                 </option>
               ))}
             </select>
-            <div className="text-xs text-[#4a5e73] mt-1">
+            <div className="text-[11px] text-muted mt-1">
               Manage regions in Admin &gt; Regions
             </div>
           </div>
 
           {/* Location Name */}
           <div>
-            <label className={labelClass}>Location Name</label>
+            <MonoTag variant="bone">// Location Name</MonoTag>
             <input
               type="text"
               value={locationName}
@@ -247,7 +246,7 @@ export function WorkoutModal({
 
           {/* Address */}
           <div>
-            <label className={labelClass}>Address</label>
+            <MonoTag variant="bone">// Address</MonoTag>
             <input
               type="text"
               value={address}
@@ -259,9 +258,7 @@ export function WorkoutModal({
 
           {/* Map Link */}
           <div>
-            <label className={labelClass}>
-              Map Link <span className="font-normal normal-case text-gray-600">(optional)</span>
-            </label>
+            <MonoTag variant="bone">// Map Link <span className="font-normal normal-case text-muted/60">(optional)</span></MonoTag>
             <input
               type="url"
               value={mapLink}
@@ -276,46 +273,60 @@ export function WorkoutModal({
             <div
               onClick={() => setIsActive(!isActive)}
               className={`w-10 h-[22px] rounded-full relative transition-colors cursor-pointer ${
-                isActive ? "bg-[#4A76A8]" : "bg-[#23334A]"
+                isActive ? "bg-steel" : "bg-bone/20"
               }`}
             >
               <div
-                className={`w-[18px] h-[18px] bg-white rounded-full absolute top-[2px] transition-all ${
+                className={`w-[18px] h-[18px] bg-bone rounded-full absolute top-[2px] transition-all ${
                   isActive ? "right-[2px]" : "left-[2px]"
                 }`}
               />
             </div>
-            <span className="text-sm text-gray-300">Active</span>
-            <span className="text-xs text-[#4a5e73]">
+            <span className="text-sm text-bone">Active</span>
+            <span className="text-xs text-muted">
               — inactive workouts are hidden from the public page
             </span>
           </label>
 
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-rust text-sm">{error}</p>}
         </div>
 
         {/* Footer */}
-        <div className="flex justify-between items-center p-4 border-t border-[#23334A]">
+        <div className="flex justify-between items-center mt-8 pt-6 border-t border-bone/15">
           {isEdit ? (
-            <button
+            <ChamferButton
+              type="button"
+              variant="ink"
+              size="sm"
+              arrow={false}
+              className="!bg-rust !border-rust hover:!bg-ink hover:!border-ink"
               onClick={handleDelete}
-              className="px-4 py-2 rounded border border-red-800 text-red-400 text-sm hover:bg-red-900/20 transition-colors"
             >
               Delete
-            </button>
+            </ChamferButton>
           ) : (
             <div />
           )}
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={onClose}>
+          <div className="flex gap-3">
+            <ChamferButton
+              type="button"
+              variant="ghost"
+              size="sm"
+              arrow={false}
+              onClick={onClose}
+            >
               Cancel
-            </Button>
-            <Button
+            </ChamferButton>
+            <ChamferButton
+              type="button"
+              variant="steel"
+              size="sm"
+              arrow={false}
               onClick={handleSave}
               disabled={!aoName || !address || !regionId || isSaving}
             >
               {isSaving ? "Saving..." : isEdit ? "Save Changes" : "Create"}
-            </Button>
+            </ChamferButton>
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ export function Logo({ className, size = "md" }: LogoProps) {
                 )}
             >
                 <Image
-                    src="/icons/f3mariettalogo-main.png"
+                    src="/images/new-f3-marietta-logo.png"
                     alt="F3 Marietta logo – Fitness, Fellowship, Faith"
                     fill
                     className="object-cover"

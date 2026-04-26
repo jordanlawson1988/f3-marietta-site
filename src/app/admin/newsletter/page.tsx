@@ -2,11 +2,15 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Newsletter } from '@/types/automation';
-import StatusBadge from '@/components/ui/StatusBadge';
+import { StatusChip } from '@/components/ui/brand/StatusChip';
+import { SectionHead } from '@/components/ui/brand/SectionHead';
+import { ChamferButton } from '@/components/ui/brand/ChamferButton';
+import { ClipFrame } from '@/components/ui/brand/ClipFrame';
+import { MonoTag } from '@/components/ui/brand/MonoTag';
 import NewsletterPreview from '@/components/ui/NewsletterPreview';
 
 function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '\u2014';
+  if (!dateStr) return '—';
   return new Date(dateStr).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -15,13 +19,21 @@ function formatDate(dateStr: string | null): string {
 }
 
 function formatTimestamp(dateStr: string | null): string {
-  if (!dateStr) return '\u2014';
+  if (!dateStr) return '—';
   return new Date(dateStr).toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
   });
+}
+
+function newsletterStatusVariant(status: string): 'active' | 'draft' | 'pending' | 'archived' | null {
+  if (status === 'published' || status === 'active' || status === 'posted') return 'active';
+  if (status === 'draft') return 'draft';
+  if (status === 'pending') return 'pending';
+  if (status === 'archived') return 'archived';
+  return null;
 }
 
 export default function NewsletterPage() {
@@ -114,22 +126,25 @@ export default function NewsletterPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-foreground/50">Loading newsletters...</div>
+      <div className="p-6">
+        <SectionHead eyebrow="§ Admin · Newsletter" h2="Newsletter Manager" align="left" />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-muted">Loading newsletters...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <h1 className="text-2xl font-bold text-foreground">Newsletter</h1>
+    <div className="p-6 max-w-5xl">
+      <SectionHead eyebrow="§ Admin · Newsletter" h2="Newsletter Manager" align="left" />
 
       {/* Current draft editor */}
       {currentDraft ? (
-        <div className="bg-card border border-border rounded-lg p-6 space-y-5">
+        <div className="space-y-5 mb-10">
           <div className="flex flex-wrap items-center gap-3">
-            <StatusBadge status={currentDraft.status} />
-            <span className="text-sm text-foreground/50">
+            <StatusChip variant="draft">{currentDraft.status}</StatusChip>
+            <span className="text-sm text-muted">
               Week of {formatDate(currentDraft.week_start)} &ndash;{' '}
               {formatDate(currentDraft.week_end)}
             </span>
@@ -137,7 +152,7 @@ export default function NewsletterPage() {
 
           {/* Editable title */}
           <div>
-            <label className="block text-xs font-medium text-foreground/60 mb-1">
+            <label className="block text-xs font-mono font-medium text-muted uppercase tracking-[.1em] mb-1">
               Title
             </label>
             <input
@@ -149,32 +164,40 @@ export default function NewsletterPage() {
             />
           </div>
 
-          {/* Mrkdwn editor + preview */}
-          <NewsletterPreview value={editBody} onChange={setEditBody} />
+          {/* Mrkdwn editor + preview wrapped in ClipFrame */}
+          <ClipFrame variant="bone" padding="p-7">
+            <NewsletterPreview value={editBody} onChange={setEditBody} />
+          </ClipFrame>
 
           {/* Action buttons */}
           <div className="flex flex-wrap gap-3 pt-2">
-            <button
+            <ChamferButton
+              variant="ghost"
+              size="md"
+              arrow={false}
               onClick={handleSave}
               disabled={saving || posting}
-              className="px-4 py-2 bg-secondary text-foreground text-sm font-medium rounded-md hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {saving ? 'Saving...' : 'Save Edits'}
-            </button>
-            <button
+            </ChamferButton>
+            <ChamferButton
+              variant="ink"
+              size="md"
+              arrow={false}
               onClick={handleApproveAndPost}
               disabled={saving || posting || !editBody.trim()}
-              className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {posting ? 'Posting...' : 'Approve & Post to Slack'}
-            </button>
+            </ChamferButton>
           </div>
         </div>
       ) : (
-        <div className="bg-card border border-border rounded-lg p-6">
-          <p className="text-foreground/50 text-center">
-            No draft newsletter &mdash; one will be generated by the next cron
-            run.
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <p className="font-display font-bold uppercase text-2xl tracking-wide text-muted text-center">
+            No Draft Newsletter
+          </p>
+          <p className="text-sm text-muted text-center">
+            One will be generated by the next cron run.
           </p>
         </div>
       )}
@@ -182,47 +205,62 @@ export default function NewsletterPage() {
       {/* Past newsletters */}
       {pastNewsletters.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="font-display font-bold uppercase tracking-wide text-lg text-foreground">
             Past Newsletters
           </h2>
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
+          <div className="border border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-left text-foreground/60">
-                    <th className="px-4 py-3 font-medium">Week</th>
-                    <th className="px-4 py-3 font-medium">Title</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Posted</th>
-                    <th className="px-4 py-3 font-medium">Slack TS</th>
+                  <tr className="border-b border-border text-left bg-muted/30">
+                    <th className="px-4 py-3">
+                      <MonoTag>Week</MonoTag>
+                    </th>
+                    <th className="px-4 py-3">
+                      <MonoTag>Title</MonoTag>
+                    </th>
+                    <th className="px-4 py-3">
+                      <MonoTag>Status</MonoTag>
+                    </th>
+                    <th className="px-4 py-3">
+                      <MonoTag>Posted</MonoTag>
+                    </th>
+                    <th className="px-4 py-3">
+                      <MonoTag>Slack TS</MonoTag>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pastNewsletters.map((nl, idx) => (
-                    <tr
-                      key={nl.id}
-                      className={`border-b border-border last:border-b-0 ${
-                        idx % 2 === 1 ? 'bg-muted/40' : ''
-                      }`}
-                    >
-                      <td className="px-4 py-3 text-foreground/70 whitespace-nowrap">
-                        {formatDate(nl.week_start)} &ndash;{' '}
-                        {formatDate(nl.week_end)}
-                      </td>
-                      <td className="px-4 py-3 text-foreground font-medium">
-                        {nl.title ?? 'Untitled'}
-                      </td>
-                      <td className="px-4 py-3">
-                        <StatusBadge status={nl.status} />
-                      </td>
-                      <td className="px-4 py-3 text-foreground/50 whitespace-nowrap">
-                        {formatTimestamp(nl.posted_at)}
-                      </td>
-                      <td className="px-4 py-3 text-foreground/50 font-mono text-xs whitespace-nowrap">
-                        {nl.slack_message_ts ?? '\u2014'}
-                      </td>
-                    </tr>
-                  ))}
+                  {pastNewsletters.map((nl) => {
+                    const chipVariant = newsletterStatusVariant(nl.status);
+                    return (
+                      <tr
+                        key={nl.id}
+                        className="border-b border-border last:border-b-0 transition-colors hover:bg-steel/5 border-l-2 border-l-transparent hover:border-l-steel"
+                      >
+                        <td className="px-4 py-3 text-muted whitespace-nowrap">
+                          {formatDate(nl.week_start)} &ndash;{' '}
+                          {formatDate(nl.week_end)}
+                        </td>
+                        <td className="px-4 py-3 text-foreground font-medium">
+                          {nl.title ?? 'Untitled'}
+                        </td>
+                        <td className="px-4 py-3">
+                          {chipVariant ? (
+                            <StatusChip variant={chipVariant}>{nl.status}</StatusChip>
+                          ) : (
+                            <MonoTag>{nl.status}</MonoTag>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-muted whitespace-nowrap">
+                          {formatTimestamp(nl.posted_at)}
+                        </td>
+                        <td className="px-4 py-3 text-muted font-mono text-xs whitespace-nowrap">
+                          {nl.slack_message_ts ?? '—'}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -231,9 +269,11 @@ export default function NewsletterPage() {
       )}
 
       {pastNewsletters.length === 0 && !currentDraft && (
-        <p className="text-foreground/50 text-center py-8">
-          No newsletters yet.
-        </p>
+        <div className="flex flex-col items-center gap-4 py-16">
+          <p className="font-display font-bold uppercase text-2xl tracking-wide text-muted text-center">
+            No Newsletters Yet
+          </p>
+        </div>
       )}
     </div>
   );

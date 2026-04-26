@@ -15,5 +15,7 @@ export const auth = betterAuth({
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:3002",
+        // Vercel preview deploys for this project (branch aliases + per-commit URLs)
+        "https://f3-marietta-site-*.vercel.app",
     ],
 });

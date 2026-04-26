@@ -153,7 +153,9 @@ export async function GET(request: NextRequest) {
             }
         }
 
-        // Revalidate the backblasts page
+        // Revalidate home + backblasts — reconciliation can insert many
+        // historical rows so both surfaces may have drifted.
+        revalidatePath('/');
         revalidatePath('/backblasts');
 
         console.log(`Reconciliation complete: ${processedCount} processed, ${errorCount} errors`);

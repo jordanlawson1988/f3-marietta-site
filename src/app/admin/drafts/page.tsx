@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { DraftWithEvent } from '@/types/automation';
 import DraftCard from '@/components/ui/DraftCard';
+import { SectionHead } from '@/components/ui/brand/SectionHead';
 
 export default function PendingDraftsPage() {
   const [drafts, setDrafts] = useState<DraftWithEvent[]>([]);
@@ -30,28 +31,36 @@ export default function PendingDraftsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-foreground/50">Loading drafts...</div>
+      <div className="p-6">
+        <SectionHead eyebrow="§ Admin · Drafts" h2="Draft Manager" align="left" />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-muted">Loading drafts...</div>
+        </div>
       </div>
     );
   }
 
   if (drafts.length === 0) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-foreground/50 text-center">
-          No pending drafts &mdash; check back after the next cron run
-        </p>
+      <div className="p-6">
+        <SectionHead eyebrow="§ Admin · Drafts" h2="Draft Manager" align="left" />
+        <div className="flex items-center justify-center py-20">
+          <p className="text-muted text-center">
+            No pending drafts &mdash; check back after the next cron run
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">Pending Drafts</h1>
-      {drafts.map((draft) => (
-        <DraftCard key={draft.id} draft={draft} onUpdate={refreshDrafts} />
-      ))}
+    <div className="p-6">
+      <SectionHead eyebrow="§ Admin · Drafts" h2="Draft Manager" align="left" />
+      <div className="max-w-3xl mx-auto space-y-6">
+        {drafts.map((draft) => (
+          <DraftCard key={draft.id} draft={draft} onUpdate={refreshDrafts} />
+        ))}
+      </div>
     </div>
   );
 }

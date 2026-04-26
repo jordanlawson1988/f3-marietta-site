@@ -5,33 +5,33 @@ test.describe('AMA Widget UI', () => {
         await page.goto('/');
     });
 
-    test('should display the "Need help?" floating button', async ({ page }) => {
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+    test('should display the "AMA" floating button', async ({ page }) => {
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await expect(helpButton).toBeVisible();
     });
 
     test('should open the assistant panel when clicked', async ({ page }) => {
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
 
         // Check that the panel header appears
-        const panelTitle = page.getByRole('heading', { name: 'Need help?' });
+        const panelTitle = page.getByRole('heading', { name: 'F3 Assistant' });
         await expect(panelTitle).toBeVisible();
     });
 
-    test('should display "AI Assistant" subtitle in panel', async ({ page }) => {
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+    test('should display "Ask me anything" subtitle in panel', async ({ page }) => {
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
 
         // Wait for panel animation
         await page.waitForTimeout(300);
 
-        const subtitle = page.getByText('AI Assistant', { exact: true });
+        const subtitle = page.getByText('Ask me anything', { exact: true });
         await expect(subtitle).toBeVisible();
     });
 
     test('should have a search/ask input field', async ({ page }) => {
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
 
         const searchInput = page.getByPlaceholder('Ask a question...');
@@ -39,7 +39,7 @@ test.describe('AMA Widget UI', () => {
     });
 
     test('should display example questions', async ({ page }) => {
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
 
         // Wait for panel animation
@@ -51,7 +51,7 @@ test.describe('AMA Widget UI', () => {
     });
 
     test('should have close button in the panel', async ({ page }) => {
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
 
         const closeButton = page.getByRole('button', { name: 'Close AI Assistant' });
@@ -59,7 +59,7 @@ test.describe('AMA Widget UI', () => {
     });
 
     test('should close the panel when close button is clicked', async ({ page }) => {
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
 
         // Wait for panel to open
@@ -79,23 +79,23 @@ test.describe('AMA Widget UI', () => {
         await expect(helpButton).toBeVisible();
     });
 
-    test('should have disabled Ask button when input is empty', async ({ page }) => {
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+    test('should have disabled Send button when input is empty', async ({ page }) => {
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
 
-        const askButton = page.getByRole('button', { name: 'Ask' });
-        await expect(askButton).toBeDisabled();
+        const sendButton = page.getByRole('button', { name: /Send/i });
+        await expect(sendButton).toBeDisabled();
     });
 
-    test('should enable Ask button when text is entered', async ({ page }) => {
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+    test('should enable Send button when text is entered', async ({ page }) => {
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
 
         const searchInput = page.getByPlaceholder('Ask a question...');
         await searchInput.fill('What is F3?');
 
-        const askButton = page.getByRole('button', { name: 'Ask' });
-        await expect(askButton).not.toBeDisabled();
+        const sendButton = page.getByRole('button', { name: /Send/i });
+        await expect(sendButton).not.toBeDisabled();
     });
 });
 
@@ -104,7 +104,7 @@ test.describe('AMA Widget Knowledge Base Priority', () => {
         await page.goto('/');
 
         // Open the assistant panel
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
     });
 
@@ -112,8 +112,8 @@ test.describe('AMA Widget Knowledge Base Priority', () => {
         const searchInput = page.getByPlaceholder('Ask a question...');
         await searchInput.fill('PAX');
 
-        const askButton = page.getByRole('button', { name: 'Ask' });
-        await askButton.click();
+        const sendButton = page.getByRole('button', { name: /Send/i });
+        await sendButton.click();
 
         // Wait for response (API call may take time)
         const responseText = page.locator('.whitespace-pre-wrap').first();
@@ -127,8 +127,8 @@ test.describe('AMA Widget Knowledge Base Priority', () => {
         const searchInput = page.getByPlaceholder('Ask a question...');
         await searchInput.fill('What is a Q?');
 
-        const askButton = page.getByRole('button', { name: 'Ask' });
-        await askButton.click();
+        const sendButton = page.getByRole('button', { name: /Send/i });
+        await sendButton.click();
 
         // Wait for response
         const responseText = page.locator('.whitespace-pre-wrap').first();
@@ -139,8 +139,8 @@ test.describe('AMA Widget Knowledge Base Priority', () => {
         const searchInput = page.getByPlaceholder('Ask a question...');
         await searchInput.fill('EMOM');
 
-        const askButton = page.getByRole('button', { name: 'Ask' });
-        await askButton.click();
+        const sendButton = page.getByRole('button', { name: /Send/i });
+        await sendButton.click();
 
         // Wait for response
         const responseText = page.locator('.whitespace-pre-wrap').first();
@@ -164,8 +164,8 @@ test.describe('AMA Widget Knowledge Base Priority', () => {
         const searchInput = page.getByPlaceholder('Ask a question...');
         await searchInput.fill('What is quantum entanglement?');
 
-        const askButton = page.getByRole('button', { name: 'Ask' });
-        await askButton.click();
+        const sendButton = page.getByRole('button', { name: /Send/i });
+        await sendButton.click();
 
         // Wait for response (AI fallback may take longer)
         // Either a response appears or an error message
@@ -180,24 +180,24 @@ test.describe('AMA Widget on Mobile', () => {
     test('should display floating button on mobile', async ({ page }) => {
         await page.goto('/');
 
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await expect(helpButton).toBeVisible();
     });
 
     test('should open panel on mobile', async ({ page }) => {
         await page.goto('/');
 
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
 
-        const panelTitle = page.getByRole('heading', { name: 'Need help?' });
+        const panelTitle = page.getByRole('heading', { name: 'F3 Assistant' });
         await expect(panelTitle).toBeVisible();
     });
 
     test('should show close button on mobile when open', async ({ page }) => {
         await page.goto('/');
 
-        const helpButton = page.getByRole('button', { name: 'Open AI Assistant' });
+        const helpButton = page.getByRole('button', { name: 'Open F3 AMA assistant' });
         await helpButton.click();
 
         // The close button should be visible on mobile

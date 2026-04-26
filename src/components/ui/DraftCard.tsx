@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import type { DraftWithEvent } from '@/types/automation';
-import StatusBadge from '@/components/ui/StatusBadge';
+import { StatusChip } from '@/components/ui/brand/StatusChip';
+import { ChamferButton } from '@/components/ui/brand/ChamferButton';
 import CaptionEditor from '@/components/ui/CaptionEditor';
 import ImageUpload from '@/components/ui/ImageUpload';
 
@@ -140,7 +141,17 @@ export default function DraftCard({
             PAX: {f3_event.pax_count}
           </span>
         )}
-        <StatusBadge status={draft.status} />
+        <StatusChip
+          variant={
+            draft.status === 'approved' || draft.status === 'posted'
+              ? 'active'
+              : draft.status === 'edited'
+              ? 'draft'
+              : 'pending'
+          }
+        >
+          {draft.status}
+        </StatusChip>
       </div>
 
       {/* Image Upload */}
@@ -208,27 +219,34 @@ export default function DraftCard({
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 pt-2">
-        <button
+        <ChamferButton
+          variant="ink"
+          size="md"
+          arrow={false}
           onClick={handleApprove}
           disabled={!imageFile || loading !== null}
-          className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading === 'approve' ? 'Approving...' : 'Approve'}
-        </button>
-        <button
+        </ChamferButton>
+        <ChamferButton
+          variant="ink"
+          size="md"
+          arrow={false}
           onClick={handleReject}
           disabled={loading !== null}
-          className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-600/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="!bg-rust !border-rust hover:!bg-ink hover:!border-ink"
         >
           {loading === 'reject' ? 'Rejecting...' : 'Reject'}
-        </button>
-        <button
+        </ChamferButton>
+        <ChamferButton
+          variant="ghost"
+          size="sm"
+          arrow={false}
           onClick={handleRegenerate}
           disabled={loading !== null}
-          className="px-4 py-2 bg-secondary text-foreground text-sm font-medium rounded-md hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading === 'regenerate' ? 'Regenerating...' : 'Regenerate'}
-        </button>
+        </ChamferButton>
       </div>
     </div>
   );

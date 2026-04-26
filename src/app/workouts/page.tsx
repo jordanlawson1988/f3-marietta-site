@@ -1,56 +1,69 @@
-import { Section } from "@/components/ui/Section";
-import { Hero } from "@/components/ui/Hero";
-import { Button } from "@/components/ui/Button";
+import type { Metadata } from "next";
+import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { CTABand } from "@/components/ui/brand/CTABand";
+import { WorkoutsFilter } from "@/components/home/WorkoutsFilter";
+import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
 import { getWorkoutSchedule } from "@/lib/workouts/getWorkoutSchedule";
-import { WorkoutSchedule } from "./WorkoutSchedule";
+import type { WorkoutWithRegion } from "@/types/workout";
 
-export const dynamic = 'force-dynamic';
-
-function getTodayISODay(): number {
-    const day = new Date().getDay(); // 0=Sun … 6=Sat
-    return day === 0 ? 7 : day; // ISO: 1=Mon … 7=Sun
-}
+export const metadata: Metadata = {
+  title: "Workouts",
+  description: "All F3 Marietta AOs and workout times. Rain or shine, free of charge.",
+};
 
 export default async function WorkoutsPage() {
-    const schedule = await getWorkoutSchedule();
-    const todayIndex = getTodayISODay();
+  const schedule = await getWorkoutSchedule();
+  const flat: WorkoutWithRegion[] = [];
+  for (const day of Object.values(schedule)) {
+    for (const region of day.regions) {
+      for (const w of region.workouts) {
+        flat.push({
+          ...w,
+          region_name: region.region.name,
+          region_slug: region.region.slug,
+          region_is_primary: region.region.is_primary,
+        });
+      }
+    }
+  }
 
-    return (
-        <div className="flex flex-col min-h-screen">
-            <Hero
-                title="WORKOUT SCHEDULE"
-                subtitle="Find a workout near you. Just show up."
-                ctaText="New to F3?"
-                ctaLink="/new-here"
-                backgroundImage="/images/workouts-bg.jpg"
-            />
+  return (
+    <>
+      <PageHeader
+        eyebrow="§ Posts of Assembly"
+        title={<>Find Your<br />Beatdown.</>}
+        kicker={<>Beatdowns kick off at 05:30 weekdays. Saturdays start at 06:00. Pick a day. Pick a post. Fall in.</>}
+        meter={{ left: "Marietta Region · F3 Nation", right: `Active AOs · ${flat.length}` }}
+      />
 
-            <Section>
-                <p className="text-muted-foreground text-center max-w-2xl mx-auto mb-8">
-                    All workouts are free, open to all men, and held outdoors rain or shine.
-                    Check the schedule below and join us in the gloom.
-                </p>
-
-                <WorkoutSchedule schedule={schedule} todayIndex={todayIndex} />
-            </Section>
-
-            <section className="mt-8 mb-20">
-                <div className="max-w-2xl mx-auto text-center bg-[#0A1A2F] border border-[#23334A] rounded-xl px-6 py-8">
-                    <h2 className="text-xl font-semibold mb-2 text-white">Not in Marietta? No problem!</h2>
-                    <p className="text-gray-300">
-                        You can find F3 workouts all across the country (and the world). Use the F3 Nation map to search for any region or AO.
-                    </p>
-                    <Button asChild className="mt-4">
-                        <a
-                            href="https://map.f3nation.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            Find F3 Near You
-                        </a>
-                    </Button>
-                </div>
-            </section>
+      <section className="bg-bone py-20">
+        <div className="max-w-[1320px] mx-auto px-5 sm:px-7">
+          <ScrollReveal>
+            <WorkoutsFilter workouts={flat} />
+          </ScrollReveal>
+          <div className="mt-20 border border-line-soft bg-bone-2 p-10 text-center">
+            <div className="font-mono text-[11px] tracking-[.15em] uppercase text-ink-2">// Don&apos;t see your AO?</div>
+            <h3 className="mt-3 font-display font-bold uppercase text-[28px] tracking-[-.01em]">
+              The region is growing.
+            </h3>
+            <p className="mt-3 text-[15px] text-ink-2 max-w-xl mx-auto">
+              Interested in planting an AO in your part of Marietta? Send us a note — we&apos;ll help you stand it up.
+            </p>
+            <div className="mt-5">
+              <a href="/contact" className="inline-block font-display font-bold uppercase tracking-[.1em] text-[14px] text-steel-2">
+                Contact Us →
+              </a>
+            </div>
+          </div>
         </div>
-    );
+      </section>
+
+      <CTABand
+        variant="ink"
+        title={<>First Post.</>}
+        kicker={<>Arrive five minutes early. Tell us your name. Fall in.</>}
+        primary={{ label: "What to Expect", href: "/what-to-expect" }}
+      />
+    </>
+  );
 }

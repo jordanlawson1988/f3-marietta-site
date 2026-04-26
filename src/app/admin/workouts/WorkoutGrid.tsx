@@ -45,14 +45,14 @@ export function WorkoutGrid({
   }
 
   return (
-    <div className="grid grid-cols-7 min-h-[420px] border border-[#23334A] rounded-lg overflow-hidden">
+    <div className="grid grid-cols-7 min-h-[420px] border border-line-soft overflow-hidden">
       {/* Day headers */}
       {DAY_HEADERS.map((name, i) => (
         <div
           key={name}
-          className="px-2 py-2 text-center font-bold text-xs text-[#8899aa] border-b-2 border-[#23334A] bg-[#112240]"
+          className="px-2 py-2 text-center font-mono text-[11px] tracking-[.15em] uppercase text-muted border-b border-line-soft bg-ink-2"
           style={{
-            borderRight: i < 6 ? "1px solid #1a2d45" : undefined,
+            borderRight: i < 6 ? "1px solid var(--line-soft)" : undefined,
           }}
         >
           {name}
@@ -63,13 +63,13 @@ export function WorkoutGrid({
       {[1, 2, 3, 4, 5, 6, 7].map((dayNum) => (
         <div
           key={dayNum}
-          className="flex flex-col gap-1 p-1.5"
+          className="flex flex-col gap-1 p-1.5 bg-ink"
           style={{
-            borderRight: dayNum < 7 ? "1px solid #1a2d45" : undefined,
+            borderRight: dayNum < 7 ? "1px solid var(--line-soft)" : undefined,
           }}
         >
           {byDay[dayNum].length === 0 && (
-            <div className="text-[11px] text-[#4a5e73] text-center py-4">
+            <div className="text-[11px] text-muted text-center py-4">
               No workouts
             </div>
           )}
@@ -85,7 +85,7 @@ export function WorkoutGrid({
           ))}
           <button
             onClick={() => onAddToDay(dayNum)}
-            className="mt-auto border border-dashed border-[#23334A] rounded p-1 text-center text-[#4a5e73] text-[11px] hover:border-[#4A76A8] hover:text-[#4A76A8] transition-colors"
+            className="mt-auto border border-dashed border-bone/20 p-1 text-center text-muted text-[11px] hover:border-steel hover:text-steel transition-colors"
           >
             + Add
           </button>

@@ -1,15 +1,33 @@
 import type { Metadata } from "next";
-import { Inter, Oswald } from "next/font/google";
+import { Inter, Oswald, JetBrains_Mono, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const oswald = Oswald({
   variable: "--font-oswald",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+});
+
+const dmSerif = DM_Serif_Display({
+  variable: "--font-dm-serif",
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["italic"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -48,7 +66,7 @@ export const metadata: Metadata = {
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingAssistant } from "@/components/ui/FloatingAssistant";
-import { ReleaseNotes } from "@/components/ui/ReleaseNotes";
+import { TopBar } from "@/components/layout/TopBar";
 
 export default function RootLayout({
   children,
@@ -58,15 +76,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${oswald.variable} antialiased bg-background text-foreground font-sans flex flex-col min-h-screen`}
+        className={`${inter.variable} ${oswald.variable} ${jetbrainsMono.variable} ${dmSerif.variable} antialiased bg-bone text-ink font-sans flex flex-col min-h-screen`}
       >
+        <TopBar />
         <Navbar />
-        <main className="flex-grow">
-          {children}
-        </main>
+        <main className="flex-grow">{children}</main>
         <Footer />
         <FloatingAssistant />
-        <ReleaseNotes />
       </body>
     </html>
   );

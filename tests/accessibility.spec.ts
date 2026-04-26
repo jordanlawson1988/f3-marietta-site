@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 test.describe('Accessibility - Landmarks', () => {
     test('homepage should have main landmark', async ({ page }) => {
@@ -23,25 +24,10 @@ test.describe('Accessibility - Landmarks', () => {
 test.describe('Accessibility - Images', () => {
     test('logo should have alt text', async ({ page }) => {
         await page.goto('/');
-        const logoImages = page.getByRole('img', { name: /F3 Marietta logo/i });
+        // Redesign uses "F3 Marietta cannon emblem" as logo alt text in Navbar/Hero
+        const logoImages = page.getByRole('img', { name: /F3 Marietta/i });
         const count = await logoImages.count();
         expect(count).toBeGreaterThan(0);
-    });
-
-    test('pillar icons should have alt text', async ({ page }) => {
-        await page.goto('/');
-
-        // Check for alt text on pillar icons
-        const fitnessIcon = page.getByRole('img', { name: /fitness/i });
-        const fellowshipIcon = page.getByRole('img', { name: /fellowship/i });
-        const faithIcon = page.getByRole('img', { name: /faith/i });
-
-        // At least one of these should be present
-        const fitnessCount = await fitnessIcon.count();
-        const fellowshipCount = await fellowshipIcon.count();
-        const faithCount = await faithIcon.count();
-
-        expect(fitnessCount + fellowshipCount + faithCount).toBeGreaterThan(0);
     });
 });
 
@@ -63,8 +49,19 @@ test.describe('Accessibility - Links', () => {
     test('links should have accessible names', async ({ page }) => {
         await page.goto('/');
 
-        // Check that navigation links have visible text
-        const navLinks = page.getByRole('navigation').getByRole('link');
+        // On mobile the nav is behind a hamburger — open it first if needed
+        const desktopNav = page.getByRole('navigation').getByRole('link');
+        const desktopCount = await desktopNav.count();
+        if (desktopCount === 0) {
+            // Mobile: open the hamburger menu to reveal nav links
+            const hamburger = page.getByRole('button', { name: /open menu/i });
+            if (await hamburger.count() > 0) {
+                await hamburger.click();
+            }
+        }
+
+        // Check that navigation links have visible text (desktop nav or opened mobile menu)
+        const navLinks = page.getByRole('link').filter({ hasText: /Home|About|Workouts|Backblasts|New Here|Contact/i });
         const count = await navLinks.count();
 
         // Page should have navigation links
@@ -105,4 +102,37 @@ test.describe('Accessibility - Keyboard Navigation', () => {
         const focusedElement = page.locator(':focus');
         await expect(focusedElement).toBeTruthy();
     });
+});
+
+test.describe('A11y redesign', () => {
+    const pages = [
+        '/',
+        '/about',
+        '/workouts',
+        '/backblasts',
+        '/new-here',
+        '/contact',
+        '/fng',
+        '/glossary',
+        '/community',
+        '/what-to-expect',
+    ];
+
+    for (const path of pages) {
+        test(`${path} has no critical accessibility violations`, async ({ page }) => {
+            await page.goto(path);
+            // Wait for page to stabilize (scroll-reveal animations, etc.)
+            await page.waitForLoadState('networkidle');
+            const results = await new AxeBuilder({ page })
+                .withTags(['wcag2a', 'wcag2aa'])
+                .analyze();
+            const critical = results.violations.filter(
+                (v) => v.impact === 'critical' || v.impact === 'serious',
+            );
+            expect(
+                critical,
+                critical.map((v) => `${v.id}: ${v.help}\n  ${v.nodes.map(n => n.html).join('\n  ')}`).join('\n\n'),
+            ).toHaveLength(0);
+        });
+    }
 });
