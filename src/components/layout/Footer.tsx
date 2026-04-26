@@ -62,10 +62,6 @@ export function Footer() {
               </div>
               <span className="font-display font-bold uppercase tracking-[.06em] text-[26px]">F3 Marietta</span>
             </div>
-            <p className="text-[14px] text-bone/60 max-w-[280px] leading-[1.6]">
-              Free, peer-led workouts for men in Marietta, GA. Rain or shine, heat or cold — we muster at 05:30.
-            </p>
-
             <div className="mt-6">
               <MonoTag variant="bone" className="block mb-3">{`// Follow the Region`}</MonoTag>
               <ul className="flex items-center gap-3">
@@ -76,7 +72,7 @@ export function Footer() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`F3 Marietta on ${label}`}
-                      className="inline-flex h-10 w-10 items-center justify-center border border-bone/25 text-bone hover:text-ink hover:bg-bone transition-colors"
+                      className="inline-flex h-11 w-11 items-center justify-center border border-bone/25 text-bone hover:text-ink hover:bg-bone transition-colors"
                     >
                       <Icon className="h-[18px] w-[18px]" />
                     </a>
