@@ -180,7 +180,12 @@ function RegionGroup({ heading, sublabel, tone, workouts, codePrefix }: RegionGr
         </p>
       </header>
 
-      <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))" }}>
+      {/* minmax min must stay BELOW the smallest realistic grid container
+          width — section padding + region group rules eat into the viewport.
+          On a 320px-class phone (iPhone SE) the available grid is ~260px;
+          using a 260px floor keeps cards from overflowing horizontally
+          (body has overflow-x:hidden, so overflow == invisible content). */}
+      <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
         {workouts.map((w, i) => (
           <AOCard
             key={w.id}

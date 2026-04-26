@@ -32,12 +32,12 @@ export default async function WorkoutsPage() {
       <PageHeader
         eyebrow="§ Posts of Assembly"
         title={<>Find Your<br />Beatdown.</>}
-        kicker={<>Beatdowns at 05:30 weekdays, 07:00 Saturdays. Pick a day. Pick a post. Fall in.</>}
+        kicker={<>Beatdowns kick off at 05:30 weekdays. Saturdays start at 06:00. Pick a day. Pick a post. Fall in.</>}
         meter={{ left: "Marietta Region · F3 Nation", right: `Active AOs · ${flat.length}` }}
       />
 
       <section className="bg-bone py-20">
-        <div className="max-w-[1320px] mx-auto px-7">
+        <div className="max-w-[1320px] mx-auto px-5 sm:px-7">
           <ScrollReveal>
             <WorkoutsFilter workouts={flat} />
           </ScrollReveal>
