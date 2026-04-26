@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AssistantWidget } from "@/components/ui/AssistantWidget";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,18 @@ import { cn } from "@/lib/utils";
 export function FloatingAssistant() {
     const [isOpen, setIsOpen] = useState(false);
     const [sessionKey, setSessionKey] = useState(0);
+    const [hideForMenu, setHideForMenu] = useState(false);
+
+    // Hide the floating button while the mobile nav menu is open. Navbar
+    // sets `body[data-menu-open="true"]`; we observe that so the AMA
+    // doesn't bleed through behind the fullscreen overlay on phones.
+    useEffect(() => {
+        const sync = () => setHideForMenu(document.body.dataset.menuOpen === "true");
+        sync();
+        const observer = new MutationObserver(sync);
+        observer.observe(document.body, { attributes: true, attributeFilter: ["data-menu-open"] });
+        return () => observer.disconnect();
+    }, []);
 
     const handleClose = () => {
         setIsOpen(false);
@@ -32,13 +44,21 @@ export function FloatingAssistant() {
                 />
             )}
 
-            {/* Main Container - higher z-index to ensure it's above everything */}
+            {/* Main Container - high z-index to sit above page content but
+                BELOW the mobile nav overlay (z-10000). Hidden entirely while
+                the nav overlay is open so the floating button doesn't peek
+                through. */}
             <div
-                className="fixed z-[9999] flex flex-col items-end pointer-events-none"
+                className={cn(
+                    "fixed z-[9999] flex flex-col items-end pointer-events-none transition-opacity duration-150",
+                    hideForMenu && "opacity-0 pointer-events-none"
+                )}
+                aria-hidden={hideForMenu || undefined}
                 style={{
                     bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)",
                     right: "16px",
                     left: "auto",
+                    visibility: hideForMenu ? "hidden" : undefined,
                 }}
             >
                 {/* Chat Panel */}
