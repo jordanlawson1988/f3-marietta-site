@@ -33,7 +33,10 @@ export function parseResponse(raw: string): BeatdownDraft {
 }
 
 function stripCodeFences(s: string): string {
-  return s.replace(/^```(?:json)?\s*/i, '').replace(/```$/, '').trim();
+  return s
+    .replace(/^```(?:json)?\n?/im, '')
+    .replace(/\n?```\s*$/m, '')
+    .trim();
 }
 
 function repairTrailingCommas(s: string): string {

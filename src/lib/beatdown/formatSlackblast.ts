@@ -1,4 +1,5 @@
-import type { BeatdownDraft, BeatdownInputs } from '@/types/beatdown';
+import type { BeatdownDraft, BeatdownInputs, BeatdownTheme } from '@/types/beatdown';
+import { THEME_OPTIONS } from '@/types/beatdown';
 
 export function formatSlackblast(draft: BeatdownDraft, inputs: BeatdownInputs): string {
   const { title, sections } = draft;
@@ -39,6 +40,6 @@ function labelEquipment(eq: string[]): string {
   return eq.map(e => e[0].toUpperCase() + e.slice(1)).join(', ');
 }
 
-function labelTheme(theme: string): string {
-  return theme.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+function labelTheme(theme: NonNullable<BeatdownTheme>): string {
+  return THEME_OPTIONS.find(o => o.value === theme)?.label ?? theme;
 }

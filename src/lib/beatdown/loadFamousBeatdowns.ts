@@ -27,7 +27,10 @@ export function loadFamousBeatdowns(): FamousBeatdown[] {
   for (const file of files) {
     const raw = fs.readFileSync(path.join(DIR, file), 'utf8');
     const { data, content } = matter(raw);
-    if (!data.slug || !data.title) continue;
+    if (!data.slug || !data.title) {
+      console.warn(`[loadFamousBeatdowns] Skipping ${file}: missing slug or title in frontmatter`);
+      continue;
+    }
     entries.push({
       slug: String(data.slug),
       title: String(data.title),
