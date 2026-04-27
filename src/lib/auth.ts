@@ -11,15 +11,15 @@ export const auth = betterAuth({
         updateAge: 60 * 60 * 24, // refresh daily
     },
     trustedOrigins: [
+        // Production domains — listed first; Better Auth iterates this array per request
+        "https://f3marietta.com",
+        "https://www.f3marietta.com",
+        // Vercel preview deploys for this project (branch aliases + per-commit URLs)
+        "https://f3-marietta-site-*.vercel.app",
         process.env.BETTER_AUTH_URL || "http://localhost:3000",
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:3002",
         "http://localhost:3003",
-        // Production domains
-        "https://f3marietta.com",
-        "https://www.f3marietta.com",
-        // Vercel preview deploys for this project (branch aliases + per-commit URLs)
-        "https://f3-marietta-site-*.vercel.app",
     ],
 });
