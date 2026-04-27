@@ -1,6 +1,6 @@
 # Feature Status — F3 Marietta
 
-> Living tracker of feature progress and completeness. Last updated: 2026-03-22
+> Living tracker of feature progress and completeness. Last updated: 2026-04-27
 
 ## Feature Summary
 
@@ -23,6 +23,9 @@
 | Newsletter Automation | Complete | AI-generated weekly newsletters, Slack publishing |
 | Slack Integration | Complete | Event ingestion, user sync, daily reconciliation |
 | Authentication (Better Auth) | Complete | Email/password, session management, middleware cookie check |
+| AI Beatdown Builder | In Design (2026-04-27) | Q tool: generates customizable workouts using AO context, past backblasts, famous F3 beatdowns, and the Exicon. Mobile + desktop friendly, printable. Replaces Q reliance on generic ChatGPT/Claude. |
+| Backblasts Newsfeed | Planned | Prominent scrolling/auto-rotating feed of recent backblasts on the homepage (or dedicated band) so the latest activity is the first thing visitors see. |
+| Upcoming Events | Planned | Dynamic display of CSAUPs, 2nd-F opportunities, convergence workouts, etc. — admin-managed event entries surfaced on homepage and a dedicated `/events` page. |
 
 ## Route Inventory
 
@@ -103,3 +106,10 @@
 - PAX leaderboard from backblast data
 - Preblast notifications
 - Multi-region support (out of scope per planning agent)
+
+## Roadmap (2026-04-27)
+
+In priority order:
+1. **AI Beatdown Builder** — In Design now (this session)
+2. **Backblasts Newsfeed** — Planned
+3. **Upcoming Events** — Planned
