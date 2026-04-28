@@ -41,8 +41,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'invalid_json' }, { status: 400 });
   }
 
-  const inputs = await validateInputs(body);
-  if ('error' in inputs) return NextResponse.json(inputs, { status: 400 });
+  const inputs = await validateInputs(body, requestId);
+  if ('error' in inputs) {
+    if (inputs.error === 'lookup_failed') {
+      return NextResponse.json(
+        { error: 'lookup_failed', message: 'Beatdown Builder is temporarily unavailable.' },
+        { status: 503 }
+      );
+    }
+    console.warn(`[beatdown:${requestId}] validation`, inputs.error, inputs.field);
+    return NextResponse.json(inputs, { status: 400 });
+  }
+
+  console.log(`[beatdown:${requestId}] start ao=${inputs.ao_id} focus=${inputs.focus}`);
 
   if (!process.env.GOOGLE_AI_API_KEY) {
     console.error(`[beatdown:${requestId}] GOOGLE_AI_API_KEY missing`);
@@ -83,6 +94,7 @@ export async function POST(request: NextRequest) {
     const draft = parseResponse(text);
     const generation_ms = Date.now() - t0;
 
+    console.log(`[beatdown:${requestId}] ok ${generation_ms}ms`);
     return NextResponse.json({
       title: draft.title,
       sections: draft.sections,
@@ -99,20 +111,28 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function validateInputs(raw: unknown): Promise<BeatdownInputs | { error: string; field?: string }> {
+async function validateInputs(raw: unknown, requestId: string): Promise<BeatdownInputs | { error: string; field?: string }> {
   if (!raw || typeof raw !== 'object') return { error: 'bad_request' };
   const r = raw as Record<string, unknown>;
 
   const ao_id = typeof r.ao_id === 'string' ? r.ao_id : '';
   if (!ao_id) return { error: 'missing_ao_id', field: 'ao_id' };
 
-  const sql = getSql();
-  const aoRows = await sql`SELECT id, ao_display_name FROM ao_channels WHERE id = ${ao_id} AND is_enabled = true LIMIT 1` as { id: string; ao_display_name: string }[];
+  let aoRows: { id: string; ao_display_name: string }[];
+  try {
+    const sql = getSql();
+    aoRows = await sql`SELECT id, ao_display_name FROM ao_channels WHERE id = ${ao_id} AND is_enabled = true LIMIT 1` as { id: string; ao_display_name: string }[];
+  } catch (err) {
+    console.error(`[beatdown:${requestId}] db lookup failed`, err);
+    return { error: 'lookup_failed', field: 'ao_id' };
+  }
   if (aoRows.length === 0) return { error: 'invalid_ao', field: 'ao_id' };
   const ao_display_name = aoRows[0].ao_display_name;
 
+  if (typeof r.focus !== 'string' || !VALID_FOCUS.includes(r.focus as BeatdownFocus)) {
+    return { error: 'invalid_focus', field: 'focus' };
+  }
   const focus = r.focus as BeatdownFocus;
-  if (!VALID_FOCUS.includes(focus)) return { error: 'invalid_focus', field: 'focus' };
 
   let theme: BeatdownTheme = null;
   if (typeof r.theme === 'string' && r.theme.length > 0) {
