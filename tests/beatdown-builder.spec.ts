@@ -9,6 +9,30 @@ test.describe('AI Beatdown Builder', () => {
     await expect(page.getByRole('button', { name: /generate beatdown/i })).toBeVisible();
   });
 
+  test('picker selections stick when clicked', async ({ page }) => {
+    await page.goto('/beatdown-builder');
+
+    await page.getByRole('button', { name: 'Legs' }).click();
+    await expect(page.getByRole('button', { name: 'Legs' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: 'Full Body' })).toHaveAttribute('aria-pressed', 'false');
+
+    await page.getByRole('button', { name: 'Q-school' }).click();
+    await expect(page.getByRole('button', { name: 'Q-school' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: '—' })).toHaveAttribute('aria-pressed', 'false');
+
+    await page.getByRole('button', { name: 'Coupon' }).click();
+    await expect(page.getByRole('button', { name: 'Coupon' })).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Bodyweight' }).click();
+    await expect(page.getByRole('button', { name: 'Bodyweight' })).toHaveAttribute('aria-pressed', 'false');
+
+    const famousSelect = page.getByLabel('Inspired by (optional)');
+    await famousSelect.selectOption('dora-1-2-3');
+    await expect(famousSelect).toHaveValue('dora-1-2-3');
+
+    await page.getByLabel(/Q's Notes/).fill('Keep the six together.');
+    await expect(page.getByLabel(/Q's Notes/)).toHaveValue('Keep the six together.');
+  });
+
   test('renders generated beatdown when API returns a draft', async ({ page }) => {
     await page.route('**/api/beatdown/generate', route => route.fulfill({
       status: 200,

@@ -63,7 +63,7 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
   return (
     <form
       onSubmit={submit}
-      className="space-y-6 rounded-lg border border-border bg-card p-4 md:p-6"
+      className="space-y-6 rounded-lg border border-[var(--line)] bg-[var(--bone-2)] p-4 shadow-sm md:p-6"
     >
       <div>
         <label htmlFor="beatdown-ao" className="block text-sm font-medium mb-2">
@@ -74,7 +74,7 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
           required
           value={aoId}
           onChange={(e) => setAoId(e.target.value)}
-          className="w-full rounded-md border border-border bg-card px-3 py-2 text-base text-foreground"
+          className={fieldClass}
         >
           {aos.map((ao) => (
             <option key={ao.id} value={ao.id}>
@@ -93,7 +93,7 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
 
       <div>
         <label className="block text-sm font-medium mb-2">Theme / Occasion</label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" aria-label="Theme / Occasion">
           <Chip selected={theme === null} onClick={() => setTheme(null)} label="—" />
           {THEME_OPTIONS.map((o) => (
             <Chip
@@ -108,7 +108,7 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
 
       <div>
         <label className="block text-sm font-medium mb-2">Equipment (multi)</label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" aria-label="Equipment">
           {EQUIPMENT_OPTIONS.map((o) => (
             <Chip
               key={o.value}
@@ -128,7 +128,7 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
           id="beatdown-famous"
           value={famousBd}
           onChange={(e) => setFamousBd(e.target.value)}
-          className="w-full rounded-md border border-border bg-card px-3 py-2 text-base text-foreground"
+          className={fieldClass}
         >
           <option value="">— pick a famous BD or leave blank —</option>
           <optgroup label="Famous F3 BDs">
@@ -163,17 +163,24 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
           placeholder='e.g., "Honoring fallen brother today", "celebrating Hammer&apos;s 100th post"'
           maxLength={200}
           rows={2}
-          className="w-full rounded-md border border-border bg-card px-3 py-2 text-base text-foreground"
+          className={fieldClass}
         />
-        <div className="text-xs text-muted-foreground mt-1">{qNotes.length}/200</div>
+        <div className="mt-1 text-xs text-[var(--muted)]">{qNotes.length}/200</div>
       </div>
 
-      <Button type="submit" disabled={disabled || !aoId} className="w-full">
+      <Button
+        type="submit"
+        disabled={disabled || !aoId}
+        className="w-full bg-[var(--ink)] text-[var(--bone)] hover:bg-[var(--steel-2)]"
+      >
         {disabled ? 'Generating…' : 'Generate Beatdown'}
       </Button>
     </form>
   );
 }
+
+const fieldClass =
+  'w-full rounded-md border border-[var(--line)] bg-[var(--bone)] px-3 py-2 text-base text-[var(--ink)] shadow-sm focus:border-[var(--steel)] focus:outline-none focus:ring-2 focus:ring-[rgba(47,110,137,0.25)]';
 
 function ChipGroup<T extends string>({
   label,
@@ -187,9 +194,9 @@ function ChipGroup<T extends string>({
   onChange: (v: T) => void;
 }) {
   return (
-    <div>
-      <label className="block text-sm font-medium mb-2">{label}</label>
-      <div className="flex flex-wrap gap-2">
+    <fieldset>
+      <legend className="block text-sm font-medium mb-2">{label}</legend>
+      <div className="flex flex-wrap gap-2" role="group" aria-label={label}>
         {options.map((o) => (
           <Chip
             key={o.value}
@@ -199,7 +206,7 @@ function ChipGroup<T extends string>({
           />
         ))}
       </div>
-    </div>
+    </fieldset>
   );
 }
 
@@ -215,12 +222,14 @@ function Chip({
   return (
     <button
       type="button"
+      aria-pressed={selected}
+      data-selected={selected ? 'true' : 'false'}
       onClick={onClick}
       className={
-        'px-3 py-1.5 rounded-full text-sm border transition-colors ' +
+        'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--steel)] ' +
         (selected
-          ? 'bg-primary text-primary-foreground border-primary'
-          : 'bg-card border-border text-foreground hover:bg-muted')
+          ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--bone)] shadow-sm'
+          : 'border-[var(--line)] bg-[var(--bone)] text-[var(--ink)] hover:border-[var(--steel)] hover:bg-[var(--bone-3)]')
       }
     >
       {label}
