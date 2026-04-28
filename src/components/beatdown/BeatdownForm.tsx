@@ -66,8 +66,11 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
       className="space-y-6 rounded-lg border border-border bg-card p-4 md:p-6"
     >
       <div>
-        <label className="block text-sm font-medium mb-2">AO</label>
+        <label htmlFor="beatdown-ao" className="block text-sm font-medium mb-2">
+          AO
+        </label>
         <select
+          id="beatdown-ao"
           required
           value={aoId}
           onChange={(e) => setAoId(e.target.value)}
@@ -118,8 +121,11 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">Inspired by (optional)</label>
+        <label htmlFor="beatdown-famous" className="block text-sm font-medium mb-2">
+          Inspired by (optional)
+        </label>
         <select
+          id="beatdown-famous"
           value={famousBd}
           onChange={(e) => setFamousBd(e.target.value)}
           className="w-full rounded-md border border-border bg-card px-3 py-2 text-base text-foreground"
@@ -147,10 +153,11 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">
+        <label htmlFor="beatdown-q-notes" className="block text-sm font-medium mb-2">
           Q&apos;s Notes (optional, max 200 chars)
         </label>
         <textarea
+          id="beatdown-q-notes"
           value={qNotes}
           onChange={(e) => setQNotes(e.target.value.slice(0, 200))}
           placeholder='e.g., "Honoring fallen brother today", "celebrating Hammer&apos;s 100th post"'
