@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
 import { randomUUID } from 'crypto';
 import { getSql } from '@/lib/db';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
@@ -7,25 +6,15 @@ import { buildBeatdownContext, loadStaticContext } from '@/lib/beatdown/buildCon
 import { BEATDOWN_SYSTEM_INSTRUCTION } from '@/lib/beatdown/prompts/system';
 import { buildUserPrompt } from '@/lib/beatdown/prompts/user';
 import { parseResponse } from '@/lib/beatdown/parseResponse';
+import { getGemini, GEMINI_MODEL } from '@/lib/ai/gemini';
 import type { BeatdownInputs, BeatdownEquipment, BeatdownFocus, BeatdownTheme } from '@/types/beatdown';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const MODEL = 'gemini-2.5-flash';
 const VALID_FOCUS: BeatdownFocus[] = ['full', 'legs', 'core', 'upper', 'cardio'];
 const VALID_EQUIPMENT: BeatdownEquipment[] = ['bodyweight', 'coupon', 'sandbag', 'kettlebell', 'sled'];
 const VALID_THEME = ['fng-friendly', 'holiday', 'q-school', 'birthday-q', 'ruck', 'honor'] as const;
-
-let _gemini: GoogleGenAI | null = null;
-function getGemini(): GoogleGenAI {
-  if (!_gemini) {
-    const apiKey = process.env.GOOGLE_AI_API_KEY;
-    if (!apiKey) throw new Error('GOOGLE_AI_API_KEY is not set');
-    _gemini = new GoogleGenAI({ apiKey });
-  }
-  return _gemini;
-}
 
 export async function POST(request: NextRequest) {
   const requestId = randomUUID().slice(0, 8);
@@ -78,7 +67,7 @@ export async function POST(request: NextRequest) {
   try {
     const gemini = getGemini();
     const resp = await gemini.models.generateContent({
-      model: MODEL,
+      model: GEMINI_MODEL,
       contents: userPrompt,
       config: {
         systemInstruction: BEATDOWN_SYSTEM_INSTRUCTION,
@@ -99,7 +88,7 @@ export async function POST(request: NextRequest) {
       title: draft.title,
       sections: draft.sections,
       generation_ms,
-      model: MODEL,
+      model: GEMINI_MODEL,
       knowledge_version: ctx.knowledgeVersion,
     });
   } catch (err) {

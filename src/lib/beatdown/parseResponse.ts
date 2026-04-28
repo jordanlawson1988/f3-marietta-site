@@ -32,7 +32,7 @@ export function parseResponse(raw: string): BeatdownDraft {
   return { title: obj.title, sections: sections as unknown as BeatdownSections };
 }
 
-function stripCodeFences(s: string): string {
+export function stripCodeFences(s: string): string {
   return s
     .replace(/^```(?:json)?\n?/im, '')
     .replace(/\n?```\s*$/m, '')
