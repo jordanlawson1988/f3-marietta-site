@@ -3,6 +3,7 @@ import { ThreeFsSection } from "@/components/home/ThreeFsSection";
 import { CreedPrinciplesSection } from "@/components/home/CreedPrinciplesSection";
 import { WorkoutsPreviewSection } from "@/components/home/WorkoutsPreviewSection";
 import { BackblastsPreviewSection } from "@/components/home/BackblastsPreviewSection";
+import { BeatdownCTASection } from "@/components/home/BeatdownCTASection";
 import { ImpactSection } from "@/components/home/ImpactSection";
 import { JoinCTASection } from "@/components/home/JoinCTASection";
 import { MarqueeRibbon } from "@/components/layout/MarqueeRibbon";
@@ -28,6 +29,7 @@ export default async function Home() {
       <MarqueeRibbon />
       <WorkoutsPreviewSection />
       <BackblastsPreviewSection />
+      <BeatdownCTASection />
       <ImpactSection />
       <JoinCTASection />
     </>
