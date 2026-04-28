@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import BeatdownForm from '@/components/beatdown/BeatdownForm';
-// TODO(Task 15): un-comment BeatdownDisplay
-// import BeatdownDisplay from '@/components/beatdown/BeatdownDisplay';
+import BeatdownDisplay from '@/components/beatdown/BeatdownDisplay';
 import BeatdownLoader from '@/components/beatdown/BeatdownLoader';
 import type { BeatdownDraft, BeatdownInputs } from '@/types/beatdown';
 
@@ -80,29 +79,15 @@ export default function BeatdownBuilderClient({ aos, famousBeatdowns }: Props) {
       )}
 
       {!loading && draft && inputs && (
-        <div className="mt-6 rounded-md border border-border bg-card p-4 text-sm text-muted-foreground">
-          Beatdown ready: <span className="text-foreground font-medium">{draft.title}</span> for{' '}
-          <span className="text-foreground">{inputs.ao_display_name}</span>
-          {model ? <> · model {model}</> : null}
-          {generationMs ? <> · {generationMs}ms</> : null}
-          {knowledgeVersion !== null ? <> · kb v{knowledgeVersion}</> : null}
-          <div className="mt-1">Task 15 will render the full draft, swap UI, and share actions here.</div>
-        </div>
+        <BeatdownDisplay
+          inputs={inputs}
+          draft={draft}
+          setDraft={setDraft}
+          generationMs={generationMs}
+          model={model}
+          knowledgeVersion={knowledgeVersion}
+        />
       )}
-
-      {/*
-        TODO(Task 15): un-comment BeatdownDisplay
-        {!loading && draft && inputs && (
-          <BeatdownDisplay
-            inputs={inputs}
-            draft={draft}
-            setDraft={setDraft}
-            generationMs={generationMs}
-            model={model}
-            knowledgeVersion={knowledgeVersion}
-          />
-        )}
-      */}
     </main>
   );
 }
