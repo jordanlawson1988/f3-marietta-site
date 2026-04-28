@@ -1,8 +1,7 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { getSql } from '@/lib/db';
+import { getGemini, GEMINI_MODEL } from '@/lib/ai/gemini';
 import { KNOWLEDGE_SYSTEM_INSTRUCTION, buildKnowledgeUserPrompt } from '@/lib/beatdown/prompts/marietta-knowledge';
 
-const KNOWLEDGE_MODEL = 'claude-sonnet-4-20250514';
 const MAX_TOKENS = 4000;
 
 export interface BuildKnowledgeResult {
@@ -11,16 +10,6 @@ export interface BuildKnowledgeResult {
   knowledge_id?: number;
   source_event_count?: number;
   generation_ms?: number;
-}
-
-let _anthropic: Anthropic | null = null;
-function getAnthropic(): Anthropic {
-  if (!_anthropic) {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set');
-    _anthropic = new Anthropic({ apiKey });
-  }
-  return _anthropic;
 }
 
 export async function buildBeatdownKnowledge(opts: { force?: boolean } = {}): Promise<BuildKnowledgeResult> {
@@ -62,19 +51,23 @@ export async function buildBeatdownKnowledge(opts: { force?: boolean } = {}): Pr
 
   let parsed: { content: string; per_ao_summary: Record<string, unknown> };
   try {
-    const anthropic = getAnthropic();
-    const resp = await anthropic.messages.create({
-      model: KNOWLEDGE_MODEL,
-      max_tokens: MAX_TOKENS,
-      system: KNOWLEDGE_SYSTEM_INSTRUCTION,
-      messages: [{ role: 'user', content: userPrompt }],
+    const gemini = getGemini();
+    const resp = await gemini.models.generateContent({
+      model: GEMINI_MODEL,
+      contents: userPrompt,
+      config: {
+        systemInstruction: KNOWLEDGE_SYSTEM_INSTRUCTION,
+        thinkingConfig: { thinkingBudget: 0 },
+        maxOutputTokens: MAX_TOKENS,
+        temperature: 0.3,
+        responseMimeType: 'application/json',
+      },
     });
-    const block = resp.content.find(c => c.type === 'text');
-    if (!block || block.type !== 'text') throw new Error('No text block in Claude response');
-    const text = block.text.trim().replace(/^```(?:json)?\s*/i, '').replace(/```$/, '').trim();
+    const text = (resp.text || '').trim();
+    if (!text) throw new Error('Empty response from Gemini');
     parsed = JSON.parse(text);
   } catch (err) {
-    console.error('[buildKnowledge] Claude call failed', err);
+    console.error('[buildKnowledge] Gemini call failed', err);
     return { status: 'failed', reason: (err as Error).message };
   }
 
@@ -82,7 +75,7 @@ export async function buildBeatdownKnowledge(opts: { force?: boolean } = {}): Pr
 
   const inserted = await sql`
     INSERT INTO marietta_bd_knowledge (source_event_count, content, per_ao_summary, generation_model, generation_ms)
-    VALUES (${events.length}, ${parsed.content}, ${JSON.stringify(parsed.per_ao_summary || {})}, ${KNOWLEDGE_MODEL}, ${generation_ms})
+    VALUES (${events.length}, ${parsed.content}, ${JSON.stringify(parsed.per_ao_summary || {})}, ${GEMINI_MODEL}, ${generation_ms})
     RETURNING id
   ` as { id: number }[];
 
