@@ -160,6 +160,17 @@ export async function GET(request: NextRequest) {
 
         console.log(`Reconciliation complete: ${processedCount} processed, ${errorCount} errors`);
 
+        // AI Beatdown Builder: rebuild knowledge if reconcile produced new backblasts.
+        if (process.env.SKIP_BD_KNOWLEDGE !== '1') {
+          try {
+            const { buildBeatdownKnowledge } = await import('@/lib/beatdown/buildKnowledge');
+            const knowledgeResult = await buildBeatdownKnowledge();
+            console.log('[reconcile] bd-knowledge', knowledgeResult);
+          } catch (knowledgeErr) {
+            console.error('[reconcile] bd-knowledge build failed (non-fatal)', knowledgeErr);
+          }
+        }
+
         return NextResponse.json({
             ok: true,
             processed: processedCount,
