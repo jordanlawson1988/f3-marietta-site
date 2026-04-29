@@ -27,7 +27,7 @@ export default function SavedBeatdownClient({ row }: { row: Row }) {
       <section className="space-y-4 beatdown-card">
         <header className="rounded-md border border-border p-4 bg-card">
           <div className="text-[10px] uppercase tracking-widest text-primary">
-            F3 Marietta · {row.inputs.ao_display_name} · {row.sections.header.length_min} min
+            F3 Marietta{row.inputs.ao_display_name ? ` · ${row.inputs.ao_display_name}` : ''} · {row.sections.header.length_min} min
           </div>
           <h1 className="mt-1 text-2xl md:text-3xl font-bold">{row.title}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{row.sections.header.summary}</p>

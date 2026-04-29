@@ -6,6 +6,10 @@ import {
   FOCUS_OPTIONS,
   THEME_OPTIONS,
   EQUIPMENT_OPTIONS,
+  LENGTH_PRESETS,
+  DEFAULT_LENGTH_MIN,
+  MIN_LENGTH_MIN,
+  MAX_LENGTH_MIN,
   type BeatdownInputs,
   type BeatdownEquipment,
   type BeatdownFocus,
@@ -30,13 +34,17 @@ interface Props {
   onSubmit: (inputs: BeatdownInputs) => void;
 }
 
+const Q_NOTES_MAX_LENGTH = 1000;
+
 export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit }: Props) {
-  const [aoId, setAoId] = useState<string>(aos[0]?.id || '');
+  const [aoId, setAoId] = useState<string>('');
   const [focus, setFocus] = useState<BeatdownFocus>('full');
   const [theme, setTheme] = useState<BeatdownTheme>(null);
   const [equipment, setEquipment] = useState<BeatdownEquipment[]>(['bodyweight']);
   const [famousBd, setFamousBd] = useState<string>('');
   const [qNotes, setQNotes] = useState<string>('');
+  const [lengthChoice, setLengthChoice] = useState<number | 'custom'>(DEFAULT_LENGTH_MIN);
+  const [customLength, setCustomLength] = useState<string>(String(DEFAULT_LENGTH_MIN));
 
   function toggleEquip(value: BeatdownEquipment) {
     setEquipment((prev) =>
@@ -44,19 +52,27 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
     );
   }
 
+  function resolveLength(): number {
+    if (lengthChoice === 'custom') {
+      const n = parseInt(customLength, 10);
+      if (!Number.isFinite(n)) return DEFAULT_LENGTH_MIN;
+      return Math.min(MAX_LENGTH_MIN, Math.max(MIN_LENGTH_MIN, n));
+    }
+    return lengthChoice;
+  }
+
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!aoId) return;
-    const ao = aos.find((a) => a.id === aoId);
-    if (!ao) return;
+    const ao = aoId ? aos.find((a) => a.id === aoId) : null;
     onSubmit({
-      ao_id: aoId,
-      ao_display_name: ao.ao_display_name,
+      ao_id: ao ? ao.id : null,
+      ao_display_name: ao ? ao.ao_display_name : null,
       focus,
       theme,
       equipment: equipment.length > 0 ? equipment : ['bodyweight'],
       famous_bd: famousBd || null,
-      q_notes: qNotes.trim().slice(0, 200),
+      q_notes: qNotes.trim().slice(0, Q_NOTES_MAX_LENGTH),
+      length_min: resolveLength(),
     });
   }
 
@@ -67,21 +83,59 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
     >
       <div>
         <label htmlFor="beatdown-ao" className="block text-sm font-medium mb-2">
-          AO
+          AO <span className="text-[var(--muted)] font-normal">(optional)</span>
         </label>
         <select
           id="beatdown-ao"
-          required
           value={aoId}
           onChange={(e) => setAoId(e.target.value)}
           className={fieldClass}
         >
+          <option value="">— No specific AO —</option>
           {aos.map((ao) => (
             <option key={ao.id} value={ao.id}>
               {ao.ao_display_name}
             </option>
           ))}
         </select>
+        <p className="mt-1 text-xs text-[var(--muted)]">
+          Pick an AO to ground the beatdown in its terrain and recent history. Leave blank for a CSAUP or generic build.
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2">Length</label>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Length">
+          {LENGTH_PRESETS.map((mins) => (
+            <Chip
+              key={mins}
+              selected={lengthChoice === mins}
+              onClick={() => setLengthChoice(mins)}
+              label={`${mins} min`}
+            />
+          ))}
+          <Chip
+            selected={lengthChoice === 'custom'}
+            onClick={() => setLengthChoice('custom')}
+            label="Custom"
+          />
+        </div>
+        {lengthChoice === 'custom' && (
+          <div className="mt-2 flex items-center gap-2">
+            <input
+              id="beatdown-custom-length"
+              type="number"
+              inputMode="numeric"
+              min={MIN_LENGTH_MIN}
+              max={MAX_LENGTH_MIN}
+              value={customLength}
+              onChange={(e) => setCustomLength(e.target.value)}
+              className={`${fieldClass} w-32`}
+              aria-label="Custom length in minutes"
+            />
+            <span className="text-sm text-[var(--muted)]">minutes ({MIN_LENGTH_MIN}–{MAX_LENGTH_MIN})</span>
+          </div>
+        )}
       </div>
 
       <ChipGroup
@@ -154,23 +208,23 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
 
       <div>
         <label htmlFor="beatdown-q-notes" className="block text-sm font-medium mb-2">
-          Q&apos;s Notes (optional, max 200 chars)
+          Q&apos;s Notes (optional, max 1,000 chars)
         </label>
         <textarea
           id="beatdown-q-notes"
           value={qNotes}
-          onChange={(e) => setQNotes(e.target.value.slice(0, 200))}
+          onChange={(e) => setQNotes(e.target.value.slice(0, Q_NOTES_MAX_LENGTH))}
           placeholder='e.g., "Honoring fallen brother today", "celebrating Hammer&apos;s 100th post"'
-          maxLength={200}
-          rows={2}
+          maxLength={Q_NOTES_MAX_LENGTH}
+          rows={4}
           className={fieldClass}
         />
-        <div className="mt-1 text-xs text-[var(--muted)]">{qNotes.length}/200</div>
+        <div className="mt-1 text-xs text-[var(--muted)]">{qNotes.length}/1,000</div>
       </div>
 
       <Button
         type="submit"
-        disabled={disabled || !aoId}
+        disabled={disabled}
         className="w-full bg-[var(--ink)] text-[var(--bone)] hover:bg-[var(--steel-2)]"
       >
         {disabled ? 'Generating…' : 'Generate Beatdown'}

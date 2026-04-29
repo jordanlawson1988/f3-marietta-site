@@ -8,6 +8,7 @@ export const fixtureInputs: BeatdownInputs = {
   equipment: ['bodyweight'],
   famous_bd: null,
   q_notes: '',
+  length_min: 45,
 };
 
 export const fixtureDraft: BeatdownDraft = {

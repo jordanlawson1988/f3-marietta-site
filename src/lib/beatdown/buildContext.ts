@@ -1,6 +1,7 @@
 import { getSql } from '@/lib/db';
 import { filterExiconForFocus } from '@/lib/beatdown/exicon';
 import { loadFamousBeatdowns, findFamousBeatdown } from '@/lib/beatdown/loadFamousBeatdowns';
+import { getAoBeatdownContext } from '@/lib/beatdown/aoContext';
 import type { BeatdownInputs } from '@/types/beatdown';
 
 export interface BeatdownContext {
@@ -14,23 +15,26 @@ const KNOWLEDGE_STALE_DAYS = 7;
 export async function buildBeatdownContext(inputs: BeatdownInputs): Promise<BeatdownContext> {
   const sql = getSql();
 
-  const [knowledgeRows, primaryRecent] = await Promise.all([
-    sql`
-      SELECT id, content, generated_at
-      FROM marietta_bd_knowledge
-      ORDER BY generated_at DESC
-      LIMIT 1
-    ` as unknown as { id: number; content: string; generated_at: string }[],
-    sql`
-      SELECT id, event_date, q_name, content_text
-      FROM f3_events
-      WHERE event_kind = 'backblast'
-        AND is_deleted = false
-        AND ao_display_name = ${inputs.ao_display_name}
-      ORDER BY event_date DESC NULLS LAST, created_at DESC
-      LIMIT 10
-    ` as unknown as { id: string; event_date: string | null; q_name: string | null; content_text: string | null }[],
-  ]);
+  const knowledgePromise = sql`
+    SELECT id, content, generated_at
+    FROM marietta_bd_knowledge
+    ORDER BY generated_at DESC
+    LIMIT 1
+  ` as unknown as Promise<{ id: number; content: string; generated_at: string }[]>;
+
+  const primaryRecentPromise = inputs.ao_display_name
+    ? (sql`
+        SELECT id, event_date, q_name, content_text
+        FROM f3_events
+        WHERE event_kind = 'backblast'
+          AND is_deleted = false
+          AND ao_display_name = ${inputs.ao_display_name}
+        ORDER BY event_date DESC NULLS LAST, created_at DESC
+        LIMIT 10
+      ` as unknown as Promise<{ id: string; event_date: string | null; q_name: string | null; content_text: string | null }[]>)
+    : Promise.resolve([] as { id: string; event_date: string | null; q_name: string | null; content_text: string | null }[]);
+
+  const [knowledgeRows, primaryRecent] = await Promise.all([knowledgePromise, primaryRecentPromise]);
 
   let knowledgeContent: string | null = null;
   let knowledgeVersion: number | null = null;
@@ -68,6 +72,7 @@ export async function buildBeatdownContext(inputs: BeatdownInputs): Promise<Beat
 
 export function loadStaticContext(inputs: BeatdownInputs) {
   return {
+    aoContext: inputs.ao_display_name ? getAoBeatdownContext(inputs.ao_display_name) : null,
     exiconSubset: filterExiconForFocus(inputs.focus),
     famousBdLibrary: loadFamousBeatdowns(),
     selectedFamousBd: findFamousBeatdown(inputs.famous_bd),

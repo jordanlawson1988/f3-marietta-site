@@ -13,14 +13,20 @@ export type BeatdownTheme =
 export type BeatdownEquipment = 'bodyweight' | 'coupon' | 'sandbag' | 'kettlebell' | 'sled';
 
 export interface BeatdownInputs {
-  ao_id: string;
-  ao_display_name: string;
+  ao_id: string | null;
+  ao_display_name: string | null;
   focus: BeatdownFocus;
   theme: BeatdownTheme;
   equipment: BeatdownEquipment[];
   famous_bd: string | null;
   q_notes: string;
+  length_min: number;
 }
+
+export const LENGTH_PRESETS: number[] = [30, 45, 60];
+export const DEFAULT_LENGTH_MIN = 45;
+export const MIN_LENGTH_MIN = 15;
+export const MAX_LENGTH_MIN = 240;
 
 export interface BeatdownExerciseItem {
   exercise: string;

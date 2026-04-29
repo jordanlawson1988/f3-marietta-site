@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   const sql = getSql();
   const ip_hash = hashIp(getClientIp(request));
 
-  console.log(`[beatdown:save:${requestId}] start ao=${body.inputs.ao_id} title="${body.draft.title.slice(0, 60)}"`);
+  console.log(`[beatdown:save:${requestId}] start ao=${body.inputs.ao_id ?? 'none'} title="${body.draft.title.slice(0, 60)}"`);
 
   for (let attempt = 0; attempt < 3; attempt++) {
     const short_id = newShortId();

@@ -45,6 +45,14 @@ export function ChamferButton(props: Props) {
   if ("href" in props && props.href) {
     return <Link href={props.href} className={`group ${base}`}>{content}</Link>;
   }
-  const { href: _href, ...rest } = props as ButtonProps;
-  return <button className={`group ${base}`} {...rest}>{content}</button>;
+  const {
+    href: _href,
+    children: _children,
+    variant: _variant,
+    size: _size,
+    arrow: _arrow,
+    className: _className,
+    ...buttonProps
+  } = props as ButtonProps;
+  return <button {...buttonProps} className={`group ${base}`}>{content}</button>;
 }

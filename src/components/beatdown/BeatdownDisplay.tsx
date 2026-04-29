@@ -5,6 +5,7 @@ import type { BeatdownDraft, BeatdownExerciseItem, BeatdownInputs } from '@/type
 import BeatdownSection from './BeatdownSection';
 import ExerciseSwapModal from './ExerciseSwapModal';
 import ShareActionsBar from './ShareActionsBar';
+import EditableText from './EditableText';
 
 interface Props {
   inputs: BeatdownInputs;
@@ -64,10 +65,25 @@ export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs,
     <section className="mt-8 space-y-4 beatdown-card">
       <header className="rounded-md border border-border p-4 bg-card">
         <div className="text-[10px] uppercase tracking-widest text-primary">
-          F3 Marietta · {inputs.ao_display_name} · {draft.sections.header.length_min} min
+          F3 Marietta{inputs.ao_display_name ? ` · ${inputs.ao_display_name}` : ''} · {draft.sections.header.length_min} min
         </div>
-        <h2 className="mt-1 text-2xl md:text-3xl font-bold">{draft.title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{draft.sections.header.summary}</p>
+        <EditableText
+          value={draft.title}
+          onChange={(value) => setDraft({ ...draft, title: value, sections: { ...draft.sections, header: { ...draft.sections.header, title: value } } })}
+          as="h2"
+          className="mt-1 text-2xl md:text-3xl font-bold"
+          placeholder="Beatdown title"
+          ariaLabel="Edit beatdown title"
+        />
+        <EditableText
+          value={draft.sections.header.summary}
+          onChange={(value) => setDraft({ ...draft, sections: { ...draft.sections, header: { ...draft.sections.header, summary: value } } })}
+          as="p"
+          className="mt-1 text-sm text-muted-foreground"
+          placeholder="One-line summary"
+          ariaLabel="Edit beatdown summary"
+          multiline
+        />
         <div className="mt-2 text-xs text-muted-foreground no-print">
           {model} · {generationMs}ms{knowledgeVersion ? ` · knowledge v${knowledgeVersion}` : ''}
         </div>
@@ -88,6 +104,9 @@ export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs,
         onRegenerate={() => regenerateSection('thang')}
         onSwap={(i) => setSwap({ section: 'thang', index: i })}
         regenerating={regen === 'thang'}
+        onChangeFormatNote={(value) =>
+          setDraft({ ...draft, sections: { ...draft.sections, thang: { ...draft.sections.thang, format_note: value } } })
+        }
       />
       <BeatdownSection
         label="COT" sectionKey="cot" draft={draft} inputs={inputs} showCoaching={showCoaching}
@@ -96,6 +115,12 @@ export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs,
         onRegenerate={() => regenerateSection('cot')}
         onSwap={() => {}}
         regenerating={regen === 'cot'}
+        onChangeCotTalkingPoints={(points) =>
+          setDraft({ ...draft, sections: { ...draft.sections, cot: { ...draft.sections.cot, talking_points: points } } })
+        }
+        onChangeCotNotes={(notes) =>
+          setDraft({ ...draft, sections: { ...draft.sections, cot: { ...draft.sections.cot, notes } } })
+        }
       />
 
       <ShareActionsBar inputs={inputs} draft={draft} generationMs={generationMs} model={model} knowledgeVersion={knowledgeVersion} />

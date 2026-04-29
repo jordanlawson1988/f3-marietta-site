@@ -6,7 +6,11 @@ export function formatSlackblast(draft: BeatdownDraft, inputs: BeatdownInputs): 
   const lines: string[] = [];
 
   lines.push(`*${title}*`);
-  lines.push(`${inputs.ao_display_name} · ${sections.header.length_min}m · ${labelEquipment(inputs.equipment)}`);
+  const headerParts: string[] = [];
+  if (inputs.ao_display_name) headerParts.push(inputs.ao_display_name);
+  headerParts.push(`${sections.header.length_min}m`);
+  headerParts.push(labelEquipment(inputs.equipment));
+  lines.push(headerParts.join(' · '));
   if (inputs.theme) lines.push(`Theme: ${labelTheme(inputs.theme)}`);
   lines.push('');
 
