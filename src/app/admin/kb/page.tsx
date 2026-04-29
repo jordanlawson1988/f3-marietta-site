@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { ChamferButton } from "@/components/ui/brand/ChamferButton";
 import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
-import { SectionHead } from "@/components/ui/brand/SectionHead";
+import { EyebrowLabel } from "@/components/ui/brand/EyebrowLabel";
 import { Folder, FileText, Search, Plus, Save, Eye, Edit3, Code, ChevronRight, ChevronDown } from "lucide-react";
 
 // --- Types ---
@@ -361,7 +361,12 @@ export default function KBAdminPage() {
             {/* File Browser Sidebar */}
             <aside className="w-72 bg-bone-2 border-r border-line-soft flex flex-col shrink-0">
                 <div className="p-4 border-b border-line-soft space-y-3">
-                    <SectionHead eyebrow="§ Admin · KB" h2="Knowledge Base" align="left" className="mb-2" />
+                    <div className="space-y-2">
+                        <EyebrowLabel variant="muted" withRule>§ Admin · KB</EyebrowLabel>
+                        <h2 className="font-display font-bold uppercase leading-[.95] text-[26px] tracking-[-.01em] text-ink">
+                            Knowledge Base
+                        </h2>
+                    </div>
                     <div className="relative">
                         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
                         <input
