@@ -58,6 +58,12 @@ export function WorkoutModal({
 
   const activeRegions = regions.filter((r) => r.is_active);
 
+  const missingFields = [
+    !aoName && "AO Name",
+    !regionId && "Region",
+    !address && "Address",
+  ].filter(Boolean) as string[];
+
   const handleSave = async () => {
     if (!aoName || !address || !regionId) return;
     setIsSaving(true);
@@ -146,7 +152,7 @@ export function WorkoutModal({
         <div className="space-y-5">
           {/* AO Name */}
           <div>
-            <MonoTag variant="bone">// AO Name</MonoTag>
+            <MonoTag variant="bone">// AO Name <span className="text-rust">*</span></MonoTag>
             <input
               id="ao-name"
               type="text"
@@ -215,7 +221,7 @@ export function WorkoutModal({
 
           {/* Region */}
           <div>
-            <MonoTag variant="bone">// Region</MonoTag>
+            <MonoTag variant="bone">// Region <span className="text-rust">*</span></MonoTag>
             <select
               value={regionId}
               onChange={(e) => setRegionId(e.target.value)}
@@ -246,7 +252,7 @@ export function WorkoutModal({
 
           {/* Address */}
           <div>
-            <MonoTag variant="bone">// Address</MonoTag>
+            <MonoTag variant="bone">// Address <span className="text-rust">*</span></MonoTag>
             <input
               type="text"
               value={address}
@@ -307,26 +313,33 @@ export function WorkoutModal({
           ) : (
             <div />
           )}
-          <div className="flex gap-3">
-            <ChamferButton
-              type="button"
-              variant="ghost"
-              size="sm"
-              arrow={false}
-              onClick={onClose}
-            >
-              Cancel
-            </ChamferButton>
-            <ChamferButton
-              type="button"
-              variant="steel"
-              size="sm"
-              arrow={false}
-              onClick={handleSave}
-              disabled={!aoName || !address || !regionId || isSaving}
-            >
-              {isSaving ? "Saving..." : isEdit ? "Save Changes" : "Create"}
-            </ChamferButton>
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex gap-3">
+              <ChamferButton
+                type="button"
+                variant="ghost"
+                size="sm"
+                arrow={false}
+                onClick={onClose}
+              >
+                Cancel
+              </ChamferButton>
+              <ChamferButton
+                type="button"
+                variant="steel"
+                size="sm"
+                arrow={false}
+                onClick={handleSave}
+                disabled={missingFields.length > 0 || isSaving}
+              >
+                {isSaving ? "Saving..." : isEdit ? "Save Changes" : "Create"}
+              </ChamferButton>
+            </div>
+            {missingFields.length > 0 && (
+              <p className="text-xs text-rust/80">
+                Required: {missingFields.join(", ")}
+              </p>
+            )}
           </div>
         </div>
       </div>

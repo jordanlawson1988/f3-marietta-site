@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { ChamferButton } from "@/components/ui/brand/ChamferButton";
 import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
-import { SectionHead } from "@/components/ui/brand/SectionHead";
+import { EyebrowLabel } from "@/components/ui/brand/EyebrowLabel";
 import { Folder, FileText, Search, Plus, Save, Eye, Edit3, Code, ChevronRight, ChevronDown } from "lucide-react";
 
 // --- Types ---
@@ -47,19 +47,26 @@ function humanizeFolder(folder: string): string {
         .join(" ");
 }
 
+// Shared field styles — brand tokens, ink-on-bone for the cream admin theme
+const inputClass =
+    "w-full px-3 py-2 bg-bone border border-line-soft focus:border-steel focus:outline-none text-ink text-sm placeholder:text-muted/60";
+
+const textareaClass =
+    "w-full px-3 py-2 bg-bone border border-line-soft focus:border-steel focus:outline-none text-ink text-sm font-mono resize-y placeholder:text-muted/60";
+
 // --- Sub-components ---
 
 function FieldInput({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
     return (
         <div className="mb-4">
-            <label className="block mb-1">
-                <MonoTag>{label}</MonoTag>
+            <label className="block mb-2">
+                <MonoTag variant="ink">{label}</MonoTag>
             </label>
             <input
                 type="text"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0A1A2F] border border-[#23334A] focus:border-steel focus:outline-none text-bone text-sm"
+                className={inputClass}
                 placeholder={placeholder}
             />
         </div>
@@ -69,14 +76,14 @@ function FieldInput({ label, value, onChange, placeholder }: { label: string; va
 function FieldTextarea({ label, value, onChange, rows = 4 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
     return (
         <div className="mb-4 flex-1 flex flex-col">
-            <label className="block mb-1">
-                <MonoTag>{label}</MonoTag>
+            <label className="block mb-2">
+                <MonoTag variant="ink">{label}</MonoTag>
             </label>
             <textarea
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 rows={rows}
-                className="w-full px-3 py-2 bg-[#0A1A2F] border border-[#23334A] focus:border-steel focus:outline-none text-bone text-sm font-mono resize-y"
+                className={textareaClass}
             />
         </div>
     );
@@ -308,8 +315,8 @@ export default function KBAdminPage() {
 
         return (
             <div className="space-y-6 max-w-3xl mx-auto pb-20">
-                <ClipFrame variant="ink" padding="p-5">
-                    <h4 className="font-mono text-xs uppercase tracking-[.15em] text-muted mb-4 border-b border-bone/10 pb-2">Metadata</h4>
+                <ClipFrame variant="bone" padding="p-5">
+                    <h4 className="font-mono text-xs uppercase tracking-[.15em] text-muted mb-4 border-b border-line-soft pb-2">Metadata</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FieldInput label="Title" value={fm.title || ""} onChange={(v) => updateFM("title", v)} />
                         <FieldInput label="Category" value={fm.category || ""} onChange={(v) => updateFM("category", v)} />
@@ -318,8 +325,8 @@ export default function KBAdminPage() {
                     </div>
                 </ClipFrame>
 
-                <ClipFrame variant="ink" padding="p-5">
-                    <h4 className="font-mono text-xs uppercase tracking-[.15em] text-muted mb-4 border-b border-bone/10 pb-2">Content</h4>
+                <ClipFrame variant="bone" padding="p-5">
+                    <h4 className="font-mono text-xs uppercase tracking-[.15em] text-muted mb-4 border-b border-line-soft pb-2">Content</h4>
                     {folder === "faq" ? (
                         <>
                             <FieldTextarea label="Question" value={sec.question || ""} onChange={(v) => updateSec("question", v)} />
@@ -350,19 +357,24 @@ export default function KBAdminPage() {
     // --- Main Render ---
 
     return (
-        <div className="flex h-screen overflow-hidden">
+        <div className="flex h-screen overflow-hidden bg-bone text-ink">
             {/* File Browser Sidebar */}
-            <div className="w-72 bg-[#112240] border-r border-[#23334A] flex flex-col shrink-0">
-                <div className="p-4 border-b border-[#23334A] space-y-3">
-                    <SectionHead eyebrow="§ Admin · KB" h2="Knowledge Base" align="left" className="mb-2" />
+            <aside className="w-72 bg-bone-2 border-r border-line-soft flex flex-col shrink-0">
+                <div className="p-4 border-b border-line-soft space-y-3">
+                    <div className="space-y-2">
+                        <EyebrowLabel variant="muted" withRule>§ Admin · KB</EyebrowLabel>
+                        <h2 className="font-display font-bold uppercase leading-[.95] text-[26px] tracking-[-.01em] text-ink">
+                            Knowledge Base
+                        </h2>
+                    </div>
                     <div className="relative">
-                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted" />
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted" />
                         <input
                             type="text"
                             placeholder="Search..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-8 pr-3 py-2 bg-[#0A1A2F] border border-[#23334A] text-sm focus:outline-none focus:border-steel text-bone"
+                            className="w-full pl-9 pr-3 py-2 bg-bone border border-line-soft text-sm focus:outline-none focus:border-steel text-ink placeholder:text-muted/60"
                             aria-label="Search KB entries"
                         />
                     </div>
@@ -382,17 +394,17 @@ export default function KBAdminPage() {
                         <div key={folder} className="mb-2">
                             <button
                                 onClick={() => toggleFolder(folder)}
-                                className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-[#23334A] transition-colors"
+                                className="w-full flex items-center justify-between px-2 py-1.5 hover:bg-bone-3 rounded-sm transition-colors"
                             >
                                 <span className="flex items-center gap-2">
                                     <Folder className="h-3 w-3 text-muted" />
-                                    <MonoTag>{humanizeFolder(folder)}</MonoTag>
+                                    <MonoTag variant="ink">{humanizeFolder(folder)}</MonoTag>
                                 </span>
                                 {expandedFolders[folder] ? <ChevronDown className="h-3 w-3 text-muted" /> : <ChevronRight className="h-3 w-3 text-muted" />}
                             </button>
 
                             {expandedFolders[folder] && (
-                                <div className="ml-2 mt-1 space-y-0.5 border-l border-[#23334A] pl-2">
+                                <div className="ml-2 mt-1 space-y-0.5 border-l border-line-soft pl-2">
                                     {groupFiles.length === 0 ? (
                                         <div className="px-2 py-1.5 text-xs text-muted italic">No entries yet</div>
                                     ) : (
@@ -403,8 +415,8 @@ export default function KBAdminPage() {
                                                 className={cn(
                                                     "w-full text-left px-2 py-1.5 text-sm transition-colors truncate flex items-center gap-2 border-l-2",
                                                     selectedFile?.path === file.path
-                                                        ? "bg-steel/20 text-bone border-l-steel font-medium"
-                                                        : "text-muted border-l-transparent hover:bg-[#23334A] hover:border-l-steel/40"
+                                                        ? "bg-steel/15 text-ink border-l-steel font-medium"
+                                                        : "text-ink/70 border-l-transparent hover:bg-bone-3 hover:text-ink hover:border-l-steel/40"
                                                 )}
                                             >
                                                 <FileText className="h-3 w-3 opacity-50 shrink-0" />
@@ -417,14 +429,14 @@ export default function KBAdminPage() {
                         </div>
                     ))}
                 </div>
-            </div>
+            </aside>
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col overflow-hidden relative">
+            <div className="flex-1 flex flex-col overflow-hidden relative bg-bone">
                 {!selectedFile ? (
                     <div className="flex-1 flex items-center justify-center flex-col gap-4">
-                        <Folder className="h-16 w-16 opacity-10 text-muted" />
-                        <p className="font-display font-bold uppercase text-2xl tracking-wide text-muted">
+                        <Folder className="h-16 w-16 opacity-15 text-muted" />
+                        <p className="font-display font-bold uppercase text-2xl tracking-wide text-ink">
                             Select a File
                         </p>
                         <p className="text-sm text-muted">Pick an entry from the sidebar to begin editing</p>
@@ -432,17 +444,17 @@ export default function KBAdminPage() {
                 ) : (
                     <>
                         {/* Header */}
-                        <div className="p-4 border-b border-[#23334A] bg-[#0A1A2F] flex justify-between items-center shrink-0">
+                        <div className="p-4 border-b border-line-soft bg-bone-2 flex justify-between items-center shrink-0">
                             <div className="flex items-center gap-3">
                                 <MonoTag variant="steel">{humanizeFolder(selectedFile.folder)}</MonoTag>
                                 <span className="text-muted">/</span>
-                                <span className="font-display font-bold uppercase tracking-wide text-bone text-base">{selectedFile.title}</span>
+                                <span className="font-display font-bold uppercase tracking-wide text-ink text-base">{selectedFile.title}</span>
                             </div>
                             <div className="flex items-center gap-3">
-                                {message && <span className="text-green-400 text-sm font-mono">{message}</span>}
-                                {error && <span className="text-red-400 text-sm font-mono">{error}</span>}
+                                {message && <span className="text-olive text-sm font-mono">{message}</span>}
+                                {error && <span className="text-rust text-sm font-mono">{error}</span>}
                                 <ChamferButton
-                                    variant="ink"
+                                    variant="steel"
                                     size="sm"
                                     arrow={false}
                                     onClick={saveFile}
@@ -455,14 +467,14 @@ export default function KBAdminPage() {
                         </div>
 
                         {/* Tabs */}
-                        <div className="flex border-b border-[#23334A] bg-[#112240] shrink-0">
+                        <div className="flex border-b border-line-soft bg-bone-2 shrink-0">
                             <button
                                 onClick={() => setActiveTab("form")}
                                 className={cn(
                                     "px-6 py-3 text-sm font-mono uppercase tracking-[.1em] flex items-center gap-2 border-b-2 transition-colors",
                                     activeTab === "form"
-                                        ? "border-steel text-bone bg-[#0A1A2F]"
-                                        : "border-transparent text-muted hover:text-bone"
+                                        ? "border-steel text-ink bg-bone"
+                                        : "border-transparent text-muted hover:text-ink"
                                 )}
                             >
                                 <Edit3 className="h-4 w-4" /> Form
@@ -472,8 +484,8 @@ export default function KBAdminPage() {
                                 className={cn(
                                     "px-6 py-3 text-sm font-mono uppercase tracking-[.1em] flex items-center gap-2 border-b-2 transition-colors",
                                     activeTab === "markdown"
-                                        ? "border-steel text-bone bg-[#0A1A2F]"
-                                        : "border-transparent text-muted hover:text-bone"
+                                        ? "border-steel text-ink bg-bone"
+                                        : "border-transparent text-muted hover:text-ink"
                                 )}
                             >
                                 <Code className="h-4 w-4" /> Markdown
@@ -483,8 +495,8 @@ export default function KBAdminPage() {
                                 className={cn(
                                     "px-6 py-3 text-sm font-mono uppercase tracking-[.1em] flex items-center gap-2 border-b-2 transition-colors",
                                     activeTab === "preview"
-                                        ? "border-steel text-bone bg-[#0A1A2F]"
-                                        : "border-transparent text-muted hover:text-bone"
+                                        ? "border-steel text-ink bg-bone"
+                                        : "border-transparent text-muted hover:text-ink"
                                 )}
                             >
                                 <Eye className="h-4 w-4" /> Preview
@@ -492,7 +504,7 @@ export default function KBAdminPage() {
                         </div>
 
                         {/* Editor Area */}
-                        <div className="flex-1 overflow-y-auto p-6 bg-[#0A1A2F]">
+                        <div className="flex-1 overflow-y-auto p-6 bg-bone">
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-full text-muted">Loading...</div>
                             ) : (
@@ -503,17 +515,17 @@ export default function KBAdminPage() {
                                             <textarea
                                                 value={formData.raw || ""}
                                                 onChange={(e) => setFormData({ ...formData, raw: e.target.value })}
-                                                className="flex-1 w-full bg-[#112240] text-muted p-4 font-mono text-sm resize-none focus:outline-none border border-[#23334A] focus:border-steel"
+                                                className="flex-1 w-full bg-bone-2 text-ink p-4 font-mono text-sm resize-none focus:outline-none border border-line-soft focus:border-steel"
                                                 spellCheck={false}
                                             />
                                         </div>
                                     )}
                                     {activeTab === "preview" && (
                                         <ClipFrame variant="bone" padding="p-7">
-                                            <div className="max-w-3xl mx-auto prose prose-invert">
-                                                <div className="whitespace-pre-wrap font-sans text-muted leading-relaxed">
+                                            <div className="max-w-3xl mx-auto">
+                                                <pre className="whitespace-pre-wrap font-sans text-ink leading-relaxed text-sm">
                                                     {formData.raw}
-                                                </div>
+                                                </pre>
                                             </div>
                                         </ClipFrame>
                                     )}
@@ -531,8 +543,8 @@ export default function KBAdminPage() {
                         <h3 className="font-display font-bold uppercase tracking-wide text-xl mb-6">Create New Entry</h3>
                         <div className="space-y-4">
                             <div>
-                                <label className="block mb-1">
-                                    <MonoTag>Folder</MonoTag>
+                                <label className="block mb-2">
+                                    <MonoTag variant="bone">Folder</MonoTag>
                                 </label>
                                 <select
                                     value={newFolder}
@@ -540,11 +552,22 @@ export default function KBAdminPage() {
                                     className="w-full px-3 py-2 bg-transparent border border-bone/25 focus:border-steel focus:outline-none text-bone text-sm"
                                 >
                                     {allFolders.map(f => (
-                                        <option key={f} value={f}>{humanizeFolder(f)}</option>
+                                        <option key={f} value={f} className="bg-ink text-bone">{humanizeFolder(f)}</option>
                                     ))}
                                 </select>
                             </div>
-                            <FieldInput label="Title" value={newTitle} onChange={setNewTitle} placeholder="e.g. What is F3?" />
+                            <div>
+                                <label className="block mb-2">
+                                    <MonoTag variant="bone">Title</MonoTag>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newTitle}
+                                    onChange={(e) => setNewTitle(e.target.value)}
+                                    placeholder="e.g. What is F3?"
+                                    className="w-full px-3 py-2 bg-transparent border border-bone/25 focus:border-steel focus:outline-none text-bone text-sm placeholder:text-bone/40"
+                                />
+                            </div>
                             <div className="flex gap-3 pt-2">
                                 <ChamferButton
                                     variant="ghost"
@@ -556,7 +579,7 @@ export default function KBAdminPage() {
                                     Cancel
                                 </ChamferButton>
                                 <ChamferButton
-                                    variant="ink"
+                                    variant="steel"
                                     size="sm"
                                     arrow={false}
                                     className="flex-1 justify-center"

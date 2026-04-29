@@ -191,7 +191,7 @@ export default function RegionsAdminPage() {
                   className="relative group border-b border-line-soft last:border-0 hover:bg-ink/30 transition-colors"
                 >
                   {/* Left accent */}
-                  <td className="px-4 py-3 font-medium text-bone relative">
+                  <td className="px-4 py-3 font-medium text-ink relative">
                     <span
                       aria-hidden
                       className="absolute left-0 top-0 bottom-0 w-[3px] bg-steel scale-y-0 origin-top group-hover:scale-y-100 transition-transform duration-300"
