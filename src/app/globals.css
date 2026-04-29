@@ -192,3 +192,12 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0.75rem 0;
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
 }
+
+@media print {
+  nav, footer, header[role="banner"], .no-print { display: none !important; }
+  .beatdown-card { background: white !important; color: #111 !important; box-shadow: none !important; }
+  .beatdown-card * { background: white !important; color: #111 !important; border-color: #999 !important; }
+  body { font-size: 12pt; }
+  main { max-width: 100% !important; padding: 0 !important; }
+  .beatdown-card > * { break-inside: avoid; }
+}
