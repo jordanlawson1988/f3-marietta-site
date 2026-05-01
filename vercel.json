@@ -15,6 +15,10 @@
     {
       "path": "/api/slack/sync-users",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/sync-glossary",
+      "schedule": "0 5 * * *"
     }
   ]
 }
