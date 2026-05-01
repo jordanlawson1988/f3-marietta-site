@@ -12,6 +12,11 @@ keywords:
   - explosive
   - plyometric
   - lower body
+  - iron mikes
+  - walking lunge
+  - forward lunge
+  - step lunge
+  - alternating lunge
 ---
 
 ### Definition

@@ -11,6 +11,9 @@ keywords:
   - explosive
   - legs
   - bench jump
+  - box jump
+  - jump up
+  - step up jump
 ---
 
 ### Definition

@@ -13,6 +13,15 @@ keywords:
   - heavy
   - resistance
   - bring a block
+  - coupons
+  - c.o.u.p.o.n.
+  - block
+  - cinderblock
+  - sandbag
+  - rock
+  - ruck weight
+  - cindy
+  - the block
 ---
 
 ### Definition

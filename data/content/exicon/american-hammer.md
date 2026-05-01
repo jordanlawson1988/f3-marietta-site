@@ -13,6 +13,12 @@ keywords:
   - abs
   - seated twist
   - torso rotation
+  - american hammers
+  - twists
+  - oblique
+  - torso twist
+  - ab twist
+  - zelensky twist
 ---
 
 ### Definition

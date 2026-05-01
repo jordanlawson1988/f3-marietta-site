@@ -12,6 +12,14 @@ keywords:
   - core
   - pedaling
   - elbow to knee
+  - freddy mercurys
+  - freddy mercuries
+  - scissor kick
+  - scissors
+  - flutter
+  - leg scissors
+  - alternating legs
+  - bicycles
 ---
 
 ### Definition

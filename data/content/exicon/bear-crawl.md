@@ -11,6 +11,9 @@ keywords:
   - full body
   - locomotion
   - movement
+  - bear crawls
+  - crawl
+  - bear
 ---
 
 ### Definition

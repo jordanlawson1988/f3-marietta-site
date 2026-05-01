@@ -11,6 +11,7 @@ keywords:
   - confidential
   - trust
   - inner circle
+  - the shields
 ---
 
 ### Definition

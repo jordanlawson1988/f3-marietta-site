@@ -12,6 +12,8 @@ keywords:
   - rotate
   - take turns
   - peer led
+  - leader-fulls
+  - leaderful
 ---
 
 ### Definition

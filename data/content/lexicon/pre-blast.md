@@ -11,6 +11,10 @@ keywords:
   - what's planned
   - heads up
   - preview
+  - pre-blasts
+  - advance notice
+  - upcoming
+  - next workout
 ---
 
 ### Definition

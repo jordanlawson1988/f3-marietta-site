@@ -13,7 +13,12 @@ keywords:
   - milestone
   - celebration
   - how long
-  - years in F3
+  - years in f3
+  - f3versarys
+  - f3versaries
+  - year
+  - f3-versary
+  - manniversary
 ---
 
 ### Definition

@@ -12,6 +12,11 @@ keywords:
   - push up variation
   - upper body
   - narrow grip
+  - diamond merkins
+  - diamond pushup
+  - close grip pushup
+  - triangle pushup
+  - narrow pushup
 ---
 
 ### Definition

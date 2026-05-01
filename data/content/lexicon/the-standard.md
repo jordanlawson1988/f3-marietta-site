@@ -12,6 +12,10 @@ keywords:
   - accountability
   - post
   - routine
+  - the standards
+  - discipline
+  - regular
+  - standard
 ---
 
 ### Definition

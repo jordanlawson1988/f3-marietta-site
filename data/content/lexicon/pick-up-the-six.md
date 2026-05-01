@@ -11,6 +11,13 @@ keywords:
   - encourage
   - wait up
   - come back for
+  - pick up the sixs
+  - help the last
+  - dont leave behind
+  - slowest
+  - back of pack
+  - last man
+  - no one left
 ---
 
 ### Definition

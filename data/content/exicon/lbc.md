@@ -12,6 +12,12 @@ keywords:
   - sit up
   - abdominal
   - upper abs
+  - lbcs
+  - l.b.c.
+  - little baby crunch
+  - little baby crunches
+  - crunches
+  - ab crunch
 ---
 
 ### Definition

@@ -11,6 +11,10 @@ keywords:
   - clapping
   - deltoids
   - cadence
+  - seal clap
+  - front clap
+  - chest clap
+  - arm clap
 ---
 
 ### Definition

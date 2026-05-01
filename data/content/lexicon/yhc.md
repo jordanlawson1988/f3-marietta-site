@@ -11,6 +11,13 @@ keywords:
   - backblast
   - correspondent
   - humble
+  - yhcs
+  - y.h.c.
+  - your humble correspondent
+  - i
+  - me
+  - myself
+  - the writer
 ---
 
 ### Definition

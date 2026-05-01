@@ -13,6 +13,12 @@ keywords:
   - pain
   - brothers
   - camaraderie
+  - shared sufferings
+  - misery
+  - hard together
+  - suffer
+  - bonding
+  - brotherhood
 ---
 
 ### Definition

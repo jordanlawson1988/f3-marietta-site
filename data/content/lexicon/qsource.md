@@ -11,6 +11,14 @@ keywords:
   - virtuous leadership
   - get right
   - live right
+  - qsources
+  - q.s.o.u.r.c.e.
+  - leadership
+  - curriculum
+  - training
+  - q source
+  - leadership guide
+  - manual
 ---
 
 ### Definition

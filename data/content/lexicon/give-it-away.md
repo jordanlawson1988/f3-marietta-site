@@ -12,6 +12,13 @@ keywords:
   - mentor
   - help others
   - free
+  - give it aways
+  - give it awaies
+  - service
+  - serve
+  - volunteer
+  - give back
+  - community service
 ---
 
 ### Definition

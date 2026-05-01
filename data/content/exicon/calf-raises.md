@@ -12,6 +12,12 @@ keywords:
   - raise
   - legs
   - lower body
+  - calf rais
+  - calf raise
+  - heel raise
+  - heel raises
+  - toe raise
+  - toe raises
 ---
 
 ### Definition

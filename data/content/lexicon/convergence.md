@@ -6,11 +6,20 @@ tags:
 aliases: []
 keywords:
   - big workout
-  - multiple AOs
+  - multiple aos
   - holiday workout
   - combined
   - all together
   - special event
+  - convergences
+  - c.o.n.v.e.r.g.e.n.c.e.
+  - combined workout
+  - meetup
+  - all regions
+  - gathering
+  - joint workout
+  - mega workout
+  - big event
 ---
 
 ### Definition

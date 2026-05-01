@@ -12,6 +12,15 @@ keywords:
   - end of workout
   - ab work
   - six pack
+  - marys
+  - maries
+  - m.a.r.y.
+  - ab exercises
+  - core work
+  - core exercises
+  - ab circuit
+  - core time
+  - 6 minutes of mary
 ---
 
 ### Definition

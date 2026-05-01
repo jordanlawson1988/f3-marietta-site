@@ -12,6 +12,11 @@ keywords:
   - beginner
   - upper body
   - modified push up
+  - irkins
+  - i.r.k.i.n.
+  - incline pushup
+  - incline merkin
+  - elevated hands pushup
 ---
 
 ### Definition

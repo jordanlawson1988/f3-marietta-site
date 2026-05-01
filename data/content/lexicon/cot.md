@@ -13,6 +13,13 @@ keywords:
   - circle
   - share
   - wrap up
+  - cots
+  - c.o.t.
+  - circle of trust
+  - end
+  - finish
+  - ending
+  - close out
 ---
 
 ### Definition

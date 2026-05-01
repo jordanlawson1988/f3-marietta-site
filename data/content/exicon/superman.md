@@ -13,6 +13,11 @@ keywords:
   - core
   - lower back
   - extension
+  - supermans
+  - s.u.p.e.r.m.a.n.
+  - back extension
+  - back extensions
+  - prone extension
 ---
 
 ### Definition

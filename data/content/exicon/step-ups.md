@@ -11,6 +11,10 @@ keywords:
   - glutes
   - single leg
   - lower body
+  - step up
+  - bench step
+  - box step up
+  - step exercise
 ---
 
 ### Definition

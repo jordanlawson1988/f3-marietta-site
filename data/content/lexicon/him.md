@@ -12,6 +12,11 @@ keywords:
   - servant leader
   - impact
   - accelerated
+  - hims
+  - h.i.m.
+  - high impact man
+  - man of impact
+  - high impact
 ---
 
 ### Definition

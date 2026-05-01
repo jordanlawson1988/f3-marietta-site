@@ -11,6 +11,13 @@ keywords:
   - switch
   - time's up
   - next exercise
+  - omahas
+  - o.m.a.h.a.
+  - change plan
+  - modify
+  - adjust
+  - pivot
+  - switch up
 ---
 
 ### Definition

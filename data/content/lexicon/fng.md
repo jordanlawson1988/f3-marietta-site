@@ -12,6 +12,13 @@ keywords:
   - beginner
   - first workout
   - never been
+  - fngs
+  - f.n.g.
+  - newbie
+  - first timer
+  - new member
+  - rookie
+  - friendly new guy
 ---
 
 ### Definition

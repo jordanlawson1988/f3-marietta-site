@@ -12,6 +12,10 @@ keywords:
   - cardio
   - legs
   - defensive slide
+  - wojo
+  - w.o.j.o.s.
+  - shoulder tap pushup
+  - arm raise pushup
 ---
 
 ### Definition

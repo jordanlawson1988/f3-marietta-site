@@ -11,6 +11,12 @@ keywords:
   - legs
   - plyometric
   - floor touch
+  - bobby hurleys
+  - bobby hurleies
+  - squat press
+  - squat to press
+  - thruster
+  - squat jump reach
 ---
 
 ### Definition

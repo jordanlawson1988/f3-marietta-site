@@ -14,6 +14,13 @@ keywords:
   - commitment
   - wake up
   - choose growth
+  - daily red pills
+  - truth
+  - reality
+  - awareness
+  - uncomfortable truth
+  - drp
+  - red pill
 ---
 
 ### Definition

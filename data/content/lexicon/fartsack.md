@@ -13,6 +13,15 @@ keywords:
   - stayed home
   - lazy
   - snooze
+  - fartsacks
+  - f.a.r.t.s.a.c.k.
+  - sleep
+  - sleeping in
+  - skip
+  - skipping
+  - stay in bed
+  - oversleep
+  - the bed
 ---
 
 ### Definition

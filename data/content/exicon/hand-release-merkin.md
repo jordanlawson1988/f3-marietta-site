@@ -12,6 +12,12 @@ keywords:
   - strict form
   - upper body
   - no cheating
+  - hand release merkins
+  - hand release pushup
+  - hand release push up
+  - chest to ground pushup
+  - dead stop pushup
+  - hrm
 ---
 
 ### Definition

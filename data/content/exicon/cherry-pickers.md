@@ -11,6 +11,9 @@ keywords:
   - flexibility
   - standing stretch
   - full body
+  - cherry picker
+  - toe touch
+  - toe touches
 ---
 
 ### Definition

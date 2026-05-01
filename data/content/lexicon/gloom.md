@@ -12,6 +12,14 @@ keywords:
   - 5am
   - dawn
   - predawn
+  - glooms
+  - g.l.o.o.m.
+  - darkness
+  - before dawn
+  - morning
+  - '0530'
+  - '5:30'
+  - the dark
 ---
 
 ### Definition

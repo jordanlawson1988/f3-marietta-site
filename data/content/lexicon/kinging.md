@@ -12,6 +12,12 @@ keywords:
   - control
   - narcissist
   - bad leadership
+  - kingings
+  - k.i.n.g.i.n.g.
+  - self centered
+  - selfish
+  - pride
+  - me first
 ---
 
 ### Definition

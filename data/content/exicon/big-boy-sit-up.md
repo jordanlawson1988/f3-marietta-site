@@ -13,6 +13,12 @@ keywords:
   - core
   - full sit up
   - abdominal
+  - big boy sit-ups
+  - sit ups
+  - situps
+  - big boy
+  - wwii sit-up
+  - bbsu
 ---
 
 ### Definition

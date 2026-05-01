@@ -13,6 +13,10 @@ keywords:
   - coupon
   - block
   - bench
+  - bench press
+  - floor press
+  - coupon press
+  - lying press
 ---
 
 ### Definition

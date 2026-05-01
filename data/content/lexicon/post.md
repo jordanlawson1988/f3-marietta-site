@@ -11,6 +11,11 @@ keywords:
   - participate
   - came out
   - was there
+  - posts
+  - p.o.s.t.
+  - showed up
+  - attendance
+  - showing up
 ---
 
 ### Definition

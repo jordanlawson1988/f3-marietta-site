@@ -12,6 +12,11 @@ keywords:
   - behind
   - struggling
   - tail end
+  - the sixs
+  - last person
+  - back of pack
+  - rear
+  - the last man
 ---
 
 ### Definition

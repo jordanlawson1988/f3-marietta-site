@@ -11,6 +11,12 @@ keywords:
   - top leader
   - culture keeper
   - head of region
+  - nantans
+  - n.a.n.t.a.n.
+  - region leader
+  - boss
+  - head
+  - in charge
 ---
 
 ### Definition

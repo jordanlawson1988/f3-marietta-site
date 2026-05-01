@@ -12,6 +12,11 @@ keywords:
   - social
   - breakfast
   - grab coffee
+  - coffeeterias
+  - c.o.f.f.e.e.t.e.r.i.a.
+  - hanging out
+  - 2nd f
+  - second f
 ---
 
 ### Definition

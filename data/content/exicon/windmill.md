@@ -12,6 +12,11 @@ keywords:
   - oblique
   - warm-up
   - twist
+  - windmills
+  - w.i.n.d.m.i.l.l.
+  - cross touch
+  - toe touch twist
+  - rotational stretch
 ---
 
 ### Definition

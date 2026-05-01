@@ -12,6 +12,10 @@ keywords:
   - shoulders
   - warm-up
   - windmill
+  - don quixotes
+  - arm circle
+  - windmills
+  - shoulder circles
 ---
 
 ### Definition

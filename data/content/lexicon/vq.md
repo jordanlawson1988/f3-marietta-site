@@ -7,11 +7,15 @@ aliases:
   - Virgin Q
 keywords:
   - first time leading
-  - first Q
+  - first q
   - never led
   - new leader
   - milestone
   - nervous
+  - vqs
+  - v.q.
+  - virgin q
+  - first time q
 ---
 
 ### Definition

@@ -12,6 +12,11 @@ keywords:
   - plank
   - core
   - stability
+  - shoulder tap
+  - plank tap
+  - plank taps
+  - anti rotation
+  - plank shoulder taps
 ---
 
 ### Definition

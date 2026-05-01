@@ -13,6 +13,8 @@ keywords:
   - shoulders
   - isometric
   - upper body
+  - balls to the walls
+  - bttw
 ---
 
 ### Definition

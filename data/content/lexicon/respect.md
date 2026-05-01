@@ -8,9 +8,16 @@ keywords:
   - old
   - older
   - age
-  - "50"
+  - '50'
   - senior
   - veteran
+  - respects
+  - r.e.s.p.e.c.t.
+  - handshake
+  - greeting
+  - fist bump
+  - acknowledgment
+  - hello
 ---
 
 ### Definition

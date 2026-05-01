@@ -15,6 +15,12 @@ keywords:
   - alone
   - disconnected
   - going through the motions
+  - sad clowns
+  - working out alone
+  - solo
+  - by yourself
+  - no community
+  - sad clown syndrome
 ---
 
 ### Definition

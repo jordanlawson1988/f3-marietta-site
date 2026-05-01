@@ -12,6 +12,11 @@ keywords:
   - deltoids
   - endurance
   - arms out
+  - moroccan night clubs
+  - arm exercise
+  - forearm exercise
+  - arm burn
+  - mnc
 ---
 
 ### Definition

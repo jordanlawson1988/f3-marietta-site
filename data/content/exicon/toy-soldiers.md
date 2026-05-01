@@ -12,6 +12,11 @@ keywords:
   - stretch
   - warm-up
   - kick
+  - toy soldier
+  - leg kick
+  - leg kicks
+  - straight leg kick
+  - hamstring kick
 ---
 
 ### Definition

@@ -11,6 +11,8 @@ keywords:
   - ripple effect
   - leadership layers
   - expanding impact
+  - concentric circl
+  - concentric circle
 ---
 
 ### Definition

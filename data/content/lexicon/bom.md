@@ -12,6 +12,9 @@ keywords:
   - hands in
   - group prayer
   - shoulder to shoulder
+  - boms
+  - b.o.m.
+  - ball of man
 ---
 
 ### Definition

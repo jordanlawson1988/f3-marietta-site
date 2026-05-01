@@ -11,6 +11,10 @@ keywords:
   - locomotion
   - transport
   - full body
+  - gorilla crawls
+  - ape crawl
+  - gorilla walk
+  - primate walk
 ---
 
 ### Definition

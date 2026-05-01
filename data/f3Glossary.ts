@@ -44,7 +44,11 @@ export const lexiconEntries: GlossaryEntry[] = [
       "daughter",
       "family",
       "bring my kid",
-      "youth workout"
+      "youth workout",
+      "2.0s",
+      "kid",
+      "child",
+      "offspring"
     ]
   },
   {
@@ -223,7 +227,15 @@ export const lexiconEntries: GlossaryEntry[] = [
       "park",
       "meeting spot",
       "workout site",
-      "address"
+      "address",
+      "aos",
+      "a.o.",
+      "area of operations",
+      "site",
+      "where",
+      "workout location",
+      "workout spot",
+      "meeting place"
     ]
   },
   {
@@ -288,7 +300,14 @@ export const lexiconEntries: GlossaryEntry[] = [
       "workout report",
       "who was there",
       "what happened",
-      "write up"
+      "write up",
+      "backblasts",
+      "b.a.c.k.b.l.a.s.t.",
+      "report",
+      "writeup",
+      "after action",
+      "post report",
+      "field report"
     ]
   },
   {
@@ -328,7 +347,12 @@ export const lexiconEntries: GlossaryEntry[] = [
       "morning workout",
       "training",
       "what do you do",
-      "how hard"
+      "how hard",
+      "beatdowns",
+      "b.e.a.t.d.o.w.n.",
+      "session",
+      "bootcamp",
+      "boot camp"
     ]
   },
   {
@@ -429,7 +453,10 @@ export const lexiconEntries: GlossaryEntry[] = [
       "huddle",
       "hands in",
       "group prayer",
-      "shoulder to shoulder"
+      "shoulder to shoulder",
+      "boms",
+      "b.o.m.",
+      "ball of man"
     ]
   },
   {
@@ -636,7 +663,11 @@ export const lexiconEntries: GlossaryEntry[] = [
       "ride",
       "carpool",
       "driving",
-      "together"
+      "together",
+      "clown cars",
+      "driving together",
+      "ride share",
+      "car pool"
     ]
   },
   {
@@ -692,7 +723,12 @@ export const lexiconEntries: GlossaryEntry[] = [
       "fellowship",
       "social",
       "breakfast",
-      "grab coffee"
+      "grab coffee",
+      "coffeeterias",
+      "c.o.f.f.e.e.t.e.r.i.a.",
+      "hanging out",
+      "2nd f",
+      "second f"
     ]
   },
   {
@@ -826,11 +862,20 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Term",
     "keywords": [
       "big workout",
-      "multiple AOs",
+      "multiple aos",
       "holiday workout",
       "combined",
       "all together",
-      "special event"
+      "special event",
+      "convergences",
+      "c.o.n.v.e.r.g.e.n.c.e.",
+      "combined workout",
+      "meetup",
+      "all regions",
+      "gathering",
+      "joint workout",
+      "mega workout",
+      "big event"
     ]
   },
   {
@@ -865,7 +910,14 @@ export const lexiconEntries: GlossaryEntry[] = [
       "prayer",
       "circle",
       "share",
-      "wrap up"
+      "wrap up",
+      "cots",
+      "c.o.t.",
+      "circle of trust",
+      "end",
+      "finish",
+      "ending",
+      "close out"
     ]
   },
   {
@@ -894,7 +946,12 @@ export const lexiconEntries: GlossaryEntry[] = [
       "attendance",
       "count off",
       "roll call",
-      "numbers"
+      "numbers",
+      "count-a-ramas",
+      "counting",
+      "how many",
+      "number",
+      "total pax"
     ]
   },
   {
@@ -921,7 +978,16 @@ export const lexiconEntries: GlossaryEntry[] = [
       "equipment",
       "heavy",
       "resistance",
-      "bring a block"
+      "bring a block",
+      "coupons",
+      "c.o.u.p.o.n.",
+      "block",
+      "cinderblock",
+      "sandbag",
+      "rock",
+      "ruck weight",
+      "cindy",
+      "the block"
     ]
   },
   {
@@ -972,7 +1038,13 @@ export const lexiconEntries: GlossaryEntry[] = [
       "long workout",
       "brutal",
       "extreme",
-      "suffer"
+      "suffer",
+      "csaups",
+      "c.s.a.u.p.",
+      "special event",
+      "tough event",
+      "hard workout",
+      "gut check"
     ]
   },
   {
@@ -1018,7 +1090,14 @@ export const lexiconEntries: GlossaryEntry[] = [
       "morning routine",
       "commitment",
       "wake up",
-      "choose growth"
+      "choose growth",
+      "daily red pills",
+      "truth",
+      "reality",
+      "awareness",
+      "uncomfortable truth",
+      "drp",
+      "red pill"
     ]
   },
   {
@@ -1042,10 +1121,16 @@ export const lexiconEntries: GlossaryEntry[] = [
     "keywords": [
       "founder",
       "co-founder",
-      "who started F3",
-      "Tim Whitmire",
+      "who started f3",
+      "tim whitmire",
       "origin",
-      "Charlotte"
+      "charlotte",
+      "dark helmets",
+      "overtime",
+      "extra",
+      "before workout",
+      "pre workout",
+      "early arrival"
     ]
   },
   {
@@ -1218,7 +1303,13 @@ export const lexiconEntries: GlossaryEntry[] = [
       "out of town",
       "guest",
       "another region",
-      "away from home"
+      "away from home",
+      "downranges",
+      "d.o.w.n.r.a.n.g.e.",
+      "away",
+      "different region",
+      "another ao",
+      "visit"
     ]
   },
   {
@@ -1240,10 +1331,18 @@ export const lexiconEntries: GlossaryEntry[] = [
     "keywords": [
       "founder",
       "co-founder",
-      "who started F3",
-      "David Redding",
+      "who started f3",
+      "david redding",
       "origin",
-      "Green Beret"
+      "green beret",
+      "dredds",
+      "d.r.e.d.d.",
+      "hard",
+      "brutal",
+      "tough",
+      "intense",
+      "feared",
+      "dreaded"
     ]
   },
   {
@@ -1353,7 +1452,12 @@ export const lexiconEntries: GlossaryEntry[] = [
       "bring a friend",
       "get someone to come",
       "convince",
-      "persuade"
+      "persuade",
+      "ehs",
+      "e.h.",
+      "emotional headlock",
+      "recruiting",
+      "invitation"
     ]
   },
   {
@@ -1649,7 +1753,16 @@ export const lexiconEntries: GlossaryEntry[] = [
       "didn't show up",
       "stayed home",
       "lazy",
-      "snooze"
+      "snooze",
+      "fartsacks",
+      "f.a.r.t.s.a.c.k.",
+      "sleep",
+      "sleeping in",
+      "skip",
+      "skipping",
+      "stay in bed",
+      "oversleep",
+      "the bed"
     ]
   },
   {
@@ -1739,7 +1852,8 @@ export const lexiconEntries: GlossaryEntry[] = [
       "exercise",
       "working out",
       "get in shape",
-      "health"
+      "health",
+      "first fs"
     ]
   },
   {
@@ -1799,7 +1913,14 @@ export const lexiconEntries: GlossaryEntry[] = [
       "newcomer",
       "beginner",
       "first workout",
-      "never been"
+      "never been",
+      "fngs",
+      "f.n.g.",
+      "newbie",
+      "first timer",
+      "new member",
+      "rookie",
+      "friendly new guy"
     ]
   },
   {
@@ -1956,7 +2077,15 @@ export const lexiconEntries: GlossaryEntry[] = [
       "before sunrise",
       "5am",
       "dawn",
-      "predawn"
+      "predawn",
+      "glooms",
+      "g.l.o.o.m.",
+      "darkness",
+      "before dawn",
+      "morning",
+      "0530",
+      "5:30",
+      "the dark"
     ]
   },
   {
@@ -2137,9 +2266,15 @@ export const lexiconEntries: GlossaryEntry[] = [
       "promise",
       "commit",
       "going to be there",
-      "RSVP",
+      "rsvp",
       "sign up",
-      "confirmed"
+      "confirmed",
+      "hcs",
+      "h.c.",
+      "hard commit",
+      "commitment",
+      "committed",
+      "confirm"
     ]
   },
   {
@@ -2193,7 +2328,12 @@ export const lexiconEntries: GlossaryEntry[] = [
       "making a difference",
       "servant leader",
       "impact",
-      "accelerated"
+      "accelerated",
+      "hims",
+      "h.i.m.",
+      "high impact man",
+      "man of impact",
+      "high impact"
     ]
   },
   {
@@ -2396,7 +2536,12 @@ export const lexiconEntries: GlossaryEntry[] = [
       "brotherhood",
       "challenge",
       "proverbs",
-      "better together"
+      "better together",
+      "iron sharpens irons",
+      "growth",
+      "sharpen",
+      "mutual",
+      "together"
     ]
   },
   {
@@ -2432,7 +2577,13 @@ export const lexiconEntries: GlossaryEntry[] = [
       "run",
       "free",
       "fast",
-      "scatter"
+      "scatter",
+      "jailbreaks",
+      "j.a.i.l.b.r.e.a.k.",
+      "free run",
+      "go fast",
+      "race",
+      "all out"
     ]
   },
   {
@@ -2570,7 +2721,14 @@ export const lexiconEntries: GlossaryEntry[] = [
       "long time",
       "disappeared",
       "gone",
-      "inactive"
+      "inactive",
+      "kotter",
+      "k.o.t.t.e.r.s.",
+      "returning",
+      "comeback",
+      "been away",
+      "havent been",
+      "gone awhile"
     ]
   },
   {
@@ -2809,7 +2967,9 @@ export const lexiconEntries: GlossaryEntry[] = [
       "partner",
       "married",
       "significant other",
-      "better half"
+      "better half",
+      "marriage",
+      "mother"
     ]
   },
   {
@@ -2977,7 +3137,11 @@ export const lexiconEntries: GlossaryEntry[] = [
       "complaining",
       "banter",
       "humor",
-      "noise"
+      "noise",
+      "mumble chatters",
+      "chatter",
+      "griping",
+      "grumbling"
     ]
   },
   {
@@ -3035,7 +3199,8 @@ export const lexiconEntries: GlossaryEntry[] = [
       "small group",
       "emerging",
       "planting",
-      "new chapter"
+      "new chapter",
+      "nano regions"
     ]
   },
   {
@@ -3050,7 +3215,13 @@ export const lexiconEntries: GlossaryEntry[] = [
       "who runs the region",
       "top leader",
       "culture keeper",
-      "head of region"
+      "head of region",
+      "nantans",
+      "n.a.n.t.a.n.",
+      "region leader",
+      "boss",
+      "head",
+      "in charge"
     ]
   },
   {
@@ -3279,7 +3450,12 @@ export const lexiconEntries: GlossaryEntry[] = [
       "men",
       "participants",
       "who shows up",
-      "people"
+      "people",
+      "paxs",
+      "p.a.x.",
+      "attendance",
+      "attendees",
+      "participant"
     ]
   },
   {
@@ -3346,7 +3522,14 @@ export const lexiconEntries: GlossaryEntry[] = [
       "run back",
       "encourage",
       "wait up",
-      "come back for"
+      "come back for",
+      "pick up the sixs",
+      "help the last",
+      "dont leave behind",
+      "slowest",
+      "back of pack",
+      "last man",
+      "no one left"
     ]
   },
   {
@@ -3423,7 +3606,12 @@ export const lexiconEntries: GlossaryEntry[] = [
       "go to workout",
       "participate",
       "came out",
-      "was there"
+      "was there",
+      "posts",
+      "p.o.s.t.",
+      "showed up",
+      "attendance",
+      "showing up"
     ]
   },
   {
@@ -3522,7 +3710,12 @@ export const lexiconEntries: GlossaryEntry[] = [
       "in charge",
       "instructor",
       "coach",
-      "quarterback"
+      "quarterback",
+      "lead",
+      "workout leader",
+      "leading",
+      "caller",
+      "the leader"
     ]
   },
   {
@@ -3557,7 +3750,15 @@ export const lexiconEntries: GlossaryEntry[] = [
       "study",
       "virtuous leadership",
       "get right",
-      "live right"
+      "live right",
+      "qsources",
+      "q.s.o.u.r.c.e.",
+      "leadership",
+      "curriculum",
+      "training",
+      "q source",
+      "leadership guide",
+      "manual"
     ]
   },
   {
@@ -3658,7 +3859,14 @@ export const lexiconEntries: GlossaryEntry[] = [
       "age",
       "50",
       "senior",
-      "veteran"
+      "veteran",
+      "respects",
+      "r.e.s.p.e.c.t.",
+      "handshake",
+      "greeting",
+      "fist bump",
+      "acknowledgment",
+      "hello"
     ]
   },
   {
@@ -3730,7 +3938,13 @@ export const lexiconEntries: GlossaryEntry[] = [
       "hiking",
       "military",
       "march",
-      "rucksack"
+      "rucksack",
+      "rucks",
+      "r.u.c.k.",
+      "rucking",
+      "backpack",
+      "weighted hike",
+      "weighted pack"
     ]
   },
   {
@@ -3802,7 +4016,8 @@ export const lexiconEntries: GlossaryEntry[] = [
       "community",
       "bonding",
       "hanging out",
-      "brotherhood"
+      "brotherhood",
+      "second fs"
     ]
   },
   {
@@ -3969,7 +4184,11 @@ export const lexiconEntries: GlossaryEntry[] = [
       "spiritual",
       "creator",
       "believe in",
-      "purpose"
+      "purpose",
+      "skyqs",
+      "s.k.y.q.",
+      "god",
+      "higher power"
     ]
   },
   {
@@ -4045,7 +4264,11 @@ export const lexiconEntries: GlossaryEntry[] = [
       "slow",
       "pace",
       "help",
-      "encourage"
+      "encourage",
+      "speed for needs",
+      "help slower",
+      "circle back",
+      "come back for"
     ]
   },
   {
@@ -4546,7 +4769,8 @@ export const lexiconEntries: GlossaryEntry[] = [
       "close friends",
       "confidential",
       "trust",
-      "inner circle"
+      "inner circle",
+      "the shields"
     ]
   },
   {
@@ -4575,7 +4799,12 @@ export const lexiconEntries: GlossaryEntry[] = [
       "back of the pack",
       "behind",
       "struggling",
-      "tail end"
+      "tail end",
+      "the sixs",
+      "last person",
+      "back of pack",
+      "rear",
+      "the last man"
     ]
   },
   {
@@ -4597,7 +4826,11 @@ export const lexiconEntries: GlossaryEntry[] = [
       "commitment",
       "accountability",
       "post",
-      "routine"
+      "routine",
+      "the standards",
+      "discipline",
+      "regular",
+      "standard"
     ]
   },
   {
@@ -4645,7 +4878,8 @@ export const lexiconEntries: GlossaryEntry[] = [
       "purpose",
       "serving others",
       "giving back",
-      "spiritual"
+      "spiritual",
+      "third fs"
     ]
   },
   {
@@ -4815,11 +5049,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Leadership",
     "keywords": [
       "first time leading",
-      "first Q",
+      "first q",
       "never led",
       "new leader",
       "milestone",
-      "nervous"
+      "nervous",
+      "vqs",
+      "v.q.",
+      "virgin q",
+      "first time q"
     ]
   },
   {
@@ -4873,7 +5111,8 @@ export const lexiconEntries: GlossaryEntry[] = [
       "organizer",
       "logistics",
       "scheduling",
-      "behind the scenes"
+      "behind the scenes",
+      "weasel shakers"
     ]
   },
   {
@@ -4986,7 +5225,14 @@ export const lexiconEntries: GlossaryEntry[] = [
       "writer",
       "backblast",
       "correspondent",
-      "humble"
+      "humble",
+      "yhcs",
+      "y.h.c.",
+      "your humble correspondent",
+      "i",
+      "me",
+      "myself",
+      "the writer"
     ]
   },
   {
@@ -5109,7 +5355,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "isometric",
       "legs",
       "quads",
-      "lower body"
+      "lower body",
+      "al gores",
+      "wall sits",
+      "static squat",
+      "hold squat",
+      "invisible chair"
     ]
   },
   {
@@ -5177,7 +5428,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "core rotation",
       "abs",
       "seated twist",
-      "torso rotation"
+      "torso rotation",
+      "american hammers",
+      "twists",
+      "oblique",
+      "torso twist",
+      "ab twist",
+      "zelensky twist"
     ]
   },
   {
@@ -5307,7 +5564,9 @@ export const exiconEntries: GlossaryEntry[] = [
       "inverted hold",
       "shoulders",
       "isometric",
-      "upper body"
+      "upper body",
+      "balls to the walls",
+      "bttw"
     ]
   },
   {
@@ -5368,7 +5627,10 @@ export const exiconEntries: GlossaryEntry[] = [
       "hands and feet",
       "full body",
       "locomotion",
-      "movement"
+      "movement",
+      "bear crawls",
+      "crawl",
+      "bear"
     ]
   },
   {
@@ -5469,7 +5731,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "back",
       "pull",
       "coupon",
-      "block"
+      "block",
+      "bent over rows",
+      "bent row",
+      "rows",
+      "back row",
+      "coupon row",
+      "coupon rows"
     ]
   },
   {
@@ -5499,7 +5767,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "abs",
       "core",
       "full sit up",
-      "abdominal"
+      "abdominal",
+      "big boy sit-ups",
+      "sit ups",
+      "situps",
+      "big boy",
+      "wwii sit-up",
+      "bbsu"
     ]
   },
   {
@@ -5593,7 +5867,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "burpee",
       "block",
       "coupon",
-      "full body"
+      "full body",
+      "blocke",
+      "b.l.o.c.k.e.e.s.",
+      "block burpee",
+      "coupon burpee",
+      "block exercise"
     ]
   },
   {
@@ -5634,7 +5913,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "explosive",
       "legs",
       "plyometric",
-      "floor touch"
+      "floor touch",
+      "bobby hurleys",
+      "bobby hurleies",
+      "squat press",
+      "squat to press",
+      "thruster",
+      "squat jump reach"
     ]
   },
   {
@@ -5698,7 +5983,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "legs",
       "explosive",
       "cadence",
-      "lower body"
+      "lower body",
+      "bonnie blairs",
+      "lunge jump",
+      "jump lunge",
+      "switch lunge",
+      "alternating lunge jump"
     ]
   },
   {
@@ -5750,7 +6040,14 @@ export const exiconEntries: GlossaryEntry[] = [
       "legs in air",
       "hip flexor",
       "lower abs",
-      "leg circles"
+      "leg circles",
+      "box cutters",
+      "v up",
+      "v-up",
+      "v ups",
+      "jackknife",
+      "leg raise",
+      "pike crunch"
     ]
   },
   {
@@ -5765,7 +6062,10 @@ export const exiconEntries: GlossaryEntry[] = [
       "jump",
       "explosive",
       "legs",
-      "bench jump"
+      "bench jump",
+      "box jump",
+      "jump up",
+      "step up jump"
     ]
   },
   {
@@ -5955,7 +6255,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "squat thrust",
       "jump",
       "plank",
-      "high intensity"
+      "high intensity",
+      "burpees",
+      "b.u.r.p.e.e.",
+      "up down",
+      "squat thrusts",
+      "yurpee",
+      "blockee"
     ]
   },
   {
@@ -5970,7 +6276,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "long jump",
       "explosive",
       "forward jump",
-      "squat thrust"
+      "squat thrust",
+      "burpee broad jumps",
+      "burpee jump",
+      "broad jump burpee",
+      "jump forward burpee"
     ]
   },
   {
@@ -6036,7 +6346,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "calves",
       "raise",
       "legs",
-      "lower body"
+      "lower body",
+      "calf rais",
+      "calf raise",
+      "heel raise",
+      "heel raises",
+      "toe raise",
+      "toe raises"
     ]
   },
   {
@@ -6097,7 +6413,14 @@ export const exiconEntries: GlossaryEntry[] = [
       "upper body",
       "downward dog",
       "deltoids",
-      "overhead press"
+      "overhead press",
+      "carolina dry docks",
+      "pike pushup",
+      "shoulder pushup",
+      "decline pushup",
+      "pike",
+      "cdd",
+      "inverted push-up"
     ]
   },
   {
@@ -6121,7 +6444,8 @@ export const exiconEntries: GlossaryEntry[] = [
       "flexibility",
       "legs",
       "warmup",
-      "toe touch"
+      "toe touch",
+      "carolina sweepers"
     ]
   },
   {
@@ -6214,7 +6538,10 @@ export const exiconEntries: GlossaryEntry[] = [
       "hamstring",
       "flexibility",
       "standing stretch",
-      "full body"
+      "full body",
+      "cherry picker",
+      "toe touch",
+      "toe touches"
     ]
   },
   {
@@ -6228,7 +6555,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "press",
       "coupon",
       "block",
-      "bench"
+      "bench",
+      "bench press",
+      "floor press",
+      "coupon press",
+      "lying press"
     ]
   },
   {
@@ -6449,7 +6780,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "quads",
       "legs",
       "lower body",
-      "cadence"
+      "cadence",
+      "copperhead squats",
+      "squat hold",
+      "isometric squat",
+      "squat pause",
+      "hold at bottom"
     ]
   },
   {
@@ -6511,7 +6847,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "hands and feet",
       "reverse crawl",
       "transport",
-      "full body"
+      "full body",
+      "crab walks",
+      "crab",
+      "backward crawl",
+      "hands behind"
     ]
   },
   {
@@ -6536,7 +6876,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "shoulders",
       "all fours",
       "locomotion",
-      "transport"
+      "transport",
+      "crawl bears",
+      "reverse bear crawl",
+      "backward bear crawl",
+      "bear crawl backward"
     ]
   },
   {
@@ -6606,7 +6950,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "bicep",
       "arms",
       "coupon",
-      "block"
+      "block",
+      "c.u.r.l.s.",
+      "bicep curl",
+      "bicep curls",
+      "arm curl",
+      "arm curls",
+      "coupon curls"
     ]
   },
   {
@@ -6713,7 +7063,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "chest",
       "upper body",
       "push up variation",
-      "bench"
+      "bench",
+      "derkins",
+      "d.e.r.k.i.n.",
+      "decline pushup",
+      "feet elevated pushup",
+      "elevated merkin",
+      "decline merkin"
     ]
   },
   {
@@ -6752,7 +7108,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "close grip",
       "push up variation",
       "upper body",
-      "narrow grip"
+      "narrow grip",
+      "diamond merkins",
+      "diamond pushup",
+      "close grip pushup",
+      "triangle pushup",
+      "narrow pushup"
     ]
   },
   {
@@ -6772,7 +7133,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "bench",
       "upper body",
       "bodyweight",
-      "push"
+      "push",
+      "dip",
+      "d.i.p.s.",
+      "tricep dip",
+      "tricep dips",
+      "bench dip",
+      "bench dips"
     ]
   },
   {
@@ -6850,7 +7217,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "arm circles",
       "shoulders",
       "warm-up",
-      "windmill"
+      "windmill",
+      "don quixotes",
+      "arm circle",
+      "windmills",
+      "shoulder circles"
     ]
   },
   {
@@ -6976,7 +7347,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "abs",
       "coordination",
       "opposite arm leg",
-      "stability"
+      "stability",
+      "dying cockroachs",
+      "dead bugs",
+      "flailing",
+      "back exercise",
+      "supine"
     ]
   },
   {
@@ -7169,7 +7545,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "legs up",
       "hip flexor",
       "lower abs",
-      "on your six"
+      "on your six",
+      "flutter kick",
+      "flutter",
+      "flutters",
+      "leg raises",
+      "ab exercise",
+      "leg flutter"
     ]
   },
   {
@@ -7245,7 +7627,15 @@ export const exiconEntries: GlossaryEntry[] = [
       "abs",
       "core",
       "pedaling",
-      "elbow to knee"
+      "elbow to knee",
+      "freddy mercurys",
+      "freddy mercuries",
+      "scissor kick",
+      "scissors",
+      "flutter",
+      "leg scissors",
+      "alternating legs",
+      "bicycles"
     ]
   },
   {
@@ -7308,7 +7698,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "glute",
       "bridge",
       "hips",
-      "posterior"
+      "posterior",
+      "glute bridges",
+      "hip bridge",
+      "hip bridges",
+      "bridges",
+      "hip raise"
     ]
   },
   {
@@ -7343,7 +7738,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "low squat",
       "locomotion",
       "transport",
-      "full body"
+      "full body",
+      "gorilla crawls",
+      "ape crawl",
+      "gorilla walk",
+      "primate walk"
     ]
   },
   {
@@ -7426,7 +7825,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "hip flexor",
       "mobility",
       "explosive",
-      "legs"
+      "legs",
+      "groiner",
+      "g.r.o.i.n.e.r.s.",
+      "mountain climber variation",
+      "hip stretch",
+      "groin stretch"
     ]
   },
   {
@@ -7501,7 +7905,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "chest",
       "strict form",
       "upper body",
-      "no cheating"
+      "no cheating",
+      "hand release merkins",
+      "hand release pushup",
+      "hand release push up",
+      "chest to ground pushup",
+      "dead stop pushup",
+      "hrm"
     ]
   },
   {
@@ -7580,7 +7990,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "inner thigh",
       "hip flexor",
       "legs apart",
-      "on your six"
+      "on your six",
+      "hello dolly",
+      "leg spread",
+      "leg spreads",
+      "open close legs",
+      "ab exercise"
     ]
   },
   {
@@ -7605,7 +8020,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "standing core",
       "elbow to knee",
       "warmup",
-      "cardio"
+      "cardio",
+      "hillbilly",
+      "h.i.l.l.b.i.l.l.i.e.s.",
+      "squat walk",
+      "lateral walk",
+      "side step squat"
     ]
   },
   {
@@ -7700,7 +8120,14 @@ export const exiconEntries: GlossaryEntry[] = [
       "leg swing",
       "stretch",
       "standing core",
-      "knee to elbow"
+      "knee to elbow",
+      "imperial walkers",
+      "high knees",
+      "high knee",
+      "knee raise",
+      "knee raises",
+      "marching",
+      "ist"
     ]
   },
   {
@@ -7760,7 +8187,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "chest",
       "beginner",
       "upper body",
-      "modified push up"
+      "modified push up",
+      "irkins",
+      "i.r.k.i.n.",
+      "incline pushup",
+      "incline merkin",
+      "elevated hands pushup"
     ]
   },
   {
@@ -7780,7 +8212,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "legs",
       "explosive",
       "plyometric",
-      "lower body"
+      "lower body",
+      "iron mikes",
+      "walking lunge",
+      "forward lunge",
+      "step lunge",
+      "alternating lunge"
     ]
   },
   {
@@ -7812,7 +8249,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "core rotation",
       "plank",
       "abs",
-      "side plank"
+      "side plank",
+      "j-los",
+      "hip raise",
+      "hip thrust",
+      "hip raises",
+      "glute raise",
+      "booty exercise"
     ]
   },
   {
@@ -7944,7 +8387,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "squat",
       "explosive",
       "legs",
-      "plyometric"
+      "plyometric",
+      "jump squat",
+      "squat jump",
+      "squat jumps",
+      "explosive squat",
+      "plyometric squat",
+      "star jumps"
     ]
   },
   {
@@ -8048,7 +8497,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "core",
       "sit up",
       "abdominal",
-      "upper abs"
+      "upper abs",
+      "lbcs",
+      "l.b.c.",
+      "little baby crunch",
+      "little baby crunches",
+      "crunches",
+      "ab crunch"
     ]
   },
   {
@@ -8166,7 +8621,14 @@ export const exiconEntries: GlossaryEntry[] = [
       "legs",
       "quads",
       "glutes",
-      "walking"
+      "walking",
+      "lung",
+      "l.u.n.g.e.s.",
+      "walking lunge",
+      "walking lunges",
+      "forward lunge",
+      "reverse lunge",
+      "step lunge"
     ]
   },
   {
@@ -8246,7 +8708,15 @@ export const exiconEntries: GlossaryEntry[] = [
       "chest",
       "arms",
       "upper body",
-      "bodyweight"
+      "bodyweight",
+      "merkins",
+      "m.e.r.k.i.n.",
+      "push-up",
+      "pushups",
+      "push ups",
+      "push-ups",
+      "chest exercise",
+      "merican"
     ]
   },
   {
@@ -8323,7 +8793,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "warmup",
       "shoulders",
       "dynamic stretch",
-      "pec stretch"
+      "pec stretch",
+      "michael phelp",
+      "arm swings",
+      "swimmer",
+      "backstroke",
+      "arm warmup"
     ]
   },
   {
@@ -8383,7 +8858,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "quads",
       "legs",
       "ankle grab",
-      "lower body"
+      "lower body",
+      "monkey humper",
+      "hip hinge",
+      "air hump",
+      "hip thrust standing"
     ]
   },
   {
@@ -8433,7 +8912,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "wrist rotation",
       "deltoids",
       "endurance",
-      "arms out"
+      "arms out",
+      "moroccan night clubs",
+      "arm exercise",
+      "forearm exercise",
+      "arm burn",
+      "mnc"
     ]
   },
   {
@@ -8463,7 +8947,10 @@ export const exiconEntries: GlossaryEntry[] = [
       "cardio",
       "core",
       "knee drive",
-      "high intensity"
+      "high intensity",
+      "mountain climbers",
+      "running plank",
+      "plank run"
     ]
   },
   {
@@ -8705,7 +9192,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "arms",
       "clapping",
       "overhead",
-      "cadence"
+      "cadence",
+      "overhead clap",
+      "clap overhead",
+      "arm raise clap",
+      "hands up clap"
     ]
   },
   {
@@ -8719,7 +9210,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "shoulders",
       "overhead",
       "coupon",
-      "block"
+      "block",
+      "ohp",
+      "shoulder press",
+      "military press",
+      "press overhead",
+      "standing press"
     ]
   },
   {
@@ -8755,7 +9251,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "plank",
       "core",
       "spiderman",
-      "knee to opposite elbow"
+      "knee to opposite elbow",
+      "parker peters",
+      "reverse peter parker",
+      "plank kick",
+      "cross body plank"
     ]
   },
   {
@@ -8822,7 +9322,8 @@ export const exiconEntries: GlossaryEntry[] = [
       "isometric",
       "quad burn",
       "static hold",
-      "lower body"
+      "lower body",
+      "people's chairs"
     ]
   },
   {
@@ -8847,7 +9348,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "plank",
       "core",
       "knee to elbow",
-      "same side"
+      "same side",
+      "peter parkers",
+      "spiderman",
+      "spider man",
+      "plank knee",
+      "cross body knee"
     ]
   },
   {
@@ -8901,7 +9407,14 @@ export const exiconEntries: GlossaryEntry[] = [
       "core",
       "hold",
       "abs",
-      "isometric"
+      "isometric",
+      "planks",
+      "p.l.a.n.k.",
+      "plank hold",
+      "hold plank",
+      "static hold",
+      "high plank",
+      "low plank"
     ]
   },
   {
@@ -8941,7 +9454,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "core",
       "cardio",
       "full body",
-      "feet in and out"
+      "feet in and out",
+      "plank jack",
+      "jumping plank",
+      "plank hops",
+      "plank jumps"
     ]
   },
   {
@@ -9142,7 +9659,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "pushup",
       "ranger",
       "advanced",
-      "clap"
+      "clap",
+      "ranger merkins",
+      "clap pushup",
+      "clap push up",
+      "explosive pushup",
+      "power pushup",
+      "plyo pushup"
     ]
   },
   {
@@ -9255,7 +9778,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "lower abs",
       "hip flexor",
       "legs up",
-      "on your six"
+      "on your six",
+      "rosalita",
+      "r.o.s.a.l.i.t.a.s.",
+      "arm exercise",
+      "lateral raise",
+      "shoulder raise"
     ]
   },
   {
@@ -9349,7 +9877,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "arms forward",
       "clapping",
       "deltoids",
-      "cadence"
+      "cadence",
+      "seal clap",
+      "front clap",
+      "chest clap",
+      "arm clap"
     ]
   },
   {
@@ -9407,7 +9939,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "tap",
       "plank",
       "core",
-      "stability"
+      "stability",
+      "shoulder tap",
+      "plank tap",
+      "plank taps",
+      "anti rotation",
+      "plank shoulder taps"
     ]
   },
   {
@@ -9472,7 +10009,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "crusher",
       "arms",
       "coupon",
-      "block"
+      "block",
+      "skull crusher",
+      "tricep extension",
+      "tricep extensions",
+      "lying tricep",
+      "french press"
     ]
   },
   {
@@ -9522,7 +10064,10 @@ export const exiconEntries: GlossaryEntry[] = [
       "cardio",
       "low squat",
       "legs",
-      "warmup"
+      "warmup",
+      "smurf jack",
+      "squat jack",
+      "low jack"
     ]
   },
   {
@@ -9624,7 +10169,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "legs",
       "quads",
       "glutes",
-      "lower body"
+      "lower body",
+      "s.q.u.a.t.s.",
+      "air squat",
+      "bodyweight squat",
+      "body weight squat",
+      "deep squat"
     ]
   },
   {
@@ -9653,7 +10203,13 @@ export const exiconEntries: GlossaryEntry[] = [
       "cardio",
       "warmup",
       "full body",
-      "cadence"
+      "cadence",
+      "sshs",
+      "s.s.h.",
+      "side straddle hop",
+      "star jump",
+      "star jumps",
+      "cardio warmup"
     ]
   },
   {
@@ -9709,7 +10265,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "quads",
       "glutes",
       "single leg",
-      "lower body"
+      "lower body",
+      "step up",
+      "bench step",
+      "box step up",
+      "step exercise"
     ]
   },
   {
@@ -9770,7 +10330,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "sumo",
       "legs",
       "inner thigh",
-      "wide"
+      "wide",
+      "sumo squats",
+      "wide squat",
+      "wide stance squat",
+      "plie squat",
+      "inner thigh squat"
     ]
   },
   {
@@ -9789,7 +10354,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "back",
       "core",
       "lower back",
-      "extension"
+      "extension",
+      "supermans",
+      "s.u.p.e.r.m.a.n.",
+      "back extension",
+      "back extensions",
+      "prone extension"
     ]
   },
   {
@@ -9902,7 +10472,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "chest",
       "core",
       "balance",
-      "upper body"
+      "upper body",
+      "t-merkins",
+      "t pushup",
+      "t push up",
+      "rotation pushup",
+      "side plank pushup"
     ]
   },
   {
@@ -10283,7 +10858,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "hamstring",
       "stretch",
       "warm-up",
-      "kick"
+      "kick",
+      "toy soldier",
+      "leg kick",
+      "leg kicks",
+      "straight leg kick",
+      "hamstring kick"
     ]
   },
   {
@@ -10732,7 +11312,14 @@ export const exiconEntries: GlossaryEntry[] = [
       "merkin",
       "pushup",
       "wide",
-      "chest"
+      "chest",
+      "wide arm merkins",
+      "wide merkin",
+      "wide pushup",
+      "wide push up",
+      "wide grip pushup",
+      "chest pushup",
+      "wide grip merkin"
     ]
   },
   {
@@ -10765,7 +11352,12 @@ export const exiconEntries: GlossaryEntry[] = [
       "stretch",
       "oblique",
       "warm-up",
-      "twist"
+      "twist",
+      "windmills",
+      "w.i.n.d.m.i.l.l.",
+      "cross touch",
+      "toe touch twist",
+      "rotational stretch"
     ]
   },
   {
@@ -10827,7 +11419,11 @@ export const exiconEntries: GlossaryEntry[] = [
       "agility",
       "cardio",
       "legs",
-      "defensive slide"
+      "defensive slide",
+      "wojo",
+      "w.o.j.o.s.",
+      "shoulder tap pushup",
+      "arm raise pushup"
     ]
   },
   {

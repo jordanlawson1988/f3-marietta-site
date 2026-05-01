@@ -13,6 +13,8 @@ keywords:
   - married
   - significant other
   - better half
+  - marriage
+  - mother
 ---
 
 ### Definition

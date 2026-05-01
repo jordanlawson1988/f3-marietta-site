@@ -11,6 +11,11 @@ keywords:
   - count off
   - roll call
   - numbers
+  - count-a-ramas
+  - counting
+  - how many
+  - number
+  - total pax
 ---
 
 ### Definition

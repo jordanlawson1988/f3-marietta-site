@@ -11,6 +11,7 @@ keywords:
   - bonding
   - hanging out
   - brotherhood
+  - second fs
 ---
 
 ### Definition

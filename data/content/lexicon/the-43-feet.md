@@ -13,6 +13,14 @@ keywords:
   - alarm
   - morning
   - bed to car
+  - the 43 feets
+  - proximity
+  - close
+  - nearby
+  - local
+  - neighborhood
+  - next door
+  - 43 feet
 ---
 
 ### Definition

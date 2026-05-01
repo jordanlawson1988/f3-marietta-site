@@ -13,6 +13,12 @@ keywords:
   - development
   - learning
   - accountability
+  - whetstones
+  - w.h.e.t.s.t.o.n.e.
+  - sharpen
+  - mentoring
+  - growth
+  - iron sharpens iron
 ---
 
 ### Definition

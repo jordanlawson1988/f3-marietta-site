@@ -12,6 +12,11 @@ keywords:
   - core
   - balance
   - upper body
+  - t-merkins
+  - t pushup
+  - t push up
+  - rotation pushup
+  - side plank pushup
 ---
 
 ### Definition

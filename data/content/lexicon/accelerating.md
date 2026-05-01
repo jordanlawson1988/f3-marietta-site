@@ -12,6 +12,14 @@ keywords:
   - progress
   - moving forward
   - leveling up
+  - acceleratings
+  - a.c.c.e.l.e.r.a.t.i.n.g.
+  - growing
+  - expanding
+  - more
+  - increasing
+  - ramping up
+  - acceleration
 ---
 
 ### Definition

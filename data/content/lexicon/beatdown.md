@@ -11,6 +11,11 @@ keywords:
   - training
   - what do you do
   - how hard
+  - beatdowns
+  - b.e.a.t.d.o.w.n.
+  - session
+  - bootcamp
+  - boot camp
 ---
 
 ### Definition

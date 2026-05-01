@@ -12,6 +12,7 @@ keywords:
   - quad burn
   - static hold
   - lower body
+  - people's chairs
 ---
 
 ### Definition

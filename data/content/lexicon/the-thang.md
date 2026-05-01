@@ -12,6 +12,12 @@ keywords:
   - what did you do
   - work portion
   - the hard part
+  - the thangs
+  - main event
+  - body of workout
+  - main exercise
+  - main portion
+  - the workout
 ---
 
 ### Definition

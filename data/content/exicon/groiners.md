@@ -12,6 +12,11 @@ keywords:
   - mobility
   - explosive
   - legs
+  - groiner
+  - g.r.o.i.n.e.r.s.
+  - mountain climber variation
+  - hip stretch
+  - groin stretch
 ---
 
 ### Definition

@@ -7,10 +7,16 @@ aliases: []
 keywords:
   - naming ceremony
   - get your name
-  - F3 name
+  - f3 name
   - introduction
   - who are you
   - nickname
+  - name-a-ramas
+  - introductions
+  - names
+  - introduce
+  - roll call
+  - name call
 ---
 
 ### Definition

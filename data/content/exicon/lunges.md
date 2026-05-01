@@ -12,6 +12,13 @@ keywords:
   - quads
   - glutes
   - walking
+  - lung
+  - l.u.n.g.e.s.
+  - walking lunge
+  - walking lunges
+  - forward lunge
+  - reverse lunge
+  - step lunge
 ---
 
 ### Definition

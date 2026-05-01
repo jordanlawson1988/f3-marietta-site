@@ -12,6 +12,11 @@ keywords:
   - bridge
   - hips
   - posterior
+  - glute bridges
+  - hip bridge
+  - hip bridges
+  - bridges
+  - hip raise
 ---
 
 ### Definition

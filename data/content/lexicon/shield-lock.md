@@ -14,6 +14,11 @@ keywords:
   - vulnerable
   - brothers
   - deep friendship
+  - shield locks
+  - close group
+  - inner circle
+  - trusted men
+  - shield lock group
 ---
 
 ### Definition

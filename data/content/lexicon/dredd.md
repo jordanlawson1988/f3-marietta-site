@@ -7,10 +7,18 @@ aliases: []
 keywords:
   - founder
   - co-founder
-  - who started F3
-  - David Redding
+  - who started f3
+  - david redding
   - origin
-  - Green Beret
+  - green beret
+  - dredds
+  - d.r.e.d.d.
+  - hard
+  - brutal
+  - tough
+  - intense
+  - feared
+  - dreaded
 ---
 
 ### Definition

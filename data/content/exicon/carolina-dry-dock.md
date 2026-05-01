@@ -13,6 +13,13 @@ keywords:
   - downward dog
   - deltoids
   - overhead press
+  - carolina dry docks
+  - pike pushup
+  - shoulder pushup
+  - decline pushup
+  - pike
+  - cdd
+  - inverted push-up
 ---
 
 ### Definition

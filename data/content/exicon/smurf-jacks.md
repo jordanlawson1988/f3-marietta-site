@@ -12,6 +12,9 @@ keywords:
   - low squat
   - legs
   - warmup
+  - smurf jack
+  - squat jack
+  - low jack
 ---
 
 ### Definition

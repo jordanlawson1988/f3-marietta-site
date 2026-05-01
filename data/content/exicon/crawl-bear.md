@@ -11,6 +11,10 @@ keywords:
   - all fours
   - locomotion
   - transport
+  - crawl bears
+  - reverse bear crawl
+  - backward bear crawl
+  - bear crawl backward
 ---
 
 ### Definition

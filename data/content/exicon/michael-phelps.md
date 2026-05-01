@@ -11,6 +11,11 @@ keywords:
   - shoulders
   - dynamic stretch
   - pec stretch
+  - michael phelp
+  - arm swings
+  - swimmer
+  - backstroke
+  - arm warmup
 ---
 
 ### Definition

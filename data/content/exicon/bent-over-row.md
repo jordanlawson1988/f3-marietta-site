@@ -13,6 +13,12 @@ keywords:
   - pull
   - coupon
   - block
+  - bent over rows
+  - bent row
+  - rows
+  - back row
+  - coupon row
+  - coupon rows
 ---
 
 ### Definition

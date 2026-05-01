@@ -11,6 +11,10 @@ keywords:
   - banter
   - humor
   - noise
+  - mumble chatters
+  - chatter
+  - griping
+  - grumbling
 ---
 
 ### Definition

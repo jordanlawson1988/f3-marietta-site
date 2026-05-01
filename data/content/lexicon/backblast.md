@@ -12,6 +12,13 @@ keywords:
   - who was there
   - what happened
   - write up
+  - backblasts
+  - b.a.c.k.b.l.a.s.t.
+  - report
+  - writeup
+  - after action
+  - post report
+  - field report
 ---
 
 ### Definition

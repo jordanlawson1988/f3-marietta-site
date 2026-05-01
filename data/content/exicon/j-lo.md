@@ -11,6 +11,12 @@ keywords:
   - plank
   - abs
   - side plank
+  - j-los
+  - hip raise
+  - hip thrust
+  - hip raises
+  - glute raise
+  - booty exercise
 ---
 
 ### Definition

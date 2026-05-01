@@ -11,6 +11,11 @@ keywords:
   - block
   - coupon
   - full body
+  - blocke
+  - b.l.o.c.k.e.e.s.
+  - block burpee
+  - coupon burpee
+  - block exercise
 ---
 
 ### Definition

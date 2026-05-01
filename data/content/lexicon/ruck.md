@@ -11,6 +11,12 @@ keywords:
   - military
   - march
   - rucksack
+  - rucks
+  - r.u.c.k.
+  - rucking
+  - backpack
+  - weighted hike
+  - weighted pack
 ---
 
 ### Definition

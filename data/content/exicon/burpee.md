@@ -13,6 +13,12 @@ keywords:
   - jump
   - plank
   - high intensity
+  - burpees
+  - b.u.r.p.e.e.
+  - up down
+  - squat thrusts
+  - yurpee
+  - blockee
 ---
 
 ### Definition

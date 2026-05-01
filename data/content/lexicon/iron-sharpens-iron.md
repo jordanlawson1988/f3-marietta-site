@@ -11,6 +11,11 @@ keywords:
   - challenge
   - proverbs
   - better together
+  - iron sharpens irons
+  - growth
+  - sharpen
+  - mutual
+  - together
 ---
 
 ### Definition

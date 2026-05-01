@@ -12,6 +12,12 @@ keywords:
   - hip flexor
   - lower abs
   - on your six
+  - flutter kick
+  - flutter
+  - flutters
+  - leg raises
+  - ab exercise
+  - leg flutter
 ---
 
 ### Definition

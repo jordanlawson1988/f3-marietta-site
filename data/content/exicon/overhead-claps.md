@@ -11,6 +11,10 @@ keywords:
   - clapping
   - overhead
   - cadence
+  - overhead clap
+  - clap overhead
+  - arm raise clap
+  - hands up clap
 ---
 
 ### Definition

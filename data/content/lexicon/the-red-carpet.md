@@ -13,6 +13,10 @@ keywords:
   - onboarding
   - making comfortable
   - first impression
+  - the red carpets
+  - greet
+  - introduction
+  - red carpet treatment
 ---
 
 ### Definition

@@ -11,6 +11,11 @@ keywords:
   - participants
   - who shows up
   - people
+  - paxs
+  - p.a.x.
+  - attendance
+  - attendees
+  - participant
 ---
 
 ### Definition

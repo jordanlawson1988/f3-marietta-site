@@ -11,6 +11,11 @@ keywords:
   - coordination
   - opposite arm leg
   - stability
+  - dying cockroachs
+  - dead bugs
+  - flailing
+  - back exercise
+  - supine
 ---
 
 ### Definition

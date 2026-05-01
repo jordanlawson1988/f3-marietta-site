@@ -13,6 +13,11 @@ keywords:
   - struggling
   - together
   - wait for everyone
+  - no man left behinds
+  - unity
+  - team
+  - dont quit
+  - nmlb
 ---
 
 ### Definition

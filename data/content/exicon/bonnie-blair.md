@@ -11,6 +11,11 @@ keywords:
   - explosive
   - cadence
   - lower body
+  - bonnie blairs
+  - lunge jump
+  - jump lunge
+  - switch lunge
+  - alternating lunge jump
 ---
 
 ### Definition

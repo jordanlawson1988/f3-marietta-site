@@ -13,6 +13,7 @@ keywords:
   - ethics
   - moral
   - values
+  - virtuous leaderships
 ---
 
 ### Definition

@@ -13,6 +13,11 @@ keywords:
   - legs
   - quads
   - lower body
+  - al gores
+  - wall sits
+  - static squat
+  - hold squat
+  - invisible chair
 ---
 
 ### Definition

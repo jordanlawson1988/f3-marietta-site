@@ -13,6 +13,10 @@ keywords:
   - giving
   - community
   - purpose
+  - living thirds
+  - put others first
+  - third f
+  - live third
 ---
 
 ### Definition

@@ -12,6 +12,10 @@ keywords:
   - cardio
   - full body
   - feet in and out
+  - plank jack
+  - jumping plank
+  - plank hops
+  - plank jumps
 ---
 
 ### Definition

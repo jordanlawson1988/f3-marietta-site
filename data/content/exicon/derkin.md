@@ -12,6 +12,12 @@ keywords:
   - upper body
   - push up variation
   - bench
+  - derkins
+  - d.e.r.k.i.n.
+  - decline pushup
+  - feet elevated pushup
+  - elevated merkin
+  - decline merkin
 ---
 
 ### Definition

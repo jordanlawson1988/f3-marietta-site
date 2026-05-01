@@ -11,6 +11,11 @@ keywords:
   - hip flexor
   - legs up
   - on your six
+  - rosalita
+  - r.o.s.a.l.i.t.a.s.
+  - arm exercise
+  - lateral raise
+  - shoulder raise
 ---
 
 ### Definition

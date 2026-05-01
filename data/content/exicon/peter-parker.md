@@ -11,6 +11,11 @@ keywords:
   - core
   - knee to elbow
   - same side
+  - peter parkers
+  - spiderman
+  - spider man
+  - plank knee
+  - cross body knee
 ---
 
 ### Definition

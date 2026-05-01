@@ -11,6 +11,10 @@ keywords:
   - explosive
   - forward jump
   - squat thrust
+  - burpee broad jumps
+  - burpee jump
+  - broad jump burpee
+  - jump forward burpee
 ---
 
 ### Definition

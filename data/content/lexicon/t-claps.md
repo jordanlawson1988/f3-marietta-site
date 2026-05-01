@@ -13,6 +13,13 @@ keywords:
   - kudos
   - congratulations
   - well done
+  - t-clap
+  - props
+  - respect
+  - nice job
+  - congrats
+  - twitter claps
+  - triple claps
 ---
 
 ### Definition

@@ -13,6 +13,12 @@ keywords:
   - arms
   - coupon
   - block
+  - c.u.r.l.s.
+  - bicep curl
+  - bicep curls
+  - arm curl
+  - arm curls
+  - coupon curls
 ---
 
 ### Definition

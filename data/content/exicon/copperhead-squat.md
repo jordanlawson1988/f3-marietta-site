@@ -11,6 +11,11 @@ keywords:
   - legs
   - lower body
   - cadence
+  - copperhead squats
+  - squat hold
+  - isometric squat
+  - squat pause
+  - hold at bottom
 ---
 
 ### Definition

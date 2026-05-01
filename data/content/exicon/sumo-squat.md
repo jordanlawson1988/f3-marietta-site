@@ -11,6 +11,11 @@ keywords:
   - legs
   - inner thigh
   - wide
+  - sumo squats
+  - wide squat
+  - wide stance squat
+  - plie squat
+  - inner thigh squat
 ---
 
 ### Definition

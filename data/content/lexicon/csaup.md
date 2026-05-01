@@ -12,6 +12,12 @@ keywords:
   - brutal
   - extreme
   - suffer
+  - csaups
+  - c.s.a.u.p.
+  - special event
+  - tough event
+  - hard workout
+  - gut check
 ---
 
 ### Definition

@@ -12,6 +12,12 @@ keywords:
   - ranger
   - advanced
   - clap
+  - ranger merkins
+  - clap pushup
+  - clap push up
+  - explosive pushup
+  - power pushup
+  - plyo pushup
 ---
 
 ### Definition

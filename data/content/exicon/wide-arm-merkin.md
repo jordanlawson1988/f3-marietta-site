@@ -12,6 +12,13 @@ keywords:
   - pushup
   - wide
   - chest
+  - wide arm merkins
+  - wide merkin
+  - wide pushup
+  - wide push up
+  - wide grip pushup
+  - chest pushup
+  - wide grip merkin
 ---
 
 ### Definition

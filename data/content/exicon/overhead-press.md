@@ -13,6 +13,11 @@ keywords:
   - overhead
   - coupon
   - block
+  - ohp
+  - shoulder press
+  - military press
+  - press overhead
+  - standing press
 ---
 
 ### Definition

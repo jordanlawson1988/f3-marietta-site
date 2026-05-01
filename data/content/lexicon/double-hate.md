@@ -11,6 +11,12 @@ keywords:
   - miserable
   - tough conditions
   - brutal weather
+  - double hates
+  - love
+  - affection
+  - respect
+  - admiration
+  - tough love
 ---
 
 ### Definition

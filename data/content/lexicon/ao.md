@@ -13,6 +13,14 @@ keywords:
   - meeting spot
   - workout site
   - address
+  - aos
+  - a.o.
+  - area of operations
+  - site
+  - where
+  - workout location
+  - workout spot
+  - meeting place
 ---
 
 ### Definition

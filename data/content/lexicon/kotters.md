@@ -18,6 +18,13 @@ keywords:
   - disappeared
   - gone
   - inactive
+  - kotter
+  - k.o.t.t.e.r.s.
+  - returning
+  - comeback
+  - been away
+  - havent been
+  - gone awhile
 ---
 
 ### Definition

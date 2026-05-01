@@ -9,10 +9,15 @@ keywords:
   - flag
   - symbol
   - marker
-  - AO flag
+  - ao flag
   - identity
   - rally point
   - tradition
+  - the shovel flags
+  - logo
+  - emblem
+  - shovel
+  - shovel flag
 ---
 
 ### Definition

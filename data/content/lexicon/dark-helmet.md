@@ -7,10 +7,16 @@ aliases: []
 keywords:
   - founder
   - co-founder
-  - who started F3
-  - Tim Whitmire
+  - who started f3
+  - tim whitmire
   - origin
-  - Charlotte
+  - charlotte
+  - dark helmets
+  - overtime
+  - extra
+  - before workout
+  - pre workout
+  - early arrival
 ---
 
 ### Definition

@@ -13,6 +13,12 @@ keywords:
   - explosive
   - legs
   - plyometric
+  - jump squat
+  - squat jump
+  - squat jumps
+  - explosive squat
+  - plyometric squat
+  - star jumps
 ---
 
 ### Definition

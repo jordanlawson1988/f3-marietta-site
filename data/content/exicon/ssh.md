@@ -13,6 +13,12 @@ keywords:
   - warmup
   - full body
   - cadence
+  - sshs
+  - s.s.h.
+  - side straddle hop
+  - star jump
+  - star jumps
+  - cardio warmup
 ---
 
 ### Definition

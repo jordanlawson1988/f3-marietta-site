@@ -12,6 +12,9 @@ keywords:
   - core
   - knee drive
   - high intensity
+  - mountain climbers
+  - running plank
+  - plank run
 ---
 
 ### Definition

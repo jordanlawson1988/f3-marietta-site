@@ -12,6 +12,11 @@ keywords:
   - instructor
   - coach
   - quarterback
+  - lead
+  - workout leader
+  - leading
+  - caller
+  - the leader
 ---
 
 ### Definition

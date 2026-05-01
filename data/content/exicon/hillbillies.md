@@ -12,6 +12,11 @@ keywords:
   - elbow to knee
   - warmup
   - cardio
+  - hillbilly
+  - h.i.l.l.b.i.l.l.i.e.s.
+  - squat walk
+  - lateral walk
+  - side step squat
 ---
 
 ### Definition

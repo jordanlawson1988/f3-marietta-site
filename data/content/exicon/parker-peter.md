@@ -11,6 +11,10 @@ keywords:
   - core
   - spiderman
   - knee to opposite elbow
+  - parker peters
+  - reverse peter parker
+  - plank kick
+  - cross body plank
 ---
 
 ### Definition

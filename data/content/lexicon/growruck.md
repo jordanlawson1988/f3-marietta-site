@@ -11,6 +11,8 @@ keywords:
   - team building
   - ruck march
   - intensive
+  - growrucks
+  - g.r.o.w.r.u.c.k.
 ---
 
 ### Definition

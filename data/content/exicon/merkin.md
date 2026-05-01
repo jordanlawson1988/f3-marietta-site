@@ -13,6 +13,14 @@ keywords:
   - arms
   - upper body
   - bodyweight
+  - merkins
+  - m.e.r.k.i.n.
+  - push-up
+  - pushups
+  - push ups
+  - push-ups
+  - chest exercise
+  - merican
 ---
 ### Definition
 The F3 term for a standard-form push-up.

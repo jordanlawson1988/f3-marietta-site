@@ -12,6 +12,12 @@ keywords:
   - upper body
   - bodyweight
   - push
+  - dip
+  - d.i.p.s.
+  - tricep dip
+  - tricep dips
+  - bench dip
+  - bench dips
 ---
 
 ### Definition

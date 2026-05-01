@@ -13,6 +13,13 @@ keywords:
   - falling off
   - lazy
   - comfort zone
+  - deceleratings
+  - d.e.c.e.l.e.r.a.t.i.n.g.
+  - slowing
+  - shrinking
+  - less
+  - declining
+  - deceleration
 ---
 
 ### Definition

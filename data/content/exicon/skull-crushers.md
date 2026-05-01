@@ -13,6 +13,11 @@ keywords:
   - arms
   - coupon
   - block
+  - skull crusher
+  - tricep extension
+  - tricep extensions
+  - lying tricep
+  - french press
 ---
 
 ### Definition

@@ -13,6 +13,10 @@ keywords:
   - creator
   - believe in
   - purpose
+  - skyqs
+  - s.k.y.q.
+  - god
+  - higher power
 ---
 
 ### Definition

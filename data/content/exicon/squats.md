@@ -12,6 +12,11 @@ keywords:
   - quads
   - glutes
   - lower body
+  - s.q.u.a.t.s.
+  - air squat
+  - bodyweight squat
+  - body weight squat
+  - deep squat
 ---
 
 ### Definition

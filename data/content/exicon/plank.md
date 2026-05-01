@@ -14,6 +14,13 @@ keywords:
   - hold
   - abs
   - isometric
+  - planks
+  - p.l.a.n.k.
+  - plank hold
+  - hold plank
+  - static hold
+  - high plank
+  - low plank
 ---
 
 ### Definition

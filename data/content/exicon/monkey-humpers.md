@@ -11,6 +11,10 @@ keywords:
   - legs
   - ankle grab
   - lower body
+  - monkey humper
+  - hip hinge
+  - air hump
+  - hip thrust standing
 ---
 
 ### Definition

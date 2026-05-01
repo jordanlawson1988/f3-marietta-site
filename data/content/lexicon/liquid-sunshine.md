@@ -12,6 +12,10 @@ keywords:
   - water
   - precipitation
   - not cancelled
+  - liquid sunshines
+  - drizzle
+  - downpour
+  - storm
 ---
 
 ### Definition

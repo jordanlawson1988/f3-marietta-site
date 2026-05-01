@@ -9,9 +9,15 @@ keywords:
   - promise
   - commit
   - going to be there
-  - RSVP
+  - rsvp
   - sign up
   - confirmed
+  - hcs
+  - h.c.
+  - hard commit
+  - commitment
+  - committed
+  - confirm
 ---
 
 ### Definition

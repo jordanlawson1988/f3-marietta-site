@@ -10,6 +10,12 @@ keywords:
   - free
   - fast
   - scatter
+  - jailbreaks
+  - j.a.i.l.b.r.e.a.k.
+  - free run
+  - go fast
+  - race
+  - all out
 ---
 
 ### Definition

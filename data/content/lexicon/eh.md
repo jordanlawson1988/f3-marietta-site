@@ -12,6 +12,11 @@ keywords:
   - get someone to come
   - convince
   - persuade
+  - ehs
+  - e.h.
+  - emotional headlock
+  - recruiting
+  - invitation
 ---
 
 ### Definition

@@ -11,6 +11,11 @@ keywords:
   - hip flexor
   - legs apart
   - on your six
+  - hello dolly
+  - leg spread
+  - leg spreads
+  - open close legs
+  - ab exercise
 ---
 
 ### Definition
