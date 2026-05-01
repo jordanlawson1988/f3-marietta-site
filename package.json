@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "regenerate-glossary": "npx tsx scripts/regenerateGlossary.ts",
+    "sync-glossary": "npx tsx scripts/syncGlossary.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report"

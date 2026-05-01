@@ -141,13 +141,40 @@ function convertToGlossaryEntry(entry: ParsedKBEntry): GlossaryEntry {
     };
 }
 
-function determineEntryType(folder: string): 'lexicon' | 'exicon' | 'other' {
-    const lexiconFolders = ['lexicon', 'leadership', 'faq', 'Misc', 'q-guides'];
+function determineEntryType(folder: string): 'lexicon' | 'exicon' | 'faq' | 'other' {
+    const lexiconFolders = ['lexicon', 'leadership', 'Misc', 'q-guides'];
     const exiconFolders = ['exicon', 'workouts'];
 
+    if (folder === 'faq') return 'faq';
     if (exiconFolders.includes(folder)) return 'exicon';
     if (lexiconFolders.includes(folder)) return 'lexicon';
     return 'other';
+}
+
+function deduplicateEntries(entries: GlossaryEntry[]): GlossaryEntry[] {
+    const seen = new Map<string, GlossaryEntry>();
+    for (const entry of entries) {
+        const key = entry.term.toLowerCase();
+        const existing = seen.get(key);
+        if (!existing) {
+            seen.set(key, entry);
+        } else {
+            const existingLen = (existing.shortDescription?.length ?? 0) + (existing.longDescription?.length ?? 0);
+            const newLen = (entry.shortDescription?.length ?? 0) + (entry.longDescription?.length ?? 0);
+            if (newLen > existingLen) {
+                seen.set(key, { ...entry, keywords: mergeKeywords(existing.keywords, entry.keywords) });
+            } else {
+                seen.set(key, { ...existing, keywords: mergeKeywords(existing.keywords, entry.keywords) });
+            }
+        }
+    }
+    return Array.from(seen.values());
+}
+
+function mergeKeywords(a?: string[], b?: string[]): string[] | undefined {
+    if (!a && !b) return undefined;
+    const set = new Set([...(a ?? []), ...(b ?? [])]);
+    return set.size > 0 ? Array.from(set) : undefined;
 }
 
 function main() {
@@ -180,19 +207,23 @@ function main() {
 
                 if (type === 'exicon') {
                     exiconEntries.push(entry);
-                } else {
+                } else if (type === 'faq') {
+                    // FAQ entries are excluded from the glossary
+                } else if (type !== 'other') {
                     lexiconEntries.push(entry);
                 }
             }
         }
     }
 
-    // Sort entries alphabetically by term
-    lexiconEntries.sort((a, b) => a.term.localeCompare(b.term));
-    exiconEntries.sort((a, b) => a.term.localeCompare(b.term));
+    const dedupedLexicon = deduplicateEntries(lexiconEntries);
+    const dedupedExicon = deduplicateEntries(exiconEntries);
 
-    console.log(`\n✅ Parsed ${lexiconEntries.length} lexicon entries`);
-    console.log(`✅ Parsed ${exiconEntries.length} exicon entries`);
+    dedupedLexicon.sort((a, b) => a.term.localeCompare(b.term));
+    dedupedExicon.sort((a, b) => a.term.localeCompare(b.term));
+
+    console.log(`\n✅ Parsed ${lexiconEntries.length} lexicon entries (${dedupedLexicon.length} after dedup)`);
+    console.log(`✅ Parsed ${exiconEntries.length} exicon entries (${dedupedExicon.length} after dedup)`);
 
     // Generate TypeScript file
     const output = `// Auto-generated from Knowledge Base - do not edit manually
@@ -207,14 +238,14 @@ export interface GlossaryEntry {
     keywords?: string[];
 }
 
-export const lexiconEntries: GlossaryEntry[] = ${JSON.stringify(lexiconEntries, null, 2)};
+export const lexiconEntries: GlossaryEntry[] = ${JSON.stringify(dedupedLexicon, null, 2)};
 
-export const exiconEntries: GlossaryEntry[] = ${JSON.stringify(exiconEntries, null, 2)};
+export const exiconEntries: GlossaryEntry[] = ${JSON.stringify(dedupedExicon, null, 2)};
 `;
 
     fs.writeFileSync(OUTPUT_FILE, output, 'utf-8');
     console.log(`\n📝 Generated ${OUTPUT_FILE}`);
-    console.log(`\n🎉 Done! Total entries: ${lexiconEntries.length + exiconEntries.length}`);
+    console.log(`\n🎉 Done! Total entries: ${dedupedLexicon.length + dedupedExicon.length}`);
 }
 
 main();

@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { name: "Workouts", href: "/workouts" },
   { name: "Backblasts", href: "/backblasts" },
   { name: "F3 Terms", href: "/glossary" },
+  { name: "FAQ", href: "/faq" },
   { name: "Beatdown Builder", href: "/beatdown-builder" },
   { name: "New Here", href: "/new-here" },
   { name: "Contact", href: "/contact" },
