@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
       contents: prompt,
       config: {
         systemInstruction: BEATDOWN_SYSTEM_INSTRUCTION,
-        thinkingConfig: { thinkingBudget: 0 },
+        thinkingConfig: { thinkingBudget: 256 },
         maxOutputTokens: 1200,
         temperature: 0.8,
         topP: 0.9,

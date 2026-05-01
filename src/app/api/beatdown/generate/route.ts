@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       contents: userPrompt,
       config: {
         systemInstruction: BEATDOWN_SYSTEM_INSTRUCTION,
-        thinkingConfig: { thinkingBudget: 0 },
+        thinkingConfig: { thinkingBudget: 256 },
         maxOutputTokens: 2400,
         temperature: 0.7,
         topP: 0.9,
