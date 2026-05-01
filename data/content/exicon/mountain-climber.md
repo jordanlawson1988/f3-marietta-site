@@ -5,6 +5,13 @@ tags:
   - Cardio
   - Core
 aliases: []
+keywords:
+  - running in place
+  - plank
+  - cardio
+  - core
+  - knee drive
+  - high intensity
 ---
 
 ### Definition

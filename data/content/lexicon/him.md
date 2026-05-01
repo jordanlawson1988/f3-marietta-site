@@ -5,6 +5,13 @@ tags:
   - Culture
 aliases:
   - High Impact Man
+keywords:
+  - leader
+  - role model
+  - making a difference
+  - servant leader
+  - impact
+  - accelerated
 ---
 
 ### Definition

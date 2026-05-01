@@ -5,6 +5,13 @@ tags:
   - Leadership
 aliases:
   - Emotional Headlock
+keywords:
+  - invite
+  - recruit
+  - bring a friend
+  - get someone to come
+  - convince
+  - persuade
 ---
 
 ### Definition

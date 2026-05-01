@@ -5,6 +5,13 @@ tags:
   - Shoulders
 aliases:
   - MNC
+keywords:
+  - shoulder burn
+  - arm circles
+  - wrist rotation
+  - deltoids
+  - endurance
+  - arms out
 ---
 
 ### Definition

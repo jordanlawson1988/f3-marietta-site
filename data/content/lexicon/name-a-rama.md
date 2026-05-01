@@ -4,6 +4,13 @@ category: Culture
 tags:
   - Term
 aliases: []
+keywords:
+  - naming ceremony
+  - get your name
+  - F3 name
+  - introduction
+  - who are you
+  - nickname
 ---
 
 ### Definition

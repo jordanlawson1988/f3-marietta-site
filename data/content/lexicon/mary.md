@@ -5,6 +5,13 @@ tags:
   - Exercise
 aliases:
   - 6 Minutes of Mary
+keywords:
+  - abs
+  - core
+  - final exercises
+  - end of workout
+  - ab work
+  - six pack
 ---
 
 ### Definition

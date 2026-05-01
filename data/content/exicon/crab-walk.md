@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Transport
 aliases: []
+keywords:
+  - triceps
+  - locomotion
+  - hands and feet
+  - reverse crawl
+  - transport
+  - full body
 ---
 
 ### Definition

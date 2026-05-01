@@ -6,6 +6,13 @@ aliases:
   - Push-up
   - Pushups
   - Merican
+keywords:
+  - push up
+  - pushup
+  - chest
+  - arms
+  - upper body
+  - bodyweight
 ---
 ### Definition
 The F3 term for a standard-form push-up.

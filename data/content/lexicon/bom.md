@@ -5,6 +5,13 @@ tags:
   - Faith
 aliases:
   - Ball of Man
+keywords:
+  - prayer
+  - closing prayer
+  - huddle
+  - hands in
+  - group prayer
+  - shoulder to shoulder
 ---
 
 ### Definition

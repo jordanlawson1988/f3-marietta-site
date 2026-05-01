@@ -5,6 +5,14 @@ tags:
   - Culture
 aliases:
   - The Bed
+keywords:
+  - bed
+  - sleep in
+  - skip workout
+  - didn't show up
+  - stayed home
+  - lazy
+  - snooze
 ---
 
 ### Definition

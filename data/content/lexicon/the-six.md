@@ -5,6 +5,13 @@ tags:
   - Culture
 aliases:
   - The Last Man
+keywords:
+  - last place
+  - slowest
+  - back of the pack
+  - behind
+  - struggling
+  - tail end
 ---
 
 ### Definition

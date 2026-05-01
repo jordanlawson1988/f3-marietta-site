@@ -4,6 +4,13 @@ category: Leadership
 tags:
   - Region
 aliases: []
+keywords:
+  - admin
+  - operations
+  - organizer
+  - logistics
+  - scheduling
+  - behind the scenes
 ---
 
 ### Definition

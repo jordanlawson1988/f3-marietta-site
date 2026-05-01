@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Core
 aliases: []
+keywords:
+  - abs
+  - core
+  - inner thigh
+  - hip flexor
+  - legs apart
+  - on your six
 ---
 
 ### Definition

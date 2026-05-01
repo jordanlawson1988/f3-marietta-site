@@ -120,10 +120,7 @@ async function callGemini(query: string, queryContext: string | null): Promise<s
         contents: query,
         config: {
             systemInstruction,
-            // Gemini 2.5 Flash defaults to dynamic "thinking" — those tokens
-            // count against maxOutputTokens AND add several seconds of latency.
-            // For 1–4 sentence definitional answers, disable it entirely.
-            thinkingConfig: { thinkingBudget: 0 },
+            thinkingConfig: { thinkingBudget: 256 },
             maxOutputTokens: 600,
             temperature: 0.55,
             topP: 0.9,

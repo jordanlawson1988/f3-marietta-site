@@ -6,6 +6,13 @@ tags:
 aliases:
   - CDD
   - Inverted Push-up
+keywords:
+  - shoulder
+  - pike push up
+  - upper body
+  - downward dog
+  - deltoids
+  - overhead press
 ---
 
 ### Definition

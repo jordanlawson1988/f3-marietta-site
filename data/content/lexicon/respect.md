@@ -4,6 +4,13 @@ category: Term
 tags:
   - Culture
 aliases: []
+keywords:
+  - old
+  - older
+  - age
+  - "50"
+  - senior
+  - veteran
 ---
 
 ### Definition

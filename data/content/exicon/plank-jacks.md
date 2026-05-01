@@ -5,6 +5,13 @@ tags:
   - Core
   - Cardio
 aliases: []
+keywords:
+  - plank
+  - jumping jacks
+  - core
+  - cardio
+  - full body
+  - feet in and out
 ---
 
 ### Definition

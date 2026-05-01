@@ -4,6 +4,13 @@ category: Term
 tags:
   - Communication
 aliases: []
+keywords:
+  - announcement
+  - upcoming workout
+  - schedule
+  - what's planned
+  - heads up
+  - preview
 ---
 
 ### Definition

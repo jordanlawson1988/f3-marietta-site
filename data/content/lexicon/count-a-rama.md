@@ -4,6 +4,13 @@ category: Term
 tags:
   - Culture
 aliases: []
+keywords:
+  - head count
+  - how many showed up
+  - attendance
+  - count off
+  - roll call
+  - numbers
 ---
 
 ### Definition

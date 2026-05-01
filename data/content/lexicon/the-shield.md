@@ -4,6 +4,13 @@ category: Culture
 tags:
   - Faith
 aliases: []
+keywords:
+  - accountability group
+  - small group
+  - close friends
+  - confidential
+  - trust
+  - inner circle
 ---
 
 ### Definition

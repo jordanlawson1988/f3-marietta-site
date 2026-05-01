@@ -4,6 +4,13 @@ category: Term
 tags:
   - Exercise
 aliases: []
+keywords:
+  - weighted backpack
+  - weighted walk
+  - hiking
+  - military
+  - march
+  - rucksack
 ---
 
 ### Definition

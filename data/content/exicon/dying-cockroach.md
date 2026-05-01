@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Core
 aliases: []
+keywords:
+  - dead bug
+  - core
+  - abs
+  - coordination
+  - opposite arm leg
+  - stability
 ---
 
 ### Definition

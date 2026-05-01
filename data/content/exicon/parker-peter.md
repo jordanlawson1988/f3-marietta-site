@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Core
 aliases: []
+keywords:
+  - cross body knee
+  - obliques
+  - plank
+  - core
+  - spiderman
+  - knee to opposite elbow
 ---
 
 ### Definition

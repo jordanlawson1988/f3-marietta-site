@@ -5,6 +5,13 @@ tags:
   - Chest
 aliases:
   - Decline Merkin
+keywords:
+  - decline push up
+  - feet elevated
+  - chest
+  - upper body
+  - push up variation
+  - bench
 ---
 
 ### Definition

@@ -4,6 +4,13 @@ category: Term
 tags:
   - Culture
 aliases: []
+keywords:
+  - visiting
+  - travel
+  - out of town
+  - guest
+  - another region
+  - away from home
 ---
 
 ### Definition

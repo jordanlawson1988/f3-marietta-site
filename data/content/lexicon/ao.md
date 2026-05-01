@@ -6,6 +6,13 @@ tags:
   - Location
 aliases:
   - Area of Operations
+keywords:
+  - location
+  - where is the workout
+  - park
+  - meeting spot
+  - workout site
+  - address
 ---
 
 ### Definition

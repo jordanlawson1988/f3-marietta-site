@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Transport
 aliases: []
+keywords:
+  - lateral movement
+  - side shuffle
+  - low squat
+  - locomotion
+  - transport
+  - full body
 ---
 
 ### Definition

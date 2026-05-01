@@ -5,6 +5,13 @@ tags:
   - Legs
   - Cardio
 aliases: []
+keywords:
+  - lateral shuffle
+  - side to side
+  - agility
+  - cardio
+  - legs
+  - defensive slide
 ---
 
 ### Definition

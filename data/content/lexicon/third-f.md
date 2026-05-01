@@ -4,6 +4,13 @@ category: Culture
 tags:
   - Faith
 aliases: []
+keywords:
+  - faith
+  - belief
+  - purpose
+  - serving others
+  - giving back
+  - spiritual
 ---
 
 ### Definition

@@ -5,6 +5,13 @@ tags:
   - Culture
 aliases:
   - Friendly New Guy
+keywords:
+  - new guy
+  - first time
+  - newcomer
+  - beginner
+  - first workout
+  - never been
 ---
 
 ### Definition

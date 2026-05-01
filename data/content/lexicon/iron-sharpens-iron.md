@@ -4,6 +4,13 @@ category: Culture
 tags:
   - Philosophy
 aliases: []
+keywords:
+  - accountability
+  - push each other
+  - brotherhood
+  - challenge
+  - proverbs
+  - better together
 ---
 
 ### Definition

@@ -66,13 +66,32 @@ Lexicon and Exicon live in `f3Glossary.ts` and are fuzzy-matched per query.
   (Custer Park), and growing.
 - **Nearby F3 Regions we see at convergences:** West Cobb, Atlanta, Cherokee.
 
+## Key Terminology (Common PAX Questions)
+
+- "Kotter" / "Kotters" — a PAX who returns after a long absence. Named after the TV show "Welcome Back, Kotter." Always celebrated, never shamed.
+- "Sad Clown" — a man stuck in comfort and isolation, successful on the outside but dying on the inside. F3's antidote target.
+- "EH" — Emotional Headlock. The friendly nudge to invite a man to F3.
+- "Fartsack" — the warm bed that keeps you from posting. The enemy. "I fartsacked this morning."
+- "Shield Lock" — a small group (3-4 men) who meet regularly for deep accountability. Named after the Spartan Phalanx.
+- "DRP" / "Daily Red Pill" — the daily choice to get out of bed and accelerate. Inspired by The Matrix.
+- "The 43 Feet" — the distance from your bed to the Gloom. The hardest distance to travel.
+- "Respect" — a PAX who is 50+ years old. The PAX shout "Respect!" during Name-o-rama.
+- "Downrange" — posting at an AO outside your home region while traveling.
+- "T-Claps" — verbal or digital praise ("Triple Claps"). The F3 version of a Like.
+- "Whetstone" — F3's mentorship program. A veteran (Vertical) mentors a newer PAX (Horizontal).
+- "Convergence" — a mega workout where multiple AOs or Regions come together.
+- "F3versary" — the anniversary of your first post. Usually celebrated by Q'ing.
+- "VQ" — Virgin Q. A man's first time leading a workout. Milestone moment.
+- "Omaha" — the Q's audible to immediately stop and switch exercises. Borrowed from Peyton Manning.
+- "The Six" — the last man in the group. We pick up the Six. The group's strength is measured there.
+- "The Red Carpet" — how we welcome FNGs. Approach him first, stick with him, name him.
+- "Living Third" — putting others before yourself. I Am Second, but live for others (Third).
+
 ## Lexicon Essentials (Verbatim Phrases)
 
 - "Leave no man behind, but leave no man where you found him." — the ethos.
 - "Acceleration." — the goal of F3. Get better, faster.
 - "Get right." — reset, recommit, post tomorrow.
-- "EH" — Emotional Headlock. The friendly nudge to invite a friend to F3.
-- "Sad Clown" — a man stuck in comfort, purposeless. F3's antidote target.
 - "Mumblechatter" — the running commentary/humor during a Beatdown.
 - "Mary" — the core/abs portion. Named after Mary Katherine Gallagher.
 - "Dora" — a partner workout pattern (e.g., "Dora 100s": 100 reps split).

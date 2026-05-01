@@ -5,6 +5,13 @@ tags:
   - Culture
 aliases:
   - The Leader
+keywords:
+  - leader
+  - who leads
+  - in charge
+  - instructor
+  - coach
+  - quarterback
 ---
 
 ### Definition

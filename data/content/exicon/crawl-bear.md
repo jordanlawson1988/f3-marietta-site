@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Transport
 aliases: []
+keywords:
+  - backwards crawl
+  - reverse crawl
+  - shoulders
+  - all fours
+  - locomotion
+  - transport
 ---
 
 ### Definition

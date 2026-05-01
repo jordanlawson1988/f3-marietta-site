@@ -6,6 +6,13 @@ tags:
 aliases:
   - Side Straddle Hop
   - Jumping Jack
+keywords:
+  - jumping jack
+  - jumping jacks
+  - cardio
+  - warmup
+  - full body
+  - cadence
 ---
 
 ### Definition

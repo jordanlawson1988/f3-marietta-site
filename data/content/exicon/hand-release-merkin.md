@@ -5,6 +5,13 @@ tags:
   - Chest
 aliases:
   - HRM
+keywords:
+  - push up
+  - full range of motion
+  - chest
+  - strict form
+  - upper body
+  - no cheating
 ---
 
 ### Definition

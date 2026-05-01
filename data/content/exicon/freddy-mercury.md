@@ -5,6 +5,13 @@ tags:
   - Core
 aliases:
   - Bicycles
+keywords:
+  - bicycle crunch
+  - obliques
+  - abs
+  - core
+  - pedaling
+  - elbow to knee
 ---
 
 ### Definition

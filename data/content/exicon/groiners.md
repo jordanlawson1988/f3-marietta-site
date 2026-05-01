@@ -5,6 +5,13 @@ tags:
   - Legs
   - Cardio
 aliases: []
+keywords:
+  - hip opener
+  - plank jump
+  - hip flexor
+  - mobility
+  - explosive
+  - legs
 ---
 
 ### Definition

@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Core
 aliases: []
+keywords:
+  - spiderman plank
+  - obliques
+  - plank
+  - core
+  - knee to elbow
+  - same side
 ---
 
 ### Definition

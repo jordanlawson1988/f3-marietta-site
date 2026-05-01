@@ -4,6 +4,14 @@ category: Term
 tags:
   - Culture
 aliases: []
+keywords:
+  - hard event
+  - challenge
+  - endurance
+  - long workout
+  - brutal
+  - extreme
+  - suffer
 ---
 
 ### Definition

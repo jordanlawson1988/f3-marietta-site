@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Full Body
 aliases: []
+keywords:
+  - warmup
+  - stretch
+  - hamstring
+  - flexibility
+  - standing stretch
+  - full body
 ---
 
 ### Definition

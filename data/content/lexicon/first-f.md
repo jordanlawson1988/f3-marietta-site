@@ -4,6 +4,13 @@ category: Culture
 tags:
   - Fitness
 aliases: []
+keywords:
+  - fitness
+  - physical
+  - exercise
+  - working out
+  - get in shape
+  - health
 ---
 
 ### Definition

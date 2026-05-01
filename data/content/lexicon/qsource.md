@@ -4,6 +4,13 @@ category: Leadership
 tags:
   - Faith
 aliases: []
+keywords:
+  - leadership manual
+  - book
+  - study
+  - virtuous leadership
+  - get right
+  - live right
 ---
 
 ### Definition

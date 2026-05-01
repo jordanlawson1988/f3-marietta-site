@@ -4,6 +4,13 @@ category: Term
 tags:
   - Culture
 aliases: []
+keywords:
+  - show up
+  - attend
+  - go to workout
+  - participate
+  - came out
+  - was there
 ---
 
 ### Definition

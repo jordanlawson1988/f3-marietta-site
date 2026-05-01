@@ -4,6 +4,13 @@ category: Leadership
 tags:
   - Culture
 aliases: []
+keywords:
+  - help the last guy
+  - no man left behind
+  - run back
+  - encourage
+  - wait up
+  - come back for
 ---
 
 ### Definition

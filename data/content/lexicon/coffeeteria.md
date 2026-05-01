@@ -4,6 +4,14 @@ category: Culture
 tags:
   - Fellowship
 aliases: []
+keywords:
+  - coffee
+  - after workout
+  - hang out
+  - fellowship
+  - social
+  - breakfast
+  - grab coffee
 ---
 
 ### Definition

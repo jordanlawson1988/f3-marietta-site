@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Legs
 aliases: []
+keywords:
+  - squat
+  - glutes
+  - quads
+  - legs
+  - ankle grab
+  - lower body
 ---
 
 ### Definition

@@ -6,6 +6,13 @@ tags:
 aliases:
   - Yurpee
   - Blockee
+keywords:
+  - full body
+  - cardio
+  - squat thrust
+  - jump
+  - plank
+  - high intensity
 ---
 
 ### Definition

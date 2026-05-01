@@ -4,6 +4,13 @@ category: Term
 tags:
   - Culture
 aliases: []
+keywords:
+  - stop
+  - change
+  - audible
+  - switch
+  - time's up
+  - next exercise
 ---
 
 ### Definition

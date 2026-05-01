@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Legs
 aliases: []
+keywords:
+  - plyo
+  - plyometric
+  - jump
+  - explosive
+  - legs
+  - bench jump
 ---
 
 ### Definition

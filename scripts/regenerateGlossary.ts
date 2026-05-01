@@ -17,6 +17,7 @@ interface GlossaryEntry {
     shortDescription: string;
     longDescription?: string;
     category?: string;
+    keywords?: string[];
 }
 
 interface ParsedKBEntry {
@@ -24,6 +25,7 @@ interface ParsedKBEntry {
     category: string;
     tags: string[];
     aliases: string[];
+    keywords: string[];
     definition: string;
     howItsDone: string;
     variations: string[];
@@ -97,6 +99,7 @@ function parseMarkdownFile(filePath: string, folder: string): ParsedKBEntry | nu
             category: typeof data.category === 'string' ? data.category : folder,
             tags: Array.isArray(data.tags) ? data.tags : [],
             aliases: Array.isArray(data.aliases) ? data.aliases : [],
+            keywords: Array.isArray(data.keywords) ? data.keywords.map((k: unknown) => String(k)) : [],
             definition,
             howItsDone: howItsDoneMatch ? howItsDoneMatch[1].trim() : '',
             variations,
@@ -126,13 +129,15 @@ function convertToGlossaryEntry(entry: ParsedKBEntry): GlossaryEntry {
     }
 
     const longDescription = longParts.length > 0 ? longParts.join(' ') : undefined;
+    const keywords = entry.keywords.length > 0 ? entry.keywords : undefined;
 
     return {
         id,
         term: entry.title,
         shortDescription,
         longDescription,
-        category: entry.category
+        category: entry.category,
+        keywords
     };
 }
 
@@ -199,6 +204,7 @@ export interface GlossaryEntry {
     shortDescription: string;
     longDescription?: string;
     category?: string;
+    keywords?: string[];
 }
 
 export const lexiconEntries: GlossaryEntry[] = ${JSON.stringify(lexiconEntries, null, 2)};

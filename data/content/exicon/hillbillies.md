@@ -5,6 +5,13 @@ tags:
   - Core
   - Cardio
 aliases: []
+keywords:
+  - lateral crunch
+  - obliques
+  - standing core
+  - elbow to knee
+  - warmup
+  - cardio
 ---
 
 ### Definition

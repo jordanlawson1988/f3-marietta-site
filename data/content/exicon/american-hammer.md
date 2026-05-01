@@ -6,6 +6,13 @@ tags:
 aliases:
   - Russian Twist
   - Zelensky Twist
+keywords:
+  - russian twist
+  - obliques
+  - core rotation
+  - abs
+  - seated twist
+  - torso rotation
 ---
 
 ### Definition

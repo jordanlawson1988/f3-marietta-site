@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Legs
 aliases: []
+keywords:
+  - squat jump
+  - jump squat
+  - explosive
+  - legs
+  - plyometric
+  - floor touch
 ---
 
 ### Definition

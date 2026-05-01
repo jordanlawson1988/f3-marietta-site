@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Legs
 aliases: []
+keywords:
+  - squat
+  - slow squat
+  - quads
+  - legs
+  - lower body
+  - cadence
 ---
 
 ### Definition

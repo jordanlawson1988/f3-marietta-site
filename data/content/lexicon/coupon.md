@@ -6,6 +6,13 @@ tags:
 aliases:
   - Cindy
   - The Block
+keywords:
+  - weight
+  - cinder block
+  - equipment
+  - heavy
+  - resistance
+  - bring a block
 ---
 
 ### Definition

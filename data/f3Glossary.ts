@@ -7,6 +7,7 @@ export interface GlossaryEntry {
     shortDescription: string;
     longDescription?: string;
     category?: string;
+    keywords?: string[];
 }
 
 export const lexiconEntries: GlossaryEntry[] = [
@@ -29,7 +30,16 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "2.0",
     "shortDescription": "The children of a PAX.",
     "longDescription": "Named as 'versions' of the original (the PAX). Often join for special 2.0 workouts. We lead so they have a better example to follow.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "kids",
+      "children",
+      "son",
+      "daughter",
+      "family",
+      "bring my kid",
+      "youth workout"
+    ]
   },
   {
     "id": "2-0-workout",
@@ -81,6 +91,21 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Culture"
   },
   {
+    "id": "accelerating",
+    "term": "Accelerating",
+    "shortDescription": "The process of getting better at life, leadership, and fitness. A man is either accelerating or decelerating — there is no standing still.",
+    "longDescription": "Accelerating means posting consistently, taking the Q, investing in your Shield Lock, serving your community, and leading your family. It's the whole man getting better across all three F's. Acceleration is not perfection. It's direction. As long as you're moving forward, you're accelerating.",
+    "category": "Culture",
+    "keywords": [
+      "improving",
+      "getting better",
+      "growth",
+      "progress",
+      "moving forward",
+      "leveling up"
+    ]
+  },
+  {
     "id": "accountability",
     "term": "Accountability",
     "shortDescription": "The willingness of a man to let his brothers speak truth into his life.",
@@ -92,14 +117,30 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "AO",
     "shortDescription": "The specific geographic location where an F3 event or workout takes place.",
     "longDescription": "Show up at the designated GPS coordinates at the stated time, usually a park or school parking lot. The fundamental unit of F3 geography.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "location",
+      "where is the workout",
+      "park",
+      "meeting spot",
+      "workout site",
+      "address"
+    ]
   },
   {
     "id": "backblast",
     "term": "Backblast",
     "shortDescription": "A written summary of the workout posted to Slack or a website.",
     "longDescription": "Includes the Q, the PAX, the 'Thang' (workout details), and a message from the Q. Keeps the Region connected and accountable.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "recap",
+      "summary",
+      "workout report",
+      "who was there",
+      "what happened",
+      "write up"
+    ]
   },
   {
     "id": "balaclava",
@@ -120,7 +161,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Beatdown",
     "shortDescription": "The actual physical workout led by a Q.",
     "longDescription": "Typically 45 minutes of HIIT, running, and bodyweight exercises in the gloom. Every beatdown is 'the best one yet.'",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "workout",
+      "exercise session",
+      "morning workout",
+      "training",
+      "what do you do",
+      "how hard"
+    ]
   },
   {
     "id": "beatdown-flow",
@@ -155,7 +204,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "BOM",
     "shortDescription": "The physical act of men huddling close together for the final prayer/words.",
     "longDescription": "Men put hands on shoulders or in the center, symbolizing unity and strength. Physical contact builds brotherhood.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "prayer",
+      "closing prayer",
+      "huddle",
+      "hands in",
+      "group prayer",
+      "shoulder to shoulder"
+    ]
   },
   {
     "id": "cadence-counting",
@@ -209,7 +266,16 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Coffeeteria",
     "shortDescription": "Gathering for coffee and fellowship immediately following a workout.",
     "longDescription": "PAX head to a local coffee shop or tailgate to talk, share life, and build the Second F. This is where the real bond is formed.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "coffee",
+      "after workout",
+      "hang out",
+      "fellowship",
+      "social",
+      "breakfast",
+      "grab coffee"
+    ]
   },
   {
     "id": "comms-q",
@@ -251,21 +317,45 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Concentric Circles",
     "shortDescription": "The F3 model of growth: Individual -> Team -> Organization -> Community.",
     "longDescription": "Focus on getting yourself right first so you can lead your family and community. Acceleration starts in the center.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "growth model",
+      "influence",
+      "individual to community",
+      "ripple effect",
+      "leadership layers",
+      "expanding impact"
+    ]
   },
   {
     "id": "convergence",
     "term": "Convergence",
     "shortDescription": "When multiple AOs or Regions meet at one location for a massive workout.",
     "longDescription": "Usually happens on holidays (July 4th, New Year's) or for special milestones. A great way to see the scale of the Nation.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "big workout",
+      "multiple AOs",
+      "holiday workout",
+      "combined",
+      "all together",
+      "special event"
+    ]
   },
   {
     "id": "cot",
     "term": "COT",
     "shortDescription": "The final 5-10 minutes of every workout where men gather in a circle to close out.",
     "longDescription": "Includes a Count-a-rama, Name-a-rama, announcements, and a 'Shout Out' or prayer to end the session. This is the most important part of the 45 minutes.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "closing",
+      "end of workout",
+      "prayer",
+      "circle",
+      "share",
+      "wrap up"
+    ]
   },
   {
     "id": "cot-circle-of-trust",
@@ -286,7 +376,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Count-a-rama",
     "shortDescription": "The process of counting the number of men present at the workout.",
     "longDescription": "A man starts with 'One' and it goes around the circle until the last man calls the total. Ensures no man is left behind.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "head count",
+      "how many showed up",
+      "attendance",
+      "count off",
+      "roll call",
+      "numbers"
+    ]
   },
   {
     "id": "counting-the-pax",
@@ -300,14 +398,47 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Coupon",
     "shortDescription": "A weighted object (usually a 40lb cinder block) used in a workout.",
     "longDescription": "PAX bring their 'coupons' to add resistance to Merkins, Squats, and Presses. A cinder block costs $3—the best gym equipment there is.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "weight",
+      "cinder block",
+      "equipment",
+      "heavy",
+      "resistance",
+      "bring a block"
+    ]
   },
   {
     "id": "csaup",
     "term": "CSAUP",
     "shortDescription": "Completely Stupid And Utterly Pointless. A long-form or grueling event that pushes limits.",
     "longDescription": "Events like GrowRuck, The Murph, or an Ironpax challenge that require extra endurance. Meant to be hard so that men must rely on each other.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "hard event",
+      "challenge",
+      "endurance",
+      "long workout",
+      "brutal",
+      "extreme",
+      "suffer"
+    ]
+  },
+  {
+    "id": "daily-red-pill",
+    "term": "Daily Red Pill",
+    "shortDescription": "The daily choice to get out of bed and accelerate rather than staying comfortable. Choosing reality and growth over ease.",
+    "longDescription": "Inspired by The Matrix — every morning a man chooses the red pill (face the Gloom) or the blue pill (fartsack). The DRP is the foundation of F3 discipline. It's not a one-time decision. Every single morning the alarm goes off, you take the red pill again.",
+    "category": "Culture",
+    "keywords": [
+      "daily choice",
+      "get out of bed",
+      "discipline",
+      "morning routine",
+      "commitment",
+      "wake up",
+      "choose growth"
+    ]
   },
   {
     "id": "daily-red-pill-drp",
@@ -321,7 +452,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Dark Helmet",
     "shortDescription": "The F3 name of Tim Whitmire, one of the two co-founders of F3 Nation.",
     "longDescription": "A former journalist who helped scale F3 from the original AO in Charlotte. One of the original HIMs.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "founder",
+      "co-founder",
+      "who started F3",
+      "Tim Whitmire",
+      "origin",
+      "Charlotte"
+    ]
   },
   {
     "id": "darn-tough-socks",
@@ -336,6 +475,22 @@ export const lexiconEntries: GlossaryEntry[] = [
     "shortDescription": "When a man stops pushing himself and slides back into comfort or isolation.",
     "longDescription": "Usually starts with 'fartsacking' and leads to becoming a Sad Clown again. We hold each other accountable to stop the slide.",
     "category": "Culture"
+  },
+  {
+    "id": "decelerating",
+    "term": "Decelerating",
+    "shortDescription": "When a man stops pushing himself and slides back into comfort. The opposite of accelerating.",
+    "longDescription": "Deceleration usually starts with fartsacking one morning, then two, then a week. Before you know it, you're a Kotter. A man is always either accelerating or decelerating — there is no neutral. If you see a brother decelerating, EH him back. That's the whole point.",
+    "category": "Culture",
+    "keywords": [
+      "backsliding",
+      "quitting",
+      "giving up",
+      "stopped coming",
+      "falling off",
+      "lazy",
+      "comfort zone"
+    ]
   },
   {
     "id": "disrupter",
@@ -395,18 +550,49 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Miscellaneous"
   },
   {
+    "id": "double-hate",
+    "term": "Double Hate",
+    "shortDescription": "When conditions are both extreme — hot AND humid, or cold AND windy. A badge of honor to post in Double Hate.",
+    "longDescription": "\"Double Hate this morning — 28 degrees with 20mph wind.\" Posting in Double Hate earns extra T-Claps and proves you're not controlled by comfort. F3 doesn't cancel for weather. Double Hate just makes the backblast better.",
+    "category": "Term",
+    "keywords": [
+      "extreme weather",
+      "hot and humid",
+      "cold and windy",
+      "miserable",
+      "tough conditions",
+      "brutal weather"
+    ]
+  },
+  {
     "id": "downrange",
     "term": "Downrange",
     "shortDescription": "When a PAX attends an F3 workout in a region other than his own home AO.",
     "longDescription": "Traveling PAX should announce they are 'downrange' and bring a sticker from their home AO. F3 is a global brotherhood.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "visiting",
+      "travel",
+      "out of town",
+      "guest",
+      "another region",
+      "away from home"
+    ]
   },
   {
     "id": "dredd",
     "term": "Dredd",
     "shortDescription": "The F3 name of David Redding, one of the two co-founders of F3 Nation.",
     "longDescription": "A lawyer and former Green Beret who helped draft the QSource. One of the original HIMs.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "founder",
+      "co-founder",
+      "who started F3",
+      "David Redding",
+      "origin",
+      "Green Beret"
+    ]
   },
   {
     "id": "dry-bag",
@@ -427,7 +613,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "EH",
     "shortDescription": "The process of inviting and persistently encouraging a man to join F3.",
     "longDescription": "Not a physical headlock, but an invitation that makes it hard for him to say no. One-on-one is always better than a blast email.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "invite",
+      "recruit",
+      "bring a friend",
+      "get someone to come",
+      "convince",
+      "persuade"
+    ]
   },
   {
     "id": "emergency-contact",
@@ -535,25 +729,66 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Miscellaneous"
   },
   {
+    "id": "f3versary",
+    "term": "F3versary",
+    "shortDescription": "The annual anniversary of a PAX's first workout. A milestone worth celebrating.",
+    "longDescription": "Usually celebrated by Q'ing the beatdown that day or getting showered with T-Claps from the region. It marks the day a man chose to stop fartsacking. Know your F3versary. It's the day your life changed direction.",
+    "category": "Term",
+    "keywords": [
+      "anniversary",
+      "birthday",
+      "first post",
+      "milestone",
+      "celebration",
+      "how long",
+      "years in F3"
+    ]
+  },
+  {
     "id": "fartsack",
     "term": "Fartsack",
     "shortDescription": "The warm, comfortable bed that keeps a man from posting to a workout.",
     "longDescription": "Usually used as a verb: 'I fartsacked this morning.' It is the enemy of the First F. Don't let the fartsack win.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "bed",
+      "sleep in",
+      "skip workout",
+      "didn't show up",
+      "stayed home",
+      "lazy",
+      "snooze"
+    ]
   },
   {
     "id": "first-f",
     "term": "First F",
     "shortDescription": "The fitness component of F3—the 'magnet' that brings men together.",
     "longDescription": "Focusing on functional fitness through the beatdown to get the body right. You can't lead others if you can't lead yourself.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "fitness",
+      "physical",
+      "exercise",
+      "working out",
+      "get in shape",
+      "health"
+    ]
   },
   {
     "id": "fng",
     "term": "FNG",
     "shortDescription": "A man attending his first F3 workout who has not yet been given an F3 name.",
     "longDescription": "Treat him with the 'Red Carpet.' He is the most important man at the workout until he is named at the end. Never use the 'F' to mean anything vulgar.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "new guy",
+      "first time",
+      "newcomer",
+      "beginner",
+      "first workout",
+      "never been"
+    ]
   },
   {
     "id": "foam-roller",
@@ -570,11 +805,35 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Culture"
   },
   {
+    "id": "give-it-away",
+    "term": "Give It Away",
+    "shortDescription": "The principle of taking what you've learned and teaching the next man. F3 is free because it was given to us.",
+    "longDescription": "Once you've been sharpened by F3, you give it away — Q a beatdown, EH the Sad Clown in your neighborhood, mentor a newer PAX. The gift only works when it's passed on. This is why F3 will always be free. Nobody paid for what we received, and nobody should pay to receive it from us.",
+    "category": "Leadership",
+    "keywords": [
+      "teach",
+      "share",
+      "pass it on",
+      "pay it forward",
+      "mentor",
+      "help others",
+      "free"
+    ]
+  },
+  {
     "id": "gloom",
     "term": "Gloom",
     "shortDescription": "The pre-dawn hours when F3 workouts typically occur (usually 0500-0700).",
     "longDescription": "Wake up while the world is sleeping, get out of bed, and drive to the AO. Seeing the sun rise with your brothers is the reward.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "early morning",
+      "dark",
+      "before sunrise",
+      "5am",
+      "dawn",
+      "predawn"
+    ]
   },
   {
     "id": "gorilla-tape",
@@ -616,7 +875,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "GrowRuck",
     "shortDescription": "A CSAUP event combining a leadership Grow School with a grueling overnight Ruck.",
     "longDescription": "Designed to break men down so they can be rebuilt as better leaders. The ultimate F3 leadership experience.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "leadership event",
+      "overnight",
+      "crucible",
+      "team building",
+      "ruck march",
+      "intensive"
+    ]
   },
   {
     "id": "hand-warmers",
@@ -637,7 +904,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "HC",
     "shortDescription": "A firm promise to show up to a workout or event.",
     "longDescription": "Usually given in Slack to a Pre-blast. Once you 'HC,' you don't fartsack. Your word is your bond.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "promise",
+      "commit",
+      "going to be there",
+      "RSVP",
+      "sign up",
+      "confirmed"
+    ]
   },
   {
     "id": "headband",
@@ -672,7 +947,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "HIM",
     "shortDescription": "A man who has accelerated his leadership and is making a positive impact on his community.",
     "longDescription": "A HIM takes the DRP (Daily Red Pill), leads his family, and serves his AO. The goal of the F3 journey.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "leader",
+      "role model",
+      "making a difference",
+      "servant leader",
+      "impact",
+      "accelerated"
+    ]
   },
   {
     "id": "holding-the-plank",
@@ -769,7 +1052,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Iron Sharpens Iron",
     "shortDescription": "The concept that men improve through challenge and friction with other men.",
     "longDescription": "Taken from Proverbs 27:17. We don't grow in comfort. The reason we push each other in the gloom.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "accountability",
+      "push each other",
+      "brotherhood",
+      "challenge",
+      "proverbs",
+      "better together"
+    ]
   },
   {
     "id": "ironpax-challenge",
@@ -835,11 +1126,41 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Culture"
   },
   {
+    "id": "kinging",
+    "term": "Kinging",
+    "shortDescription": "The trap of a leader believing the AO exists to serve him rather than the other way around.",
+    "longDescription": "A man is Kinging when he hoards the Q, refuses to develop other leaders, or treats the AO like his personal kingdom. Avoided by rotating Q and empowering new leaders. Kinging is the opposite of servant leadership. The cure is Living Third and giving the Q away.",
+    "category": "Leadership",
+    "keywords": [
+      "ego",
+      "power trip",
+      "selfish leader",
+      "not sharing",
+      "control",
+      "narcissist",
+      "bad leadership"
+    ]
+  },
+  {
     "id": "kotters",
     "term": "Kotters",
     "shortDescription": "A welcome back given to a PAX who has been absent for a long period.",
     "longDescription": "Named after the TV show 'Welcome Back, Kotter.' Used when a man 're-posts' after a hiatus. Always celebrate a man's return; never shame his absence.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "absent",
+      "missing",
+      "hiatus",
+      "stopped posting",
+      "came back",
+      "return",
+      "welcome back",
+      "haven't been",
+      "long time",
+      "disappeared",
+      "gone",
+      "inactive"
+    ]
   },
   {
     "id": "latex-dipped-gloves",
@@ -854,6 +1175,21 @@ export const lexiconEntries: GlossaryEntry[] = [
     "shortDescription": "The philosophy that every man in the organization should be capable of leading.",
     "longDescription": "We don't have one 'coach.' Every man eventually takes the Q and leads the PAX. Prevents the group from relying on one person.",
     "category": "Culture"
+  },
+  {
+    "id": "leader-full",
+    "term": "Leader-Full",
+    "shortDescription": "The philosophy that every man should be capable of leading. No single \"coach\" — every man eventually takes the Q.",
+    "longDescription": "F3 is not a boot camp with a hired trainer. It's a peer-led organization where leadership rotates. A leader-full AO develops men, not followers. If only one or two men ever Q at an AO, that AO is not leader-full — it's Kinging.",
+    "category": "Leadership",
+    "keywords": [
+      "everyone leads",
+      "shared leadership",
+      "no coach",
+      "rotate",
+      "take turns",
+      "peer led"
+    ]
   },
   {
     "id": "leadership-acceleration",
@@ -891,6 +1227,22 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Miscellaneous"
   },
   {
+    "id": "liquid-sunshine",
+    "term": "Liquid Sunshine",
+    "shortDescription": "F3 term for rain during a workout. We don't cancel for rain — we rebrand it.",
+    "longDescription": "\"Looks like Liquid Sunshine for tomorrow's beatdown. See you in the Gloom.\" It reframes bad weather as just another reason to post. If you only post when conditions are perfect, you'll miss the best beatdowns. Some of the strongest bonds are built in Liquid Sunshine.",
+    "category": "Term",
+    "keywords": [
+      "rain",
+      "raining",
+      "wet",
+      "weather",
+      "water",
+      "precipitation",
+      "not cancelled"
+    ]
+  },
+  {
     "id": "living-third",
     "term": "Living Third",
     "shortDescription": "The lifestyle of putting others before yourself.",
@@ -898,11 +1250,35 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Culture"
   },
   {
+    "id": "living-third",
+    "term": "Living Third",
+    "shortDescription": "Putting others before yourself. Based on the principle of God first, others second, self third. A HIM lives for his community.",
+    "longDescription": "A man Living Third isn't asking \"what's in it for me\" — he's asking \"who needs me today.\" It drives everything from Q'ing to EH to service work. Living Third is the antidote to Kinging. When you stop serving yourself, you start leading others.",
+    "category": "Leadership",
+    "keywords": [
+      "service",
+      "selfless",
+      "others first",
+      "sacrifice",
+      "giving",
+      "community",
+      "purpose"
+    ]
+  },
+  {
     "id": "m",
     "term": "M",
     "shortDescription": "The wife or significant other of a PAX.",
     "longDescription": "Referenced with respect. We work out early so we can be better husbands to our Ms. Family comes before F3.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "wife",
+      "spouse",
+      "partner",
+      "married",
+      "significant other",
+      "better half"
+    ]
   },
   {
     "id": "magnesium-spray",
@@ -919,11 +1295,35 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Culture"
   },
   {
+    "id": "male-isolation",
+    "term": "Male Isolation",
+    "shortDescription": "The modern epidemic of men lacking deep friendships and accountability. F3 exists to combat this.",
+    "longDescription": "Male isolation is the problem statement behind everything F3 does. Most men over 30 cannot name a single close friend. F3 changes that through free, peer-led workouts that build genuine brotherhood. This is why F3 is free, open to all men, and held outdoors in the Gloom — zero barriers to entry for the man who needs it most.",
+    "category": "Culture",
+    "keywords": [
+      "lonely",
+      "loneliness",
+      "no friends",
+      "disconnected",
+      "alone",
+      "isolated",
+      "depression"
+    ]
+  },
+  {
     "id": "mary",
     "term": "Mary",
     "shortDescription": "The final portion of a workout focused on core/abdominal exercises.",
     "longDescription": "Named after the song 'Proud Mary.' Usually the last 5-10 minutes of the First F. Ends with the COT.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "abs",
+      "core",
+      "final exercises",
+      "end of workout",
+      "ab work",
+      "six pack"
+    ]
   },
   {
     "id": "mary",
@@ -979,7 +1379,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Mumble Chatter",
     "shortDescription": "The talk, joking, and complaining that happens during a workout.",
     "longDescription": "Used to encourage the PAX, heckle the Q, and distract from the 'suck' of the exercise. A quiet workout is usually a boring one.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "talking",
+      "joking",
+      "complaining",
+      "banter",
+      "humor",
+      "noise"
+    ]
   },
   {
     "id": "mumble-chatter-management",
@@ -1007,7 +1415,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Name-a-rama",
     "shortDescription": "The ritual at the end of a workout where every man identifies himself.",
     "longDescription": "State your hospital name (real name), age, and then your F3 name. FNGs are named last after a brief 'interrogation.'",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "naming ceremony",
+      "get your name",
+      "F3 name",
+      "introduction",
+      "who are you",
+      "nickname"
+    ]
   },
   {
     "id": "name-a-rama-protocol",
@@ -1028,14 +1444,30 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Nano Region",
     "shortDescription": "A small, emerging group of AOs that are working toward becoming an official Region.",
     "longDescription": "A temporary stage for growth as F3 expands into new territory. Where many of our great Regions started.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "new region",
+      "starting out",
+      "small group",
+      "emerging",
+      "planting",
+      "new chapter"
+    ]
   },
   {
     "id": "nantan",
     "term": "Nantan",
     "shortDescription": "The symbolic and spiritual leader of an F3 Region.",
     "longDescription": "He serves as the 'chief' who protects the culture and vision of the Region. The Nantan is the 'cultural weight-bearing' leader.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "regional leader",
+      "chief",
+      "who runs the region",
+      "top leader",
+      "culture keeper",
+      "head of region"
+    ]
   },
   {
     "id": "no-man-left-behind",
@@ -1043,6 +1475,22 @@ export const lexiconEntries: GlossaryEntry[] = [
     "shortDescription": "The F3 commitment that no man, regardless of fitness level, will ever be left alone.",
     "longDescription": "The PAX always 'pick up the Six.' If a man is struggling, someone stays with him. Our strength is measured by the man in the back.",
     "category": "Culture"
+  },
+  {
+    "id": "no-man-left-behind",
+    "term": "No Man Left Behind",
+    "shortDescription": "The core F3 commitment that no man will ever be left alone regardless of fitness level.",
+    "longDescription": "If a brother is struggling, you pick up the six. We start together, we finish together. No PAX posts alone and no PAX finishes alone. This isn't just about running. It applies to life — if a man is going through it, we show up.",
+    "category": "Culture",
+    "keywords": [
+      "never alone",
+      "help",
+      "support",
+      "slow",
+      "struggling",
+      "together",
+      "wait for everyone"
+    ]
   },
   {
     "id": "no-man-left-the-same",
@@ -1056,7 +1504,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Omaha",
     "shortDescription": "The command given by a Q to immediately end an exercise and move to the next phase.",
     "longDescription": "Used if time is running short or if the Q realizes the current move is a 'total disaster.' Borrowed from Peyton Manning's audible.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "stop",
+      "change",
+      "audible",
+      "switch",
+      "time's up",
+      "next exercise"
+    ]
   },
   {
     "id": "omaha",
@@ -1105,7 +1561,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "PAX",
     "shortDescription": "The members of F3 who have completed at least one workout and received an F3 name.",
     "longDescription": "Derived from the Latin for 'peace' and military shorthand for passengers/people. You become PAX after your first COT. We never refer to the group as 'guys' or 'gentlemen'—it's PAX.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "members",
+      "guys",
+      "men",
+      "participants",
+      "who shows up",
+      "people"
+    ]
   },
   {
     "id": "peer-led",
@@ -1126,7 +1590,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Pick up the Six",
     "shortDescription": "When the faster PAX run back to join and encourage the man in last place.",
     "longDescription": "After reaching a checkpoint, turn around and run back until you reach the Six. Ensures the group finishes together.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "help the last guy",
+      "no man left behind",
+      "run back",
+      "encourage",
+      "wait up",
+      "come back for"
+    ]
   },
   {
     "id": "picking-up-the-six",
@@ -1140,7 +1612,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Post",
     "shortDescription": "The act of showing up to an F3 workout.",
     "longDescription": "Example: 'I posted at the Marietta AO this morning.' It is a verb of action. Posting is the first step to acceleration.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "show up",
+      "attend",
+      "go to workout",
+      "participate",
+      "came out",
+      "was there"
+    ]
   },
   {
     "id": "post-workout-fellowship",
@@ -1154,7 +1634,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Pre-blast",
     "shortDescription": "An announcement posted before a workout to build excitement and 'HCs.'",
     "longDescription": "Includes location, time, and a hint of what the Q has planned. Essential for getting men to commit.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "announcement",
+      "upcoming workout",
+      "schedule",
+      "what's planned",
+      "heads up",
+      "preview"
+    ]
   },
   {
     "id": "pre-blast",
@@ -1168,14 +1656,30 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Q",
     "shortDescription": "The man who takes responsibility for leading the workout or event.",
     "longDescription": "The Q is the 'Quarterback.' He plans the beatdown, starts on time, and leads with confidence. In F3, we are all leaders; eventually, every man must Q.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "leader",
+      "who leads",
+      "in charge",
+      "instructor",
+      "coach",
+      "quarterback"
+    ]
   },
   {
     "id": "qsource",
     "term": "QSource",
     "shortDescription": "The F3 manual of Virtuous Leadership consisting of four quadrants: Get Right, Live Right, Lead Right, Leave Right.",
     "longDescription": "Study the quadrants and the 'points' within to understand how F3 builds leaders. Essential reading for any man looking to accelerate.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "leadership manual",
+      "book",
+      "study",
+      "virtuous leadership",
+      "get right",
+      "live right"
+    ]
   },
   {
     "id": "queen-ing",
@@ -1217,7 +1721,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Respect",
     "shortDescription": "A title given to a PAX who is 50 years of age or older.",
     "longDescription": "When a man says his age during Name-a-rama and it's 50+, the PAX shout 'Respect!' Age is a badge of honor in the gloom.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "old",
+      "older",
+      "age",
+      "50",
+      "senior",
+      "veteran"
+    ]
   },
   {
     "id": "route-planning",
@@ -1231,7 +1743,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Ruck",
     "shortDescription": "To walk with a weighted rucksack or backpack.",
     "longDescription": "A primary mode of First F that allows for more mumble chatter while working. Great for building stamina.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "weighted backpack",
+      "weighted walk",
+      "hiking",
+      "military",
+      "march",
+      "rucksack"
+    ]
   },
   {
     "id": "ruck-handle-secondary",
@@ -1259,7 +1779,18 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Sad Clown",
     "shortDescription": "A man who is living a life of isolation, likely successful on the outside but 'dying' on the inside.",
     "longDescription": "We identify the Sad Clown in our neighborhood or office and use the EH to bring him to the Gloom. F3 is the cure for the Sad Clown.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "isolated",
+      "lonely",
+      "comfort",
+      "purposeless",
+      "stuck",
+      "couch",
+      "alone",
+      "disconnected",
+      "going through the motions"
+    ]
   },
   {
     "id": "safety-glasses",
@@ -1280,7 +1811,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Second F",
     "shortDescription": "The fellowship component of F3—the 'glue' that keeps men together.",
     "longDescription": "Activities like Coffeeteria, lunches, or social events that build deep friendships. The antidote to male loneliness.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "fellowship",
+      "friendship",
+      "community",
+      "bonding",
+      "hanging out",
+      "brotherhood"
+    ]
   },
   {
     "id": "sector",
@@ -1304,6 +1843,23 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Culture"
   },
   {
+    "id": "shared-suffering",
+    "term": "Shared Suffering",
+    "shortDescription": "The bond created between men when they endure a hard challenge together. Shared pain creates bonds that normal friendship cannot.",
+    "longDescription": "The reason we do hard things in the Gloom isn't punishment — it's the fastest way to build real brotherhood. Suffer together, grow together. This is the secret sauce of F3. You can't fake the bond that comes from a CSAUP or a brutal beatdown with your brothers.",
+    "category": "Culture",
+    "keywords": [
+      "bond",
+      "suffering",
+      "struggle",
+      "hard",
+      "together",
+      "pain",
+      "brothers",
+      "camaraderie"
+    ]
+  },
+  {
     "id": "shield-lock",
     "term": "Shield Lock",
     "shortDescription": "A small, high-accountability group of 3-4 men who share their deepest struggles.",
@@ -1311,11 +1867,36 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Culture"
   },
   {
+    "id": "shield-lock",
+    "term": "Shield Lock",
+    "shortDescription": "A small accountability group of 3-4 men who meet regularly for deep trust and mutual support.",
+    "longDescription": "Named after the Spartan Phalanx formation where shields interlock. Men form Shield Locks to go deeper than the AO allows — sharing struggles, goals, and hard truths in confidence. A Shield Lock only works when every man is willing to be vulnerable. What's said in Shield Lock stays in Shield Lock.",
+    "category": "Culture",
+    "keywords": [
+      "accountability group",
+      "small group",
+      "close friends",
+      "confidential",
+      "trust",
+      "vulnerable",
+      "brothers",
+      "deep friendship"
+    ]
+  },
+  {
     "id": "site-q",
     "term": "Site Q",
     "shortDescription": "The leader responsible for the health and growth of a specific AO.",
     "longDescription": "He ensures the flag is there, the Q is assigned, and FNGs are welcomed. The frontline leader of F3.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "location leader",
+      "AO manager",
+      "who runs this AO",
+      "point person",
+      "responsible for",
+      "site leader"
+    ]
   },
   {
     "id": "site-q",
@@ -1336,7 +1917,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "SkyQ",
     "shortDescription": "The F3 term for a Creator or Higher Power.",
     "longDescription": "Referenced during the 3rd F or COT as the source of purpose and strength. F3 is open to men of all faiths or no faith.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "faith",
+      "religion",
+      "spiritual",
+      "creator",
+      "believe in",
+      "purpose"
+    ]
   },
   {
     "id": "slack",
@@ -1372,6 +1961,22 @@ export const lexiconEntries: GlossaryEntry[] = [
     "shortDescription": "A form of digital or verbal 'praise' or 'thanks' given to a PAX member.",
     "longDescription": "Derived from 'Triple Claps.' Used in Slack or at the COT to recognize a HIM for a job well done. The F3 version of a 'Like' button.",
     "category": "Miscellaneous"
+  },
+  {
+    "id": "t-claps",
+    "term": "T-Claps",
+    "shortDescription": "Triple Claps. Verbal or digital praise given to a PAX for good work, effort, or achievement.",
+    "longDescription": "The F3 version of a \"Like\" or kudos. Drop T-Claps in Slack, at COT, or anytime a brother deserves recognition. T-Claps cost nothing and mean everything. Give them freely and often.",
+    "category": "Term",
+    "keywords": [
+      "praise",
+      "thanks",
+      "good job",
+      "recognition",
+      "kudos",
+      "congratulations",
+      "well done"
+    ]
   },
   {
     "id": "the-bolt",
@@ -1449,6 +2054,22 @@ export const lexiconEntries: GlossaryEntry[] = [
     "shortDescription": "The symbolic distance from a man's bed to the Gloom; the hardest distance to travel.",
     "longDescription": "The psychological hurdle of choosing to get out of bed at 0500. If you can win the first 43 feet, you've won the day.",
     "category": "Culture"
+  },
+  {
+    "id": "the-43-feet",
+    "term": "The 43 Feet",
+    "shortDescription": "The distance from a man's bed to the Gloom. The hardest distance to travel in any workout.",
+    "longDescription": "Win the first 43 feet and you've won the day. Once you're out of bed and moving, the rest takes care of itself. Every PAX knows this truth: the hardest rep is getting your feet on the floor. Everything after that is just exercise.",
+    "category": "Culture",
+    "keywords": [
+      "getting out of bed",
+      "hardest part",
+      "first step",
+      "discipline",
+      "alarm",
+      "morning",
+      "bed to car"
+    ]
   },
   {
     "id": "the-6th-man",
@@ -1584,11 +2205,35 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Culture"
   },
   {
+    "id": "the-red-carpet",
+    "term": "The Red Carpet",
+    "shortDescription": "The intentional way F3 welcomes FNGs — approach immediately, stay with them during the workout, and make sure they have a great first experience.",
+    "longDescription": "When a new man shows up, roll out the Red Carpet. Introduce yourself, explain what's happening, stay by his side, and make sure he knows he belongs before he leaves. A man's first post determines whether he comes back. The Red Carpet is every PAX's responsibility, not just the Q's.",
+    "category": "Culture",
+    "keywords": [
+      "welcome",
+      "new guy",
+      "first time",
+      "greeting",
+      "onboarding",
+      "making comfortable",
+      "first impression"
+    ]
+  },
+  {
     "id": "the-shield",
     "term": "The Shield",
     "shortDescription": "The bond between a small group of men (usually 2-4) who hold each other accountable.",
     "longDescription": "Based on the idea that a man's shield protects the man next to him. Deep accountability beyond the AO.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "accountability group",
+      "small group",
+      "close friends",
+      "confidential",
+      "trust",
+      "inner circle"
+    ]
   },
   {
     "id": "the-shovel-flag",
@@ -1605,6 +2250,22 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Culture"
   },
   {
+    "id": "the-shovel-flag",
+    "term": "The Shovel Flag",
+    "shortDescription": "The physical flag mounted on a shovel handle that marks an AO. The symbol of F3 and a rally point for the PAX.",
+    "longDescription": "The Shovel Flag is planted at the AO before each workout. It never touches the ground. Building one for a new AO is a rite of passage for the region. The shovel represents the work we do — digging into ourselves and into our communities. If you see the flag, you've found your people.",
+    "category": "Culture",
+    "keywords": [
+      "flag",
+      "symbol",
+      "marker",
+      "AO flag",
+      "identity",
+      "rally point",
+      "tradition"
+    ]
+  },
+  {
     "id": "the-shovel-flag-plant",
     "term": "The Shovel Flag Plant",
     "shortDescription": "The act of placing the flag at the AO to signify the start of the Gloom.",
@@ -1616,7 +2277,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "The Six",
     "shortDescription": "The man who is currently in last place during a run or exercise.",
     "longDescription": "We never leave a man behind. The 'Six' is protected by the PAX. The strength of the group is measured by the Six.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "last place",
+      "slowest",
+      "back of the pack",
+      "behind",
+      "struggling",
+      "tail end"
+    ]
   },
   {
     "id": "the-soul-of-f3",
@@ -1644,7 +2313,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "The Thang",
     "shortDescription": "The main portion of the beatdown between the Warm-a-rama and Mary.",
     "longDescription": "This is where the 'work' happens. It can include circuits, running, or coupon work. The part of the morning where you earn your coffee.",
-    "category": "Term"
+    "category": "Term",
+    "keywords": [
+      "main workout",
+      "exercises",
+      "circuit",
+      "what did you do",
+      "work portion",
+      "the hard part"
+    ]
   },
   {
     "id": "the-thang",
@@ -1665,7 +2342,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Third F",
     "shortDescription": "The faith component of F3—the 'dynamite' that gives men purpose.",
     "longDescription": "Not necessarily religious, but a belief in something bigger than yourself and service to others. The 'Third F' is about living for something other than yourself.",
-    "category": "Culture"
+    "category": "Culture",
+    "keywords": [
+      "faith",
+      "belief",
+      "purpose",
+      "serving others",
+      "giving back",
+      "spiritual"
+    ]
   },
   {
     "id": "trail-shoes",
@@ -1682,6 +2367,22 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Culture"
   },
   {
+    "id": "virtuous-leadership",
+    "term": "Virtuous Leadership",
+    "shortDescription": "Leadership based on character, habit, and service. The QSource framework and the F3 way of building leaders.",
+    "longDescription": "A Virtuous Leader leads from the front, serves from the back, and builds other leaders along the way. It's not about title or authority — it's about who you are when nobody's watching. Virtuous Leadership is the output of living the QSource. It's built through daily discipline, not a weekend seminar.",
+    "category": "Leadership",
+    "keywords": [
+      "character",
+      "integrity",
+      "servant leader",
+      "good leader",
+      "ethics",
+      "moral",
+      "values"
+    ]
+  },
+  {
     "id": "volume-and-command",
     "term": "Volume and Command",
     "shortDescription": "Using a loud, clear voice to project commands over the mumble chatter.",
@@ -1693,7 +2394,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "VQ",
     "shortDescription": "A PAX member's first time leading a workout as the Q.",
     "longDescription": "A milestone in every man's F3 journey. The PAX usually give the VQ a little extra mumble chatter. The hardest Q you'll ever do.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "first time leading",
+      "first Q",
+      "never led",
+      "new leader",
+      "milestone",
+      "nervous"
+    ]
   },
   {
     "id": "vq-virgin-q",
@@ -1721,7 +2430,15 @@ export const lexiconEntries: GlossaryEntry[] = [
     "term": "Weasel Shaker",
     "shortDescription": "The administrative leader of a Region who handles the 'nuts and bolts.'",
     "longDescription": "He manages the spreadsheets, AO schedules, and backblasts for the Nantan. Essential for a functioning Region.",
-    "category": "Leadership"
+    "category": "Leadership",
+    "keywords": [
+      "admin",
+      "operations",
+      "organizer",
+      "logistics",
+      "scheduling",
+      "behind the scenes"
+    ]
   },
   {
     "id": "weight-plate",
@@ -1883,6 +2600,23 @@ export const lexiconEntries: GlossaryEntry[] = [
     "category": "Miscellaneous"
   },
   {
+    "id": "whetstone",
+    "term": "Whetstone",
+    "shortDescription": "F3's official mentorship program where a veteran (Vertical) guides a newer PAX (Horizontal), like iron sharpening iron.",
+    "longDescription": "A Whetstone pairing meets regularly so the Vertical can share experience and the Horizontal can accelerate his leadership growth. Both men benefit from the relationship. The name comes from the sharpening stone — the same idea as Iron Sharpens Iron, but structured and intentional.",
+    "category": "Leadership",
+    "keywords": [
+      "mentor",
+      "mentorship",
+      "coaching",
+      "guidance",
+      "veteran",
+      "development",
+      "learning",
+      "accountability"
+    ]
+  },
+  {
     "id": "who-is-in-charge",
     "term": "Who is in charge?",
     "shortDescription": "The 'Q' (Quarterback) leads the specific workout. There is no paid staff; it's all peer-led. Every man eventually leads.",
@@ -1963,14 +2697,31 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "Al Gore",
     "shortDescription": "A static hold in a squat position.",
     "longDescription": "1. Sink into a squat\n2. Arms extended forward like you're hugging a tree\n3. Hold for the PAX The PAX wait move.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "wall sit",
+      "squat hold",
+      "static hold",
+      "isometric",
+      "legs",
+      "quads",
+      "lower body"
+    ]
   },
   {
     "id": "american-hammer",
     "term": "American Hammer",
     "shortDescription": "Rotational core exercise.",
     "longDescription": "1. Seated on your six, feet 6 inches off ground\n2. Clasp hands and touch the ground on alternating sides Focus on rotation.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "russian twist",
+      "obliques",
+      "core rotation",
+      "abs",
+      "seated twist",
+      "torso rotation"
+    ]
   },
   {
     "id": "amrap",
@@ -1984,14 +2735,30 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "Balls to the Wall",
     "shortDescription": "Inverted static hold.",
     "longDescription": "1. Handstand against a wall, facing the wall\n2. Feet as high as possible Safety first.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "handstand",
+      "wall handstand",
+      "inverted hold",
+      "shoulders",
+      "isometric",
+      "upper body"
+    ]
   },
   {
     "id": "bear-crawl",
     "term": "Bear Crawl",
     "shortDescription": "All-fours transportation.",
     "longDescription": "1. Move forward on hands and feet\n2. Keep knees close to the ground Keep back flat.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "crawling",
+      "all fours",
+      "hands and feet",
+      "full body",
+      "locomotion",
+      "movement"
+    ]
   },
   {
     "id": "beatdown-the-deck-of-death",
@@ -2005,77 +2772,165 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "Big Boy Sit-up",
     "shortDescription": "A full range of motion sit-up.",
     "longDescription": "1. On back, legs straight\n2. Swing arms from overhead to touch toes, sitting all the way up No momentum.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "sit up",
+      "situp",
+      "abs",
+      "core",
+      "full sit up",
+      "abdominal"
+    ]
   },
   {
     "id": "bobby-hurley",
     "term": "Bobby Hurley",
     "shortDescription": "Squat jump with floor touch.",
     "longDescription": "1. Squat to touch the ground with hands\n2. Jump up as if blocking a shot Named after the Duke player.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "squat jump",
+      "jump squat",
+      "explosive",
+      "legs",
+      "plyometric",
+      "floor touch"
+    ]
   },
   {
     "id": "bonnie-blair",
     "term": "Bonnie Blair",
     "shortDescription": "4-count jumping lunges.",
     "longDescription": "1. Lunge L\n2. Lunge R\n3. Lunge L\n4. Lunge R (count 1) Often done in cadence.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "jumping lunge",
+      "split lunge",
+      "legs",
+      "explosive",
+      "cadence",
+      "lower body"
+    ]
   },
   {
     "id": "box-cutter",
     "term": "Box Cutter",
     "shortDescription": "Core move on your six.",
     "longDescription": "1. On back, legs straight up\n2. Draw a large square in the air with your feet Don't lift the lower back.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "abs",
+      "core",
+      "legs in air",
+      "hip flexor",
+      "lower abs",
+      "leg circles"
+    ]
   },
   {
     "id": "box-jumps",
     "term": "Box Jumps",
     "shortDescription": "Explosive jump.",
     "longDescription": "1. Jump with both feet onto a bench or wall\n2. Step or jump down Land soft.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "plyo",
+      "plyometric",
+      "jump",
+      "explosive",
+      "legs",
+      "bench jump"
+    ]
   },
   {
     "id": "burpee",
     "term": "Burpee",
     "shortDescription": "A full-body explosive movement.",
     "longDescription": "1. Squat down\n2. Kick feet back to plank\n3. Perform Merkin\n4. Jump feet in\n5. Explosive jump up with hands high The King of F3.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "full body",
+      "cardio",
+      "squat thrust",
+      "jump",
+      "plank",
+      "high intensity"
+    ]
   },
   {
     "id": "burpee-broad-jump",
     "term": "Burpee Broad Jump",
     "shortDescription": "Distance burpee.",
     "longDescription": "1. Perform a burpee\n2. Instead of jumping up, jump forward as far as possible Covers ground quickly.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "full body",
+      "cardio",
+      "long jump",
+      "explosive",
+      "forward jump",
+      "squat thrust"
+    ]
   },
   {
     "id": "carolina-dry-dock",
     "term": "Carolina Dry Dock",
     "shortDescription": "A push-up targeting the shoulders.",
     "longDescription": "1. Start in a V (downward dog)\n2. Lower head toward the space between your hands\n3. Push up Look at your toes.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "shoulder",
+      "pike push up",
+      "upper body",
+      "downward dog",
+      "deltoids",
+      "overhead press"
+    ]
   },
   {
     "id": "carolina-sweeper",
     "term": "Carolina Sweeper",
     "shortDescription": "Hamstring stretch/move.",
     "longDescription": "1. One heel out, toe up\n2. Sweep the grass with hands in a circular motion Keep the front leg straight.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "hamstring",
+      "stretch",
+      "flexibility",
+      "legs",
+      "warmup",
+      "toe touch"
+    ]
   },
   {
     "id": "cherry-pickers",
     "term": "Cherry Pickers",
     "shortDescription": "4-count standing stretch.",
     "longDescription": "1. Feet wide\n2. Reach down (1) front\n3. (2) middle\n4. (3) back\n5. (4) stand and clap Don't bounce too hard.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "warmup",
+      "stretch",
+      "hamstring",
+      "flexibility",
+      "standing stretch",
+      "full body"
+    ]
   },
   {
     "id": "copperhead-squat",
     "term": "Copperhead Squat",
     "shortDescription": "Slow, controlled squat.",
     "longDescription": "1. Hands behind head\n2. Lower into squat slowly in cadence\n3. Then rise Focus on depth.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "squat",
+      "slow squat",
+      "quads",
+      "legs",
+      "lower body",
+      "cadence"
+    ]
   },
   {
     "id": "coupon-grind",
@@ -2089,14 +2944,30 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "Crab Walk",
     "shortDescription": "Reverse all-fours transport.",
     "longDescription": "1. Facing the sky\n2. Move on hands and feet with hips high Keep hips up.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "triceps",
+      "locomotion",
+      "hands and feet",
+      "reverse crawl",
+      "transport",
+      "full body"
+    ]
   },
   {
     "id": "crawl-bear",
     "term": "Crawl Bear",
     "shortDescription": "Backwards bear crawl.",
     "longDescription": "1. Move backwards on hands and feet\n2. Keep knees low to ground Difficult for the shoulders.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "backwards crawl",
+      "reverse crawl",
+      "shoulders",
+      "all fours",
+      "locomotion",
+      "transport"
+    ]
   },
   {
     "id": "decker",
@@ -2110,21 +2981,45 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "Derkin",
     "shortDescription": "Merkin with feet elevated.",
     "longDescription": "1. Feet on bench/curb, hands on ground\n2. Perform Merkin Harder than standard.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "decline push up",
+      "feet elevated",
+      "chest",
+      "upper body",
+      "push up variation",
+      "bench"
+    ]
   },
   {
     "id": "diamond-merkin",
     "term": "Diamond Merkin",
     "shortDescription": "Tricep-focused push-up.",
     "longDescription": "1. Merkin with hands forming a diamond shape under the center of the chest Harder than standard.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "diamond push up",
+      "triceps",
+      "close grip",
+      "push up variation",
+      "upper body",
+      "narrow grip"
+    ]
   },
   {
     "id": "dips",
     "term": "Dips",
     "shortDescription": "Tricep movement on a bench.",
     "longDescription": "1. Hands on edge of bench, feet out\n2. Lower six toward ground and push up Elbows stay tight.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "triceps",
+      "arms",
+      "bench",
+      "upper body",
+      "bodyweight",
+      "push"
+    ]
   },
   {
     "id": "dora",
@@ -2138,7 +3033,15 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "Dying Cockroach",
     "shortDescription": "4-count core coordination.",
     "longDescription": "1. On back, limbs in air\n2. Lower opposite arm and leg to ground and return Slow is better.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "dead bug",
+      "core",
+      "abs",
+      "coordination",
+      "opposite arm leg",
+      "stability"
+    ]
   },
   {
     "id": "emom",
@@ -2152,7 +3055,15 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "Flutter Kicks",
     "shortDescription": "A 4-count core burner on your six.",
     "longDescription": "1. On back, hands under glutes\n2. Lift feet 6 inches\n3. Alternate kicking legs (R, L, R, 1...) Keep legs straight.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "abs",
+      "core",
+      "legs up",
+      "hip flexor",
+      "lower abs",
+      "on your six"
+    ]
   },
   {
     "id": "four-corners",
@@ -2166,63 +3077,135 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "Freddy Mercury",
     "shortDescription": "Bicycle crunches.",
     "longDescription": "1. On back\n2. Alternate elbow to opposite knee in a pedaling motion Full extension on legs.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "bicycle crunch",
+      "obliques",
+      "abs",
+      "core",
+      "pedaling",
+      "elbow to knee"
+    ]
   },
   {
     "id": "gorilla-crawl",
     "term": "Gorilla Crawl",
     "shortDescription": "Lateral all-fours transport.",
     "longDescription": "1. Move sideways in a low squat\n2. Use hands to guide the lateral hop Stay low.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "lateral movement",
+      "side shuffle",
+      "low squat",
+      "locomotion",
+      "transport",
+      "full body"
+    ]
   },
   {
     "id": "groiners",
     "term": "Groiners",
     "shortDescription": "Explosive hip opener.",
     "longDescription": "1. High plank\n2. Jump both feet forward to outside of hands\n3. Jump back to plank Keep heels down.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "hip opener",
+      "plank jump",
+      "hip flexor",
+      "mobility",
+      "explosive",
+      "legs"
+    ]
   },
   {
     "id": "hand-release-merkin",
     "term": "Hand Release Merkin",
     "shortDescription": "Full-depth push-up.",
     "longDescription": "1. Lower to ground\n2. Lift hands off the floor momentarily\n3. Push back up Prevents cheating.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "push up",
+      "full range of motion",
+      "chest",
+      "strict form",
+      "upper body",
+      "no cheating"
+    ]
   },
   {
     "id": "hello-dollies",
     "term": "Hello Dollies",
     "shortDescription": "4-count lateral leg move.",
     "longDescription": "1. On your six, feet 6 inches up\n2. Spread legs wide\n3. Bring together Keep legs straight.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "abs",
+      "core",
+      "inner thigh",
+      "hip flexor",
+      "legs apart",
+      "on your six"
+    ]
   },
   {
     "id": "hillbillies",
     "term": "Hillbillies",
     "shortDescription": "Imperial Walker variation.",
     "longDescription": "1. Same as Imperial Walker\n2. But bring elbow to the knee on the same side Lateral crunch.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "lateral crunch",
+      "obliques",
+      "standing core",
+      "elbow to knee",
+      "warmup",
+      "cardio"
+    ]
   },
   {
     "id": "imperial-walker",
     "term": "Imperial Walker",
     "shortDescription": "4-count standing core/cardio.",
     "longDescription": "1. Hands behind head\n2. Lift right knee to left elbow\n3. Then left knee to right elbow Keep chest up.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "warmup",
+      "hip flexor",
+      "leg swing",
+      "stretch",
+      "standing core",
+      "knee to elbow"
+    ]
   },
   {
     "id": "irkin",
     "term": "Irkin",
     "shortDescription": "Merkin with hands elevated.",
     "longDescription": "1. Hands on bench/curb, feet on ground\n2. Perform Merkin Easier than standard.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "incline push up",
+      "hands elevated",
+      "chest",
+      "beginner",
+      "upper body",
+      "modified push up"
+    ]
   },
   {
     "id": "iron-mike",
     "term": "Iron Mike",
     "shortDescription": "Explosive jumping lunges.",
     "longDescription": "1. Perform a lunge\n2. Jump explosively to switch leg positions in mid-air High intensity.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "lunge",
+      "jump lunge",
+      "legs",
+      "explosive",
+      "plyometric",
+      "lower body"
+    ]
   },
   {
     "id": "ironpax-challenge",
@@ -2236,63 +3219,135 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "J-Lo",
     "shortDescription": "Plank hip dips.",
     "longDescription": "1. Low plank (elbows)\n2. Rotate hips to touch the ground on the right\n3. Then the left Keep the core tight.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "plank hip dips",
+      "obliques",
+      "core rotation",
+      "plank",
+      "abs",
+      "side plank"
+    ]
   },
   {
     "id": "lbc",
     "term": "LBC",
     "shortDescription": "A small-range abdominal crunch.",
     "longDescription": "1. On back, knees up at 90 degrees\n2. Lift shoulder blades slightly off ground while looking at the sky Keep chin off chest.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "crunch",
+      "abs",
+      "core",
+      "sit up",
+      "abdominal",
+      "upper abs"
+    ]
   },
   {
     "id": "merkin",
     "term": "Merkin",
     "shortDescription": "The F3 term for a standard-form push-up.",
     "longDescription": "1.Get down on the ground in a plank position\n2.Lower the body all the way to the ground\n3.Push up all the way with your arms TBD",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "push up",
+      "pushup",
+      "chest",
+      "arms",
+      "upper body",
+      "bodyweight"
+    ]
   },
   {
     "id": "michael-phelps",
     "term": "Michael Phelps",
     "shortDescription": "Dynamic chest stretch.",
     "longDescription": "1. Cross arms in front\n2. Swing them wide\n3. Alternate which arm is on top Named after the swimmer.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "chest stretch",
+      "arm swing",
+      "warmup",
+      "shoulders",
+      "dynamic stretch",
+      "pec stretch"
+    ]
   },
   {
     "id": "monkey-humpers",
     "term": "Monkey Humpers",
     "shortDescription": "A localized leg burner.",
     "longDescription": "1. Grab your ankles while in a wide squat\n2. Lift and lower your six while keeping hold of ankles Crowd pleaser.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "squat",
+      "glutes",
+      "quads",
+      "legs",
+      "ankle grab",
+      "lower body"
+    ]
   },
   {
     "id": "moroccan-night-club",
     "term": "Moroccan Night Club",
     "shortDescription": "Shoulder endurance move.",
     "longDescription": "1. Arms out at 90 degrees\n2. Rapidly rotate hands/wrists as if at the club The burn is real.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "shoulder burn",
+      "arm circles",
+      "wrist rotation",
+      "deltoids",
+      "endurance",
+      "arms out"
+    ]
   },
   {
     "id": "mountain-climber",
     "term": "Mountain Climber",
     "shortDescription": "4-count plank-based cardio.",
     "longDescription": "1. High plank position\n2. Drive knees to chest in alternating fashion Keep hips low.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "running in place",
+      "plank",
+      "cardio",
+      "core",
+      "knee drive",
+      "high intensity"
+    ]
   },
   {
     "id": "overhead-claps",
     "term": "Overhead Claps",
     "shortDescription": "Shoulder move in cadence.",
     "longDescription": "1. Arms out to side\n2. Clap hands together above head\n3. Back to sides Don't drop the arms.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "shoulder burn",
+      "deltoids",
+      "arms",
+      "clapping",
+      "overhead",
+      "cadence"
+    ]
   },
   {
     "id": "parker-peter",
     "term": "Parker Peter",
     "shortDescription": "Plank-based inner core move.",
     "longDescription": "1. High plank\n2. Bring right knee to left elbow\n3. Then left knee to right elbow Target the obliques.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "cross body knee",
+      "obliques",
+      "plank",
+      "core",
+      "spiderman",
+      "knee to opposite elbow"
+    ]
   },
   {
     "id": "pearls-on-a-string",
@@ -2306,56 +3361,120 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "People's Chair",
     "shortDescription": "A static hold against a vertical surface.",
     "longDescription": "1. Back against wall\n2. Knees at 90 degrees\n3. Hold position Good for Mumble Chatter.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "wall sit",
+      "legs",
+      "isometric",
+      "quad burn",
+      "static hold",
+      "lower body"
+    ]
   },
   {
     "id": "peter-parker",
     "term": "Peter Parker",
     "shortDescription": "Plank-based oblique move.",
     "longDescription": "1. High plank\n2. Bring right knee to right elbow\n3. Then left knee to left elbow Slow and controlled.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "spiderman plank",
+      "obliques",
+      "plank",
+      "core",
+      "knee to elbow",
+      "same side"
+    ]
   },
   {
     "id": "plank-jacks",
     "term": "Plank Jacks",
     "shortDescription": "4-count plank-based move.",
     "longDescription": "1. From high plank\n2. Jump feet out and in to the cadence Keep a flat back.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "plank",
+      "jumping jacks",
+      "core",
+      "cardio",
+      "full body",
+      "feet in and out"
+    ]
   },
   {
     "id": "rosalitas",
     "term": "Rosalitas",
     "shortDescription": "4-count vertical leg move.",
     "longDescription": "1. On your six, feet 6 inches up\n2. Move legs up and down in a wide arc Don't let feet touch.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "abs",
+      "core",
+      "lower abs",
+      "hip flexor",
+      "legs up",
+      "on your six"
+    ]
   },
   {
     "id": "seal-claps",
     "term": "Seal Claps",
     "shortDescription": "Shoulder move in cadence.",
     "longDescription": "1. Arms extended forward\n2. Clap hands together and then out wide Keep arms at shoulder height.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "shoulder burn",
+      "chest",
+      "arms forward",
+      "clapping",
+      "deltoids",
+      "cadence"
+    ]
   },
   {
     "id": "smurf-jacks",
     "term": "Smurf Jacks",
     "shortDescription": "Squatted jumping jacks.",
     "longDescription": "1. Perform a SSH while staying in a low squat position Burns the quads.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "squat jumping jack",
+      "quads",
+      "cardio",
+      "low squat",
+      "legs",
+      "warmup"
+    ]
   },
   {
     "id": "ssh",
     "term": "SSH",
     "shortDescription": "A 4-count jumping jack.",
     "longDescription": "1. Jump feet out, hands up\n2. Back to start\n3. Out\n4. Back to start Standard warmup move.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "jumping jack",
+      "jumping jacks",
+      "cardio",
+      "warmup",
+      "full body",
+      "cadence"
+    ]
   },
   {
     "id": "step-ups",
     "term": "Step Ups",
     "shortDescription": "Leg strength on bench.",
     "longDescription": "1. Step one foot onto bench\n2. Drive through the heel to stand\n3. Return to ground Alternate legs.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "bench",
+      "legs",
+      "quads",
+      "glutes",
+      "single leg",
+      "lower body"
+    ]
   },
   {
     "id": "suicides",
@@ -2369,7 +3488,15 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "T-Merkin",
     "shortDescription": "Merkin with rotation.",
     "longDescription": "1. Perform Merkin\n2. At top, lift one hand to sky\n3. Form a T with body Balance is key.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "push up rotation",
+      "side plank",
+      "chest",
+      "core",
+      "balance",
+      "upper body"
+    ]
   },
   {
     "id": "tabata",
@@ -2432,6 +3559,14 @@ export const exiconEntries: GlossaryEntry[] = [
     "term": "Wojos",
     "shortDescription": "Lateral shuffle with floor slap.",
     "longDescription": "1. Shuffle 3 steps right, slap floor\n2. Shuffle 3 steps left, slap floor Named after a local legend.",
-    "category": "Exercise"
+    "category": "Exercise",
+    "keywords": [
+      "lateral shuffle",
+      "side to side",
+      "agility",
+      "cardio",
+      "legs",
+      "defensive slide"
+    ]
   }
 ];

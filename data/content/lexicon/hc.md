@@ -5,6 +5,13 @@ tags:
   - Culture
 aliases:
   - Hard Commit
+keywords:
+  - promise
+  - commit
+  - going to be there
+  - RSVP
+  - sign up
+  - confirmed
 ---
 
 ### Definition

@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Legs
 aliases: []
+keywords:
+  - bench
+  - legs
+  - quads
+  - glutes
+  - single leg
+  - lower body
 ---
 
 ### Definition

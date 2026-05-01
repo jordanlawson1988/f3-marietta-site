@@ -5,6 +5,13 @@ tags:
   - Chest
 aliases:
   - Incline Merkin
+keywords:
+  - incline push up
+  - hands elevated
+  - chest
+  - beginner
+  - upper body
+  - modified push up
 ---
 
 ### Definition

@@ -5,6 +5,13 @@ tags:
   - Core
 aliases:
   - Flutters
+keywords:
+  - abs
+  - core
+  - legs up
+  - hip flexor
+  - lower abs
+  - on your six
 ---
 
 ### Definition

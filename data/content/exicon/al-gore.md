@@ -5,6 +5,14 @@ tags:
   - Legs
 aliases:
   - Static Squat
+keywords:
+  - wall sit
+  - squat hold
+  - static hold
+  - isometric
+  - legs
+  - quads
+  - lower body
 ---
 
 ### Definition

@@ -6,6 +6,13 @@ tags:
 aliases:
   - Mother
   - Wife
+keywords:
+  - wife
+  - spouse
+  - partner
+  - married
+  - significant other
+  - better half
 ---
 
 ### Definition

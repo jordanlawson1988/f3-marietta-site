@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Shoulders
 aliases: []
+keywords:
+  - shoulder burn
+  - deltoids
+  - arms
+  - clapping
+  - overhead
+  - cadence
 ---
 
 ### Definition

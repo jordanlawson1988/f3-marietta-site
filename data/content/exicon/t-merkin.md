@@ -5,6 +5,13 @@ tags:
   - Chest
   - Core
 aliases: []
+keywords:
+  - push up rotation
+  - side plank
+  - chest
+  - core
+  - balance
+  - upper body
 ---
 
 ### Definition

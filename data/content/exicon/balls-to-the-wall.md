@@ -6,6 +6,13 @@ tags:
   - Core
 aliases:
   - BTTW
+keywords:
+  - handstand
+  - wall handstand
+  - inverted hold
+  - shoulders
+  - isometric
+  - upper body
 ---
 
 ### Definition

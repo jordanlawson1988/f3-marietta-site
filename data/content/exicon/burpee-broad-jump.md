@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Full Body
 aliases: []
+keywords:
+  - full body
+  - cardio
+  - long jump
+  - explosive
+  - forward jump
+  - squat thrust
 ---
 
 ### Definition

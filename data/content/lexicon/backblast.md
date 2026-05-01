@@ -5,6 +5,13 @@ tags:
   - Communication
 aliases:
   - BB
+keywords:
+  - recap
+  - summary
+  - workout report
+  - who was there
+  - what happened
+  - write up
 ---
 
 ### Definition

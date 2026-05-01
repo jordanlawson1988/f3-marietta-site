@@ -6,6 +6,13 @@ tags:
   - Core
 aliases:
   - IST
+keywords:
+  - warmup
+  - hip flexor
+  - leg swing
+  - stretch
+  - standing core
+  - knee to elbow
 ---
 
 ### Definition

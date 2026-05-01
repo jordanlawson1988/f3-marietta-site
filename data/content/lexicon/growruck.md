@@ -4,6 +4,13 @@ category: Culture
 tags:
   - Leadership
 aliases: []
+keywords:
+  - leadership event
+  - overnight
+  - crucible
+  - team building
+  - ruck march
+  - intensive
 ---
 
 ### Definition

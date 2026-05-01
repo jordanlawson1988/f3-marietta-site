@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Shoulders
 aliases: []
+keywords:
+  - chest stretch
+  - arm swing
+  - warmup
+  - shoulders
+  - dynamic stretch
+  - pec stretch
 ---
 
 ### Definition

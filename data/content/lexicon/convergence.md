@@ -4,6 +4,13 @@ category: Term
 tags:
   - Culture
 aliases: []
+keywords:
+  - big workout
+  - multiple AOs
+  - holiday workout
+  - combined
+  - all together
+  - special event
 ---
 
 ### Definition

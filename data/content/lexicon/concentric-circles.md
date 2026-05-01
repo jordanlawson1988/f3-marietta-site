@@ -4,6 +4,13 @@ category: Leadership
 tags:
   - Philosophy
 aliases: []
+keywords:
+  - growth model
+  - influence
+  - individual to community
+  - ripple effect
+  - leadership layers
+  - expanding impact
 ---
 
 ### Definition

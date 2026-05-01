@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Core
 aliases: []
+keywords:
+  - plank hip dips
+  - obliques
+  - core rotation
+  - plank
+  - abs
+  - side plank
 ---
 
 ### Definition

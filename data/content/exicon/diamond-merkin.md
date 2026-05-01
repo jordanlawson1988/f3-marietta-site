@@ -5,6 +5,13 @@ tags:
   - Arms
   - Chest
 aliases: []
+keywords:
+  - diamond push up
+  - triceps
+  - close grip
+  - push up variation
+  - upper body
+  - narrow grip
 ---
 
 ### Definition

@@ -4,6 +4,13 @@ category: Leadership
 tags:
   - History
 aliases: []
+keywords:
+  - founder
+  - co-founder
+  - who started F3
+  - Tim Whitmire
+  - origin
+  - Charlotte
 ---
 
 ### Definition

@@ -6,6 +6,13 @@ tags:
 aliases:
   - WWII Sit-up
   - BBSU
+keywords:
+  - sit up
+  - situp
+  - abs
+  - core
+  - full sit up
+  - abdominal
 ---
 
 ### Definition

@@ -5,6 +5,13 @@ tags:
   - Legs
 aliases:
   - Wall Sit
+keywords:
+  - wall sit
+  - legs
+  - isometric
+  - quad burn
+  - static hold
+  - lower body
 ---
 
 ### Definition

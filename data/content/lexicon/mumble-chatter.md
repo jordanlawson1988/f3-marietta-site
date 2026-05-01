@@ -4,6 +4,13 @@ category: Term
 tags:
   - Culture
 aliases: []
+keywords:
+  - talking
+  - joking
+  - complaining
+  - banter
+  - humor
+  - noise
 ---
 
 ### Definition

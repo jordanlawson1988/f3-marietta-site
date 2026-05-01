@@ -5,6 +5,13 @@ tags:
   - Culture
 aliases:
   - The Dark
+keywords:
+  - early morning
+  - dark
+  - before sunrise
+  - 5am
+  - dawn
+  - predawn
 ---
 
 ### Definition

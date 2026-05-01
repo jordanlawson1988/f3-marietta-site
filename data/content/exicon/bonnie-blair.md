@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Legs
 aliases: []
+keywords:
+  - jumping lunge
+  - split lunge
+  - legs
+  - explosive
+  - cadence
+  - lower body
 ---
 
 ### Definition

@@ -4,6 +4,13 @@ category: Term
 tags:
   - Culture
 aliases: []
+keywords:
+  - members
+  - guys
+  - men
+  - participants
+  - who shows up
+  - people
 ---
 
 ### Definition

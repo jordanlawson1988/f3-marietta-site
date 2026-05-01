@@ -5,6 +5,13 @@ tags:
   - Exercise
 aliases:
   - The Workout
+keywords:
+  - main workout
+  - exercises
+  - circuit
+  - what did you do
+  - work portion
+  - the hard part
 ---
 
 ### Definition

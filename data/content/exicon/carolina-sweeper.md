@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Legs
 aliases: []
+keywords:
+  - hamstring
+  - stretch
+  - flexibility
+  - legs
+  - warmup
+  - toe touch
 ---
 
 ### Definition

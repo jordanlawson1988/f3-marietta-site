@@ -5,6 +5,13 @@ tags:
   - Arms
 aliases:
   - Tricep Dips
+keywords:
+  - triceps
+  - arms
+  - bench
+  - upper body
+  - bodyweight
+  - push
 ---
 
 ### Definition

@@ -5,6 +5,13 @@ tags:
   - Legs
 aliases:
   - Jump Lunge
+keywords:
+  - lunge
+  - jump lunge
+  - legs
+  - explosive
+  - plyometric
+  - lower body
 ---
 
 ### Definition

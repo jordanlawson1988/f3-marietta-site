@@ -5,6 +5,13 @@ tags:
   - Legs
   - Cardio
 aliases: []
+keywords:
+  - squat jumping jack
+  - quads
+  - cardio
+  - low squat
+  - legs
+  - warmup
 ---
 
 ### Definition

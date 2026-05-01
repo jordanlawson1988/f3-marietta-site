@@ -3,7 +3,21 @@ title: Kotters
 category: Term
 tags:
   - Culture
-aliases: []
+aliases:
+  - Kotter
+keywords:
+  - absent
+  - missing
+  - hiatus
+  - stopped posting
+  - came back
+  - return
+  - welcome back
+  - haven't been
+  - long time
+  - disappeared
+  - gone
+  - inactive
 ---
 
 ### Definition

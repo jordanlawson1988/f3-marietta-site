@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Core
 aliases: []
+keywords:
+  - abs
+  - core
+  - legs in air
+  - hip flexor
+  - lower abs
+  - leg circles
 ---
 
 ### Definition

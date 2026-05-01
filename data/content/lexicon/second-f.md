@@ -4,6 +4,13 @@ category: Culture
 tags:
   - Fellowship
 aliases: []
+keywords:
+  - fellowship
+  - friendship
+  - community
+  - bonding
+  - hanging out
+  - brotherhood
 ---
 
 ### Definition

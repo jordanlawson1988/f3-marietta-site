@@ -3,7 +3,18 @@ title: Sad Clown
 category: Culture
 tags:
   - Philosophy
-aliases: []
+aliases:
+  - Sad Clown Syndrome
+keywords:
+  - isolated
+  - lonely
+  - comfort
+  - purposeless
+  - stuck
+  - couch
+  - alone
+  - disconnected
+  - going through the motions
 ---
 
 ### Definition

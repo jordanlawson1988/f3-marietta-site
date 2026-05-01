@@ -6,6 +6,13 @@ tags:
 aliases:
   - God
   - Higher Power
+keywords:
+  - faith
+  - religion
+  - spiritual
+  - creator
+  - believe in
+  - purpose
 ---
 
 ### Definition

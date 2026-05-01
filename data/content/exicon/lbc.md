@@ -5,6 +5,13 @@ tags:
   - Core
 aliases:
   - Little Baby Crunch
+keywords:
+  - crunch
+  - abs
+  - core
+  - sit up
+  - abdominal
+  - upper abs
 ---
 
 ### Definition

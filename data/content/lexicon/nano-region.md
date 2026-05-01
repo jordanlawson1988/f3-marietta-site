@@ -4,6 +4,13 @@ category: Leadership
 tags:
   - Region
 aliases: []
+keywords:
+  - new region
+  - starting out
+  - small group
+  - emerging
+  - planting
+  - new chapter
 ---
 
 ### Definition

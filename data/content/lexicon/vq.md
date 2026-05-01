@@ -5,6 +5,13 @@ tags:
   - Culture
 aliases:
   - Virgin Q
+keywords:
+  - first time leading
+  - first Q
+  - never led
+  - new leader
+  - milestone
+  - nervous
 ---
 
 ### Definition

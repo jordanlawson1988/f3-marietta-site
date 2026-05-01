@@ -6,6 +6,13 @@ tags:
   - Leadership
 aliases:
   - Circle of Trust
+keywords:
+  - closing
+  - end of workout
+  - prayer
+  - circle
+  - share
+  - wrap up
 ---
 
 ### Definition

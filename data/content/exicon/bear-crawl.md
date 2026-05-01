@@ -4,6 +4,13 @@ category: Exercise
 tags:
   - Transport
 aliases: []
+keywords:
+  - crawling
+  - all fours
+  - hands and feet
+  - full body
+  - locomotion
+  - movement
 ---
 
 ### Definition

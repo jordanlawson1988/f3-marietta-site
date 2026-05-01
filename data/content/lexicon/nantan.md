@@ -4,6 +4,13 @@ category: Leadership
 tags:
   - Region
 aliases: []
+keywords:
+  - regional leader
+  - chief
+  - who runs the region
+  - top leader
+  - culture keeper
+  - head of region
 ---
 
 ### Definition

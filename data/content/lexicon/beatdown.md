@@ -4,6 +4,13 @@ category: Term
 tags:
   - Exercise
 aliases: []
+keywords:
+  - workout
+  - exercise session
+  - morning workout
+  - training
+  - what do you do
+  - how hard
 ---
 
 ### Definition
