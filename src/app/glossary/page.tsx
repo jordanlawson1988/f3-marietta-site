@@ -7,19 +7,19 @@ import { lexiconEntries, exiconEntries } from "@/../data/f3Glossary";
 const totalTerms = lexiconEntries.length + exiconEntries.length;
 
 export const metadata: Metadata = {
-  title: "Glossary",
-  description: "F3 Lexicon — terms, abbreviations, and inside jokes used across F3 Nation and F3 Marietta.",
+  title: "F3 Terms — Lexicon & Exicon",
+  description: "F3 Lexicon and Exicon — terms, exercises, abbreviations, and inside jokes used across F3 Nation and F3 Marietta.",
 };
 
 export default function GlossaryPage() {
   return (
     <>
       <PageHeader
-        eyebrow="§ Lexicon"
+        eyebrow="§ F3 Terms"
         variant="ink"
-        title={<>The<br />Lexicon.</>}
-        kicker={<>{totalTerms} terms · F3 Nation + Regional.</>}
-        meter={{ left: "Source · F3 Nation Lexicon", right: `Terms · ${totalTerms}` }}
+        title={<>The Lexicon<br />&amp; Exicon.</>}
+        kicker={<>{totalTerms} terms · Lexicon ({lexiconEntries.length}) + Exicon ({exiconEntries.length}).</>}
+        meter={{ left: "Source · F3 Nation + Regional", right: `Terms · ${totalTerms}` }}
       />
 
       <section className="bg-bone py-14">

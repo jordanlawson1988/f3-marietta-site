@@ -1,9 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { lexiconEntries, exiconEntries } from "@/../data/f3Glossary";
+import { lexiconEntries, exiconEntries, type GlossaryEntry } from "@/../data/f3Glossary";
 
-const allEntries = [...lexiconEntries, ...exiconEntries];
+type Tab = "all" | "lexicon" | "exicon";
+
+const TABS: { id: Tab; label: string; count: number }[] = [
+  { id: "all", label: "All Terms", count: lexiconEntries.length + exiconEntries.length },
+  { id: "lexicon", label: "Lexicon", count: lexiconEntries.length },
+  { id: "exicon", label: "Exicon", count: exiconEntries.length },
+];
 
 function normalizeFirstChar(term: string): string {
   const first = term.replace(/^[^A-Za-z0-9]/, "").charAt(0).toUpperCase();
@@ -11,9 +17,9 @@ function normalizeFirstChar(term: string): string {
 }
 
 function groupByLetter(
-  entries: typeof allEntries
-): Record<string, typeof allEntries> {
-  const groups: Record<string, typeof allEntries> = {};
+  entries: GlossaryEntry[]
+): Record<string, GlossaryEntry[]> {
+  const groups: Record<string, GlossaryEntry[]> = {};
   for (const entry of entries) {
     const letter = normalizeFirstChar(entry.term);
     if (!groups[letter]) groups[letter] = [];
@@ -32,23 +38,56 @@ function sortedLetters(groups: Record<string, unknown>): string[] {
 
 export function GlossaryList() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<Tab>("all");
+
+  const baseEntries = useMemo(() => {
+    if (activeTab === "lexicon") return lexiconEntries;
+    if (activeTab === "exicon") return exiconEntries;
+    return [...lexiconEntries, ...exiconEntries];
+  }, [activeTab]);
 
   const filteredEntries = useMemo(() => {
-    if (!searchQuery.trim()) return allEntries;
+    if (!searchQuery.trim()) return baseEntries;
     const q = searchQuery.toLowerCase();
-    return allEntries.filter(
+    return baseEntries.filter(
       (e) =>
         e.term.toLowerCase().includes(q) ||
         e.shortDescription.toLowerCase().includes(q) ||
         (e.longDescription && e.longDescription.toLowerCase().includes(q))
     );
-  }, [searchQuery]);
+  }, [searchQuery, baseEntries]);
 
   const groups = useMemo(() => groupByLetter(filteredEntries), [filteredEntries]);
   const letters = useMemo(() => sortedLetters(groups), [groups]);
 
+  const isLexicon = (entry: GlossaryEntry) => lexiconEntries.includes(entry);
+
   return (
     <div>
+      {/* Tab bar */}
+      <div className="flex gap-1 mb-6 border-b border-line-soft">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-3 font-mono text-[11px] tracking-[.12em] uppercase transition-colors border-b-2 -mb-px ${
+              activeTab === tab.id
+                ? "border-ink text-ink"
+                : "border-transparent text-muted hover:text-ink"
+            }`}
+          >
+            {tab.label} ({tab.count})
+          </button>
+        ))}
+      </div>
+
+      {/* Subtitle for current tab */}
+      <p className="font-mono text-[11px] tracking-[.08em] text-muted mb-6">
+        {activeTab === "lexicon" && "// Culture, roles, places, and the language of the Gloom."}
+        {activeTab === "exicon" && "// Exercises — the movements that make up a Beatdown."}
+        {activeTab === "all" && "// Everything. Lexicon terms + Exicon exercises."}
+      </p>
+
       {/* Search bar */}
       <div className="relative mb-4">
         <svg
@@ -106,9 +145,9 @@ export function GlossaryList() {
             </div>
             <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
               {groups[letter].map((t) => (
-                <div key={t.id} className="flex flex-col">
+                <div key={t.id} id={t.id} className="flex flex-col">
                   <span className="font-mono text-[11px] tracking-[.15em] uppercase text-muted">
-                    // {t.term}
+                    // {activeTab === "all" ? (isLexicon(t) ? "Lexicon" : "Exicon") : t.term}
                   </span>
                   <span className="font-display font-bold uppercase text-[22px] tracking-[-.01em] mt-1">
                     {t.term}
