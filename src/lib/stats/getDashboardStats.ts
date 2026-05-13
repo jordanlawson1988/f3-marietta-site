@@ -44,6 +44,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
           AND c.is_enabled = true
           AND e.event_date IS NOT NULL
           AND e.event_date >= date_trunc('year', (now() AT TIME ZONE 'America/New_York'))::date
+          AND e.ao_display_name IS NOT NULL
         GROUP BY e.ao_display_name
         ORDER BY n DESC
       `,
@@ -56,6 +57,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
           AND c.is_enabled = true
           AND e.event_date IS NOT NULL
           AND e.event_date >= date_trunc('year', (now() AT TIME ZONE 'America/New_York'))::date
+          AND e.ao_display_name IS NOT NULL
       `,
       sql`
         SELECT slack_user_id, display_name

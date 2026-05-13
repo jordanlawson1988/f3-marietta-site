@@ -13,7 +13,6 @@ const STOPWORDS = new Set([
 
 const FNG_LINE = /^[\s*_]*FNG[s]?[\s*_]*:\s*(.+)$/im;
 const NUMERIC_ONLY = /^[\s*_]*\d+[\s*_]*(\(.*\))?[\s*_]*$/;
-const SLACK_ID = /@?(U[A-Z0-9]{7,})/g;
 
 /**
  * Extract FNG names from a backblast's content_text.
@@ -35,12 +34,13 @@ export function parseFngLine(content: string): Set<string> {
   let remainder = match[1].trim();
   if (NUMERIC_ONLY.test(remainder)) return out;
 
-  // Pull Slack IDs first so they don't get mangled by nickname normalization.
+  // Per-call regex avoids shared lastIndex state on the module-level /g.
+  const slackId = /@?(U[A-Z0-9]{7,})/g;
   let m: RegExpExecArray | null;
-  while ((m = SLACK_ID.exec(remainder)) !== null) {
+  while ((m = slackId.exec(remainder)) !== null) {
     out.add(m[1]);
   }
-  remainder = remainder.replace(SLACK_ID, "");
+  remainder = remainder.replace(slackId, "");
 
   for (const piece of remainder.split(",")) {
     const name = piece
