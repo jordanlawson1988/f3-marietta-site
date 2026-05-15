@@ -6,6 +6,7 @@ import {
   type SlackUser,
   type PaxRanking,
 } from "./resolvePaxIdentity";
+import { getAliasMap } from "./aliasMap";
 
 export type DashboardStats = {
   totalPosts: number;
@@ -34,7 +35,7 @@ const EMPTY_STATS: DashboardStats = {
 export async function getDashboardStats(): Promise<DashboardStats> {
   try {
     const sql = getSql();
-    const [byAoRows, contentRows, userRows] = await Promise.all([
+    const [byAoRows, contentRows, userRows, aliasMap] = await Promise.all([
       sql`
         SELECT e.ao_display_name AS ao, COUNT(*)::int AS n
         FROM f3_events e
@@ -60,10 +61,11 @@ export async function getDashboardStats(): Promise<DashboardStats> {
           AND e.ao_display_name IS NOT NULL
       `,
       sql`
-        SELECT slack_user_id, display_name
+        SELECT slack_user_id, display_name, real_name
         FROM slack_users
-        WHERE display_name IS NOT NULL
+        WHERE display_name IS NOT NULL OR real_name IS NOT NULL
       `,
+      getAliasMap(),
     ]);
 
     const byAo = (byAoRows as Array<{ ao: string | null; n: number }>)
@@ -84,13 +86,13 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     }
 
     const slackUsers = userRows as SlackUser[];
-    const ranked = resolvePaxIdentity(paxCounts, slackUsers);
+    const ranked = resolvePaxIdentity(paxCounts, slackUsers, aliasMap);
     const topPax = ranked.slice(0, 20);
     const uniquePax = ranked.length;
 
     const fngCounts = new Map<string, number>();
     for (const t of fngTokens) fngCounts.set(t, 1);
-    const newFngs = resolvePaxIdentity(fngCounts, slackUsers).length;
+    const newFngs = resolvePaxIdentity(fngCounts, slackUsers, aliasMap).length;
 
     return { totalPosts, uniquePax, newFngs, byAo, topPax };
   } catch (err) {
