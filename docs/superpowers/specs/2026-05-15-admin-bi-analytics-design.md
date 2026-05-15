@@ -25,7 +25,7 @@ metrics that need more data and more design.
 3. Support shareable, bookmarkable views via URL-encoded filters.
 4. Export per-view CSV and a full raw fact-table dump.
 5. Fix three data-quality gaps in Phase 0 so the BI module reads clean data.
-6. Stay on the RSC + Recharts grain established by Phase 1; no new chart library, no client-side data fetching.
+6. Stay on the RSC + hand-rolled SVG/CSS grain established by Phase 1; no new chart library, no client-side data fetching, no client JS for charts.
 
 ## Non-goals (MVP)
 
@@ -49,7 +49,7 @@ metrics that need more data and more design.
 | Location | New `/admin/analytics` route (Phase 1's `/admin` is preserved as the KPI dashboard) |
 | Export | Per-view CSV + full raw-data dump |
 | Architecture | RSC-first, URL-driven filters, file-based drill-down routes |
-| Charting | Reuse Recharts (Phase 1 dep) — no new library |
+| Charting | Hand-rolled SVG + CSS, server-rendered (Phase 1 pattern) — no chart library, no client JS for charts |
 | Data layer location | Extend `src/lib/stats/` (Phase 1's home for analytics code) |
 | API routes for reads | None — RSC calls `lib/stats/` directly |
 | Caching | `force-dynamic` on all analytics routes |
@@ -310,7 +310,7 @@ Streamed via `Response` with `Content-Type: text/csv; charset=utf-8` and `Conten
 
 ## Testing strategy
 
-### Unit tests (Vitest)
+### Unit tests (`tsx --test`, the Phase 1 test runner — Node built-in `node:test`)
 
 - `parseAttendance.test.ts` — content_text → `{ pax, headcount, fngNames }`. Covers Slack-ID PAX tokens, nickname PAX tokens, mixed; `COUNT:` line presence/absence/malformed; `FNG:` line presence/absence; FNGs excluded from PAX list; empty content.
 - `timeRange.test.ts` — preset parsing, custom range validation, edge cases (DST, year boundaries, `to < from`, future dates). **Includes a vocabulary contract test** asserting every preset round-trips: `parse(preset).label` produces a valid display label, all 5 presets appear in the FilterBar source, and the type union matches.
@@ -353,14 +353,14 @@ Existing `tests/admin-dashboard.spec.ts` (Phase 1) is left alone.
 - Live queries on every page load. Data ceiling: ~80 backblasts × ~25 PAX = ~2000 fact rows max. No materialization, no caching layer, no scheduled aggregation.
 - `export const dynamic = 'force-dynamic'` on every analytics route (admin auth + freshness requirement).
 - Suspense boundaries around the slower aggregates (`getAttendanceFact`) so KPI tiles can stream first.
-- Recharts is client-rendered — chart components declare `'use client'`; data is server-fetched and passed in as props.
+- Charts are server-rendered SVG/CSS (Phase 1 pattern: see `PostsByAoChart`, `TopPaxChart`). No `'use client'` needed. The only client component is `FilterBar`.
 - No new indexes required. Existing `f3_events(event_date)` index covers all range queries. `f3_event_qs(event_id)` covers Q lookups.
 
 ## Mobile
 
 - All 3 pages target 375px minimum width.
 - Filter bar collapses to a drawer/sheet on `< md` (Tailwind breakpoint).
-- Charts use Recharts `ResponsiveContainer` (Phase 1 pattern, already in use).
+- Charts use viewBox-based responsive SVG (Phase 1 pattern, already in use).
 - Top-N tables become stacked cards on narrow viewports.
 - KPI strip wraps 2×2 on narrow viewports.
 
@@ -434,7 +434,7 @@ design work, more data, or both. They are NOT in scope for this spec.
 
 2. **PAX slug collisions.** Two PAX with the same `display_name` would slug-collide. Mitigation: at first occurrence (none expected today), fall back to slug + `-2` etc. or use `slack_id` as slug. For MVP, assume uniqueness and `notFound()` on ambiguity.
 
-3. **Recharts client bundle.** Each chart component ships JS to the browser. Mitigation: existing project already pays this cost on `/admin`; analytics adds 2 more chart components, both small. Acceptable.
+3. **Hand-rolled SVG complexity.** Phase 1 keeps charts simple (pie + bar). Adding a monthly line chart and a DOW bar means writing slightly more SVG math. Mitigation: pattern-match Phase 1's approach; lines are just `<polyline>`/`<path>`; DOW bars are CSS widths like Top PAX. No new abstractions.
 
 4. **Custom date range abuse.** Admin pastes `?from=1900-01-01&to=2100-01-01`. Mitigation: server-side validation caps span at 2 years.
 
