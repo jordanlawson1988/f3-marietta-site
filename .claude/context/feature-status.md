@@ -1,6 +1,6 @@
 # Feature Status — F3 Marietta
 
-> Living tracker of feature progress and completeness. Last updated: 2026-04-27
+> Living tracker of feature progress and completeness. Last updated: 2026-05-14
 
 ## Feature Summary
 
@@ -23,9 +23,10 @@
 | Newsletter Automation | Complete | AI-generated weekly newsletters, Slack publishing |
 | Slack Integration | Complete | Event ingestion, user sync, daily reconciliation |
 | Authentication (Better Auth) | Complete | Email/password, session management, middleware cookie check |
-| AI Beatdown Builder | In Design (2026-04-27) | Q tool: generates customizable workouts using AO context, past backblasts, famous F3 beatdowns, and the Exicon. Mobile + desktop friendly, printable. Replaces Q reliance on generic ChatGPT/Claude. |
-| Backblasts Newsfeed | Planned | Prominent scrolling/auto-rotating feed of recent backblasts on the homepage (or dedicated band) so the latest activity is the first thing visitors see. |
-| Upcoming Events | Planned | Dynamic display of CSAUPs, 2nd-F opportunities, convergence workouts, etc. — admin-managed event entries surfaced on homepage and a dedicated `/events` page. |
+| AI Beatdown Builder | Complete | Q tool: generates customizable workouts using AO context, past backblasts, famous F3 beatdowns, and the Exicon. Mobile + desktop friendly, printable. |
+| Admin Dashboard Analytics | In Development (2026-05-14) | YTD KPIs (posts, FNGs, unique PAX), posts-by-AO pie, Top-20 PAX bar — merged to main. Now expanding into BI-style drill-downs (AO-specific stats, PAX/AO by month, custom time ranges, export). |
+| Backblasts Newsfeed | Deprioritized | Scrolling/auto-rotating feed of recent backblasts on the homepage. Not needed right now. |
+| Upcoming Events | Deprioritized | CSAUP/convergence/2nd-F event display. Handled via the Workout builder for now. |
 
 ## Route Inventory
 
@@ -43,7 +44,7 @@
 - `/community` — Community info
 
 ### Admin Pages (7)
-- `/admin` — Redirects to `/admin/workouts`
+- `/admin` — Region Ops. dashboard (YTD analytics; BI-style drill-downs in progress)
 - `/admin/workouts` — Workout schedule manager (calendar grid)
 - `/admin/regions` — Region CRUD
 - `/admin/kb` — Knowledge base file manager
@@ -102,14 +103,16 @@
 
 ## Potential Future Work
 - Automated Slack posting of Instagram drafts (currently manual)
-- Event attendance tracking/analytics
-- PAX leaderboard from backblast data
 - Preblast notifications
 - Multi-region support (out of scope per planning agent)
 
-## Roadmap (2026-04-27)
+> Note (2026-05-14): "Event attendance tracking/analytics" and "PAX leaderboard from backblast data" were moved into active development — see Admin Dashboard Analytics above. Boundary intentionally lifted by Jordan (explicit scope override).
+
+## Roadmap (2026-05-14)
 
 In priority order:
-1. **AI Beatdown Builder** — In Design now (this session)
-2. **Backblasts Newsfeed** — Planned
-3. **Upcoming Events** — Planned
+1. **Admin Dashboard Analytics** — In development now: BI-style drill-downs, AO-specific stats, time-range filtering, export
+2. **Backblasts Newsfeed** — Deprioritized
+3. **Upcoming Events** — Deprioritized (handled via Workout builder)
+
+Completed since last roadmap: AI Beatdown Builder, basic Admin Dashboard YTD analytics.
