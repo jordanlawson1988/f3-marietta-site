@@ -4,6 +4,12 @@ import { SectionHead } from "@/components/ui/brand/SectionHead";
 import { parseTimeRange, defaultTimeRange } from "@/lib/stats/timeRange";
 import { nameToSlug } from "@/lib/stats/slugify";
 import { FilterBar } from "../../_components/FilterBar";
+import { getAoStats } from "@/lib/stats/getAoStats";
+import { getQStats } from "@/lib/stats/getQStats";
+import { MetricCard } from "../../_components/MetricCard";
+import { TopPaxChart } from "@/components/admin/TopPaxChart";
+import { PostsOverTimeChart } from "../../_components/PostsOverTimeChart";
+import { QRotationList } from "../../_components/QRotationList";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +41,25 @@ export default async function AnalyticsAoPage({
     range = defaultTimeRange();
   }
 
+  const topNParam = sp.topN ?? "20";
+  const topN = topNParam === "all" ? Number.MAX_SAFE_INTEGER : parseInt(topNParam, 10) || 20;
+  const [stats, qStats] = await Promise.all([
+    getAoStats(range, slug, topN),
+    getQStats(range, slug),
+  ]);
+  if (!stats) notFound();
+
+  const customParam =
+    range.slug === "custom"
+      ? `?range=custom&from=${range.from.toISOString().slice(0, 10)}&to=${range.to.toISOString().slice(0, 10)}`
+      : range.slug === "ytd"
+      ? ""
+      : `?range=${range.slug}`;
+  const paxHref = (paxKey: string) => {
+    const label = stats.topPax.find((p) => p.key === paxKey)?.label ?? paxKey;
+    return `/admin/analytics/pax/${nameToSlug(label)}${customParam}`;
+  };
+
   return (
     <section className="max-w-[1320px] mx-auto px-7 py-16">
       <SectionHead
@@ -45,7 +70,37 @@ export default async function AnalyticsAoPage({
       />
       <div className="mt-10">
         <FilterBar showAoFilter={false} showTopN={true} />
-        <p className="font-mono text-xs text-muted">// AO detail body lands in Task 14</p>
+
+        {stats.totalPosts === 0 && (
+          <p className="font-mono text-xs text-muted mb-4">
+            // no data for {match.ao_display_name} in {range.label}
+          </p>
+        )}
+
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+          <MetricCard label="total posts" value={stats.totalPosts} />
+          <MetricCard label="unique pax" value={stats.uniquePax} />
+          <MetricCard label="new fngs" value={stats.newFngs} />
+          <MetricCard label="avg headcount" value={stats.avgHeadcount ?? "—"} caption="per workout" />
+          <MetricCard label="aos visited" value={stats.byAo.length} caption="should be 1" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-7">
+            <PostsOverTimeChart data={stats.postsOverTime} />
+          </div>
+          <div className="md:col-span-5">
+            <QRotationList data={qStats} />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <TopPaxChart
+            data={stats.topPax}
+            topN={topNParam === "all" ? undefined : parseInt(topNParam, 10) || 20}
+            href={paxHref}
+          />
+        </div>
       </div>
     </section>
   );
