@@ -9,6 +9,7 @@ export function AliasForm() {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [slackId, setSlackId] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [notes, setNotes] = useState("");
@@ -16,20 +17,25 @@ export function AliasForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const res = await fetch("/api/admin/aliases", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slack_id: slackId, display_name: displayName, notes: notes || null }),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      setError(body.error ?? "Failed to save");
-      return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/aliases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slack_id: slackId, display_name: displayName, notes: notes || null }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setError(body.error ?? "Failed to save");
+        return;
+      }
+      setSlackId("");
+      setDisplayName("");
+      setNotes("");
+      startTransition(() => router.refresh());
+    } finally {
+      setSaving(false);
     }
-    setSlackId("");
-    setDisplayName("");
-    setNotes("");
-    startTransition(() => router.refresh());
   }
 
   return (
@@ -61,10 +67,10 @@ export function AliasForm() {
         />
         <button
           type="submit"
-          disabled={pending}
+          disabled={saving || pending}
           className="md:col-span-2 bg-foreground text-background px-4 py-2 disabled:opacity-50"
         >
-          {pending ? "saving…" : "add"}
+          {saving || pending ? "saving…" : "add"}
         </button>
       </form>
       {error && <p className="text-red-600 mt-2 font-mono text-xs">// {error}</p>}
@@ -75,25 +81,31 @@ export function AliasForm() {
 export function DeleteButton({ slackId }: { slackId: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [saving, setSaving] = useState(false);
 
   async function handleDelete() {
     if (!confirm(`Delete alias for ${slackId}?`)) return;
-    const res = await fetch(`/api/admin/aliases/${slackId}`, { method: "DELETE" });
-    if (!res.ok) {
-      alert("Failed to delete");
-      return;
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/admin/aliases/${slackId}`, { method: "DELETE" });
+      if (!res.ok) {
+        alert("Failed to delete");
+        return;
+      }
+      startTransition(() => router.refresh());
+    } finally {
+      setSaving(false);
     }
-    startTransition(() => router.refresh());
   }
 
   return (
     <button
       type="button"
       onClick={handleDelete}
-      disabled={pending}
+      disabled={saving || pending}
       className="text-red-600 hover:underline disabled:opacity-50"
     >
-      {pending ? "…" : "delete"}
+      {saving || pending ? "…" : "delete"}
     </button>
   );
 }
