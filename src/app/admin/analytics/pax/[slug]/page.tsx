@@ -7,6 +7,7 @@ import { MetricCard } from "../../_components/MetricCard";
 import { PostsOverTimeChart } from "../../_components/PostsOverTimeChart";
 import { AoDistributionPie } from "../../_components/AoDistributionPie";
 import { QdWorkoutsTable } from "../../_components/QdWorkoutsTable";
+import { ExportButton } from "../../_components/ExportButton";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +61,13 @@ export default async function AnalyticsPaxPage({
         </div>
 
         <QdWorkoutsTable data={stats.qdWorkouts} />
+
+        <div className="mt-6">
+          <ExportButton
+            href={`/admin/analytics/export?scope=pax&pax=${slug}&range=${range.slug}${range.slug === "custom" ? `&from=${range.from.toISOString().slice(0, 10)}&to=${range.to.toISOString().slice(0, 10)}` : ""}`}
+            label="Download CSV (this PAX)"
+          />
+        </div>
       </div>
     </section>
   );

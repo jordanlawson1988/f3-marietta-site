@@ -10,6 +10,7 @@ import { TopPaxChart } from "@/components/admin/TopPaxChart";
 import { getOverviewStats } from "@/lib/stats/getOverviewStats";
 import { PostsOverTimeChart } from "./_components/PostsOverTimeChart";
 import { DayOfWeekChart } from "./_components/DayOfWeekChart";
+import { ExportButton } from "./_components/ExportButton";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +123,14 @@ export default async function AnalyticsOverviewPage({
           <div className="md:col-span-4">
             <DayOfWeekChart data={stats.byDayOfWeek} />
           </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <ExportButton
+            href={`/admin/analytics/export?scope=overview&range=${range.slug}${range.slug === "custom" ? `&from=${range.from.toISOString().slice(0, 10)}&to=${range.to.toISOString().slice(0, 10)}` : ""}`}
+            label="Download CSV (overview)"
+          />
+          <ExportButton href={`/admin/analytics/export?scope=raw`} label="Download all raw data" />
         </div>
       </div>
     </section>

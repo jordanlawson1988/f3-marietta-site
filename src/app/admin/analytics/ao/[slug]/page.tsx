@@ -10,6 +10,7 @@ import { MetricCard } from "../../_components/MetricCard";
 import { TopPaxChart } from "@/components/admin/TopPaxChart";
 import { PostsOverTimeChart } from "../../_components/PostsOverTimeChart";
 import { QRotationList } from "../../_components/QRotationList";
+import { ExportButton } from "../../_components/ExportButton";
 
 export const dynamic = "force-dynamic";
 
@@ -99,6 +100,13 @@ export default async function AnalyticsAoPage({
             data={stats.topPax}
             topN={topNParam === "all" ? undefined : parseInt(topNParam, 10) || 20}
             href={paxHref}
+          />
+        </div>
+
+        <div className="mt-6">
+          <ExportButton
+            href={`/admin/analytics/export?scope=ao&ao=${slug}&range=${range.slug}${range.slug === "custom" ? `&from=${range.from.toISOString().slice(0, 10)}&to=${range.to.toISOString().slice(0, 10)}` : ""}`}
+            label="Download CSV (this AO)"
           />
         </div>
       </div>
