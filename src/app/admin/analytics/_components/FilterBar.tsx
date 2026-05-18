@@ -5,6 +5,8 @@ import { TIME_RANGE_SLUGS, TIME_RANGE_LABELS, type TimeRangeSlug } from "@/lib/s
 import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 
+const DEFAULTS: Record<string, string> = { range: "ytd", ao: "all", topN: "20" };
+
 type Props = {
   aos?: Array<{ aoSlug: string; aoName: string }>;
   showAoFilter?: boolean;
@@ -25,7 +27,7 @@ export function FilterBar({ aos = [], showAoFilter = true, showTopN = true }: Pr
       p.delete("from");
       p.delete("to");
     }
-    if (value === "" || value === "all" || (key === "range" && value === "ytd")) {
+    if (value === "" || value === DEFAULTS[key]) {
       p.delete(key);
     } else {
       p.set(key, value);
