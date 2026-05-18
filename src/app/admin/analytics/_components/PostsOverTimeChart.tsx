@@ -18,6 +18,16 @@ export function PostsOverTimeChart({ data }: { data: Point[] }) {
   const padX = 32;
   const padY = 20;
   const max = Math.max(...data.map((p) => p.count));
+
+  if (max === 0) {
+    return (
+      <ClipFrame padding="p-6" className="min-h-[220px]">
+        <MonoTag>// posts over time · monthly</MonoTag>
+        <p className="font-mono text-xs text-muted mt-3">// no posts in range</p>
+      </ClipFrame>
+    );
+  }
+
   const stepX = data.length > 1 ? (w - padX * 2) / (data.length - 1) : 0;
 
   const points = data.map((p, i) => {

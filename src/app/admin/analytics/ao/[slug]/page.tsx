@@ -72,18 +72,12 @@ export default async function AnalyticsAoPage({
       <div className="mt-10">
         <FilterBar showAoFilter={false} showTopN={true} />
 
-        {stats.totalPosts === 0 && (
-          <p className="font-mono text-xs text-muted mb-4">
-            // no data for {match.ao_display_name} in {range.label}
-          </p>
-        )}
-
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
           <MetricCard label="total posts" value={stats.totalPosts} />
           <MetricCard label="unique pax" value={stats.uniquePax} />
           <MetricCard label="new fngs" value={stats.newFngs} />
           <MetricCard label="avg headcount" value={stats.avgHeadcount ?? "—"} caption="per workout" />
-          <MetricCard label="aos visited" value={stats.byAo.length} caption="should be 1" />
+          <MetricCard label="aos visited" value={stats.byAo.length} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
