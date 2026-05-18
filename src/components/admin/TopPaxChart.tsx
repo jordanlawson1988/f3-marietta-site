@@ -2,11 +2,13 @@ import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import type { PaxRanking } from "@/lib/stats/resolvePaxIdentity";
 
-export function TopPaxChart({ data }: { data: PaxRanking[] }) {
-  if (data.length === 0) {
+export function TopPaxChart({ data, topN = 20 }: { data: PaxRanking[]; topN?: number }) {
+  const visible = topN ? data.slice(0, topN) : data;
+
+  if (visible.length === 0) {
     return (
       <ClipFrame padding="p-6" className="min-h-[260px]">
-        <MonoTag>// top posters · top 20 ytd</MonoTag>
+        <MonoTag>{`// top posters · top ${topN ?? "all"}`}</MonoTag>
         <h3 className="font-display font-black uppercase text-[24px] tracking-[-.01em] mt-3 mb-4">
           Top PAX
         </h3>
@@ -15,16 +17,16 @@ export function TopPaxChart({ data }: { data: PaxRanking[] }) {
     );
   }
 
-  const max = data[0].count;
+  const max = visible[0].count;
 
   return (
     <ClipFrame padding="p-6" className="min-h-[260px]">
-      <MonoTag>// top posters · top 20 ytd</MonoTag>
+      <MonoTag>{`// top posters · top ${topN ?? "all"}`}</MonoTag>
       <h3 className="font-display font-black uppercase text-[24px] tracking-[-.01em] mt-3 mb-4">
         Top PAX
       </h3>
       <ul className="font-mono text-xs space-y-1.5">
-        {data.map((p) => {
+        {visible.map((p) => {
           const widthPct = max === 0 ? 0 : Math.max(2, (p.count / max) * 100);
           return (
             <li

@@ -1,9 +1,15 @@
 import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 
-type Datum = { ao: string; count: number };
+type Datum = { ao: string; count: number; aoSlug?: string };
 
-type Slice = { ao: string; count: number; color: string; path: string; pct: number };
+type Slice = { ao: string; count: number; color: string; path: string; pct: number; aoSlug?: string };
+
+type Props = {
+  data: Datum[];
+  /** Optional href builder — receives aoSlug, returns URL. Wired up in Task 13. */
+  href?: (slug: string) => string;
+};
 
 const COLORS = ["#d4a93c", "#0a0a0a", "#7e6b3a", "#b8a160", "#d4d0c2"];
 
@@ -11,10 +17,11 @@ function buildArcs(data: Datum[], total: number): Slice[] {
   const top = data.slice(0, 4);
   const rest = data.slice(4);
 
-  const flat: Array<{ ao: string; count: number; color: string }> = top.map((d, i) => ({
+  const flat: Array<{ ao: string; count: number; color: string; aoSlug?: string }> = top.map((d, i) => ({
     ao: d.ao,
     count: d.count,
     color: COLORS[i],
+    aoSlug: d.aoSlug,
   }));
   if (rest.length > 0) {
     flat.push({
@@ -41,11 +48,12 @@ function buildArcs(data: Datum[], total: number): Slice[] {
         // single AO — draw a full circle
         ? `M 0 -100 A 100 100 0 1 1 0 100 A 100 100 0 1 1 0 -100 Z`
         : `M 0 0 L ${x1.toFixed(2)} ${y1.toFixed(2)} A 100 100 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
-    return { ...s, path, pct: Math.round((s.count / total) * 100) };
+    return { ...s, path, pct: Math.round((s.count / total) * 100), aoSlug: s.aoSlug };
   });
 }
 
-export function PostsByAoChart({ data }: { data: Datum[] }) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function PostsByAoChart({ data, href }: Props) {
   const total = data.reduce((sum, r) => sum + r.count, 0);
 
   if (total === 0) {
