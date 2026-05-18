@@ -1,8 +1,22 @@
+import { cache } from "react";
+import { getSql } from "@/lib/db";
+
 /**
- * Stub for Phase 0. Returns an empty alias map so the resolution chain
- * (display_name → real_name → aliasMap → raw U…) works without depending on
- * the `pax_alias_map` table. Task 8 replaces this with a Neon-backed loader.
+ * Load the pax_alias_map as a Map<slack_id, display_name>. Cached per
+ * request via React `cache()` so multiple consumers in the same render
+ * pay one query.
  */
-export async function getAliasMap(): Promise<Map<string, string>> {
-  return new Map();
-}
+export const getAliasMap = cache(async (): Promise<Map<string, string>> => {
+  try {
+    const sql = getSql();
+    const rows = (await sql`
+      SELECT slack_id, display_name FROM pax_alias_map
+    `) as Array<{ slack_id: string; display_name: string }>;
+    const out = new Map<string, string>();
+    for (const r of rows) out.set(r.slack_id, r.display_name);
+    return out;
+  } catch (err) {
+    console.error("[aliasMap] failed to load:", err);
+    return new Map();
+  }
+});
