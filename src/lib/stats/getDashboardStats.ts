@@ -27,10 +27,10 @@ const EMPTY_STATS: DashboardStats = {
 /**
  * Fetch year-to-date analytics for the Marietta region admin dashboard.
  *
- * Runs three parallel SQL queries: posts grouped by AO, raw content_text
- * rows for parsing, and slack_users for identity resolution. Returns the
- * empty stats object on any error so the dashboard renders zero state
- * instead of crashing.
+ * Runs four parallel fetches: posts grouped by AO, raw content_text rows
+ * for parsing, slack_users for identity resolution, and the alias map.
+ * Returns the empty stats object on any error so the dashboard renders zero
+ * state instead of crashing.
  */
 export async function getDashboardStats(): Promise<DashboardStats> {
   try {

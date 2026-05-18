@@ -65,15 +65,6 @@ test("returns empty array for empty input", () => {
   assert.deepEqual(resolvePaxIdentity(new Map(), [], new Map()), []);
 });
 
-test("uses real_name when display_name is null and no alias", () => {
-  const counts = new Map<string, number>([["U01ABC", 4]]);
-  const slackUsers = [
-    { slack_user_id: "U01ABC", display_name: null, real_name: "Real Person" },
-  ];
-  const result = resolvePaxIdentity(counts, slackUsers, new Map());
-  assert.equal(result[0].label, "Real Person");
-});
-
 test("falls back to real_name when display_name is null", () => {
   const counts = new Map<string, number>([["U01ABC", 3]]);
   const slackUsers = [
@@ -111,4 +102,12 @@ test("aliasMap is last resort: slack_users.display_name wins", () => {
   const aliasMap = new Map<string, string>([["U01ABC", "Alias"]]);
   const result = resolvePaxIdentity(counts, slackUsers, aliasMap);
   assert.equal(result[0].label, "Slack Display");
+});
+
+test("real_name beats aliasMap when display_name is null", () => {
+  const counts = new Map<string, number>([["U01ABC", 2]]);
+  const slackUsers = [{ slack_user_id: "U01ABC", display_name: null, real_name: "Real Name" }];
+  const aliasMap = new Map<string, string>([["U01ABC", "Alias"]]);
+  const result = resolvePaxIdentity(counts, slackUsers, aliasMap);
+  assert.equal(result[0].label, "Real Name");
 });
