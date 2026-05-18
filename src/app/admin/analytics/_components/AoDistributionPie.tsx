@@ -31,6 +31,7 @@ export function AoDistributionPie({ data }: { data: Datum[] }) {
     );
   }
   const total = data.reduce((s, d) => s + d.count, 0);
+  const singleSlice = data.length === 1;
   let cumulative = 0;
   const slices = data.map((d, i) => {
     const startFrac = cumulative / total;
@@ -43,17 +44,26 @@ export function AoDistributionPie({ data }: { data: Datum[] }) {
       pct: ((d.count / total) * 100).toFixed(0),
     };
   });
+  const legendItems = singleSlice
+    ? [{ ...data[0], color: COLORS[0], pct: "100" }]
+    : slices;
   return (
     <ClipFrame padding="p-6" className="min-h-[220px]">
       <MonoTag>// ao distribution</MonoTag>
       <div className="flex items-center gap-4 mt-3">
         <svg viewBox="0 0 120 120" className="w-28 h-28">
-          {slices.map((s) => (
-            <path key={s.ao} d={s.path} fill={s.color} />
-          ))}
+          {singleSlice ? (
+            // Single-AO PAX: arcPath produces a degenerate sliver (sin(2π)≈0).
+            // Render a full circle instead — matches Phase 1 PostsByAoChart pattern.
+            <circle cx="60" cy="60" r="50" fill={COLORS[0]} />
+          ) : (
+            slices.map((s) => (
+              <path key={s.ao} d={s.path} fill={s.color} />
+            ))
+          )}
         </svg>
         <ul className="font-mono text-xs flex-1 space-y-1">
-          {slices.map((s) => (
+          {legendItems.map((s) => (
             <li key={s.ao} className="flex items-baseline gap-2">
               <span
                 className="w-3 h-3 inline-block"
