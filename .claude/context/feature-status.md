@@ -1,6 +1,6 @@
 # Feature Status — F3 Marietta
 
-> Living tracker of feature progress and completeness. Last updated: 2026-05-14
+> Living tracker of feature progress and completeness. Last updated: 2026-05-18
 
 ## Feature Summary
 
@@ -24,7 +24,7 @@
 | Slack Integration | Complete | Event ingestion, user sync, daily reconciliation |
 | Authentication (Better Auth) | Complete | Email/password, session management, middleware cookie check |
 | AI Beatdown Builder | Complete | Q tool: generates customizable workouts using AO context, past backblasts, famous F3 beatdowns, and the Exicon. Mobile + desktop friendly, printable. |
-| Admin Dashboard Analytics | In Development (2026-05-14) | YTD KPIs (posts, FNGs, unique PAX), posts-by-AO pie, Top-20 PAX bar — merged to main. Now expanding into BI-style drill-downs (AO-specific stats, PAX/AO by month, custom time ranges, export). |
+| Admin Dashboard Analytics | Complete (2026-05-18) | YTD KPIs + BI-style drill-downs (/admin/analytics): overview + AO/PAX detail pages, URL-driven filters, CSV export. Phase 0 data fixes: COALESCE name resolution, event_date backfill, pax_alias_map. Phase 2 backlog: cohort retention, FNG retention, AO health composite. |
 | Backblasts Newsfeed | Deprioritized | Scrolling/auto-rotating feed of recent backblasts on the homepage. Not needed right now. |
 | Upcoming Events | Deprioritized | CSAUP/convergence/2nd-F event display. Handled via the Workout builder for now. |
 
@@ -43,8 +43,13 @@
 - `/what-to-expect` — What to expect at a workout
 - `/community` — Community info
 
-### Admin Pages (7)
-- `/admin` — Region Ops. dashboard (YTD analytics; BI-style drill-downs in progress)
+### Admin Pages (12)
+- `/admin` — Region Ops. dashboard
+- `/admin/analytics` — BI overview: KPIs, charts, URL-driven filters, CSV export
+- `/admin/analytics/ao/[slug]` — AO detail: posts over time, top PAX, Q rotation
+- `/admin/analytics/pax/[slug]` — PAX detail: streak, AO distribution, Q'd workouts
+- `/admin/analytics/export` — CSV export (overview / ao / pax / raw scopes)
+- `/admin/aliases` — PAX alias CRUD
 - `/admin/workouts` — Workout schedule manager (calendar grid)
 - `/admin/regions` — Region CRUD
 - `/admin/kb` — Knowledge base file manager
@@ -106,13 +111,12 @@
 - Preblast notifications
 - Multi-region support (out of scope per planning agent)
 
-> Note (2026-05-14): "Event attendance tracking/analytics" and "PAX leaderboard from backblast data" were moved into active development — see Admin Dashboard Analytics above. Boundary intentionally lifted by Jordan (explicit scope override).
+> Note (2026-05-14): "Event attendance tracking/analytics" and "PAX leaderboard from backblast data" were moved into active development — now shipped as Admin Dashboard Analytics (complete 2026-05-18). Boundary intentionally lifted by Jordan (explicit scope override).
 
-## Roadmap (2026-05-14)
+## Roadmap (2026-05-18)
 
 In priority order:
-1. **Admin Dashboard Analytics** — In development now: BI-style drill-downs, AO-specific stats, time-range filtering, export
-2. **Backblasts Newsfeed** — Deprioritized
-3. **Upcoming Events** — Deprioritized (handled via Workout builder)
+1. **Backblasts Newsfeed** — Deprioritized
+2. **Upcoming Events** — Deprioritized (handled via Workout builder)
 
-Completed since last roadmap: AI Beatdown Builder, basic Admin Dashboard YTD analytics.
+Completed since last roadmap: AI Beatdown Builder, basic Admin Dashboard YTD analytics, Admin Dashboard Analytics (full BI surface — 18-task implementation).
