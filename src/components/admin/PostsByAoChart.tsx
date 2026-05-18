@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 
@@ -52,7 +53,6 @@ function buildArcs(data: Datum[], total: number): Slice[] {
   });
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function PostsByAoChart({ data, href }: Props) {
   const total = data.reduce((sum, r) => sum + r.count, 0);
 
@@ -83,9 +83,25 @@ export function PostsByAoChart({ data, href }: Props) {
           role="img"
           aria-label={`Posts by AO. ${arcs.map((a) => `${a.ao} ${a.pct}%`).join(", ")}.`}
         >
-          {arcs.map((a, i) => (
-            <path key={`${a.ao}-${i}`} d={a.path} fill={a.color} stroke="#0a0a0a" strokeWidth={1} />
-          ))}
+          {arcs.map((a, i) => {
+            const slice = (
+              <path
+                d={a.path}
+                fill={a.color}
+                stroke="#0a0a0a"
+                strokeWidth={1}
+                className={href && a.aoSlug ? "cursor-pointer hover:opacity-90" : undefined}
+              />
+            );
+            if (href && a.aoSlug) {
+              return (
+                <a key={`${a.ao}-${i}`} href={href(a.aoSlug)} aria-label={`Drill down: ${a.ao}`}>
+                  {slice}
+                </a>
+              );
+            }
+            return <g key={`${a.ao}-${i}`}>{slice}</g>;
+          })}
         </svg>
         <ul className="font-mono text-xs leading-relaxed flex-1 space-y-1.5">
           {arcs.map((a, i) => (
@@ -95,7 +111,17 @@ export function PostsByAoChart({ data, href }: Props) {
                 style={{ background: a.color }}
                 aria-hidden="true"
               />
-              <span className="truncate">{a.ao}</span>
+              {href && a.aoSlug ? (
+                <Link
+                  href={href(a.aoSlug)}
+                  className="truncate hover:underline"
+                  prefetch={false}
+                >
+                  {a.ao}
+                </Link>
+              ) : (
+                <span className="truncate">{a.ao}</span>
+              )}
               <span className="text-right text-muted">{a.pct}%</span>
             </li>
           ))}

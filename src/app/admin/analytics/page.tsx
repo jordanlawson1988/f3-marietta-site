@@ -54,6 +54,20 @@ export default async function AnalyticsOverviewPage({
 
   const stats = await getOverviewStats(range, aoSlug, topN);
 
+  // Build URL suffix that preserves current range filter
+  const rangeParam =
+    range.slug === "custom"
+      ? `?range=custom&from=${range.from.toISOString().slice(0, 10)}&to=${range.to.toISOString().slice(0, 10)}`
+      : range.slug === "ytd"
+      ? ""
+      : `?range=${range.slug}`;
+
+  const aoHref = (slug: string) => `/admin/analytics/ao/${slug}${rangeParam}`;
+  const paxHref = (paxKey: string) => {
+    const label = stats.topPax.find((p) => p.key === paxKey)?.label ?? paxKey;
+    return `/admin/analytics/pax/${nameToSlug(label)}${rangeParam}`;
+  };
+
   return (
     <section className="max-w-[1320px] mx-auto px-7 py-16">
       <SectionHead
@@ -89,12 +103,14 @@ export default async function AnalyticsOverviewPage({
                 count: b.count,
                 aoSlug: b.aoSlug,
               }))}
+              href={aoHref}
             />
           </div>
           <div className="md:col-span-7">
             <TopPaxChart
               data={stats.topPax}
               topN={topNParam === "all" ? undefined : parseInt(topNParam, 10) || 20}
+              href={paxHref}
             />
           </div>
         </div>

@@ -1,8 +1,18 @@
+import Link from "next/link";
+import { Fragment } from "react";
 import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import type { PaxRanking } from "@/lib/stats/resolvePaxIdentity";
 
-export function TopPaxChart({ data, topN = 20 }: { data: PaxRanking[]; topN?: number }) {
+export function TopPaxChart({
+  data,
+  topN = 20,
+  href,
+}: {
+  data: PaxRanking[];
+  topN?: number;
+  href?: (paxKey: string) => string;
+}) {
   const visible = topN ? data.slice(0, topN) : data;
 
   if (visible.length === 0) {
@@ -28,11 +38,8 @@ export function TopPaxChart({ data, topN = 20 }: { data: PaxRanking[]; topN?: nu
       <ul className="font-mono text-xs space-y-1.5">
         {visible.map((p) => {
           const widthPct = max === 0 ? 0 : Math.max(2, (p.count / max) * 100);
-          return (
-            <li
-              key={p.key}
-              className="grid grid-cols-[130px_1fr_40px] items-center gap-3"
-            >
+          const row = (
+            <li className="grid grid-cols-[130px_1fr_40px] items-center gap-3">
               <span className="truncate" title={p.label}>
                 {p.label}
               </span>
@@ -44,6 +51,19 @@ export function TopPaxChart({ data, topN = 20 }: { data: PaxRanking[]; topN?: nu
               <span className="text-right">{p.count}</span>
             </li>
           );
+          if (href) {
+            return (
+              <Link
+                key={p.key}
+                href={href(p.key)}
+                className="block hover:bg-black/5"
+                prefetch={false}
+              >
+                {row}
+              </Link>
+            );
+          }
+          return <Fragment key={p.key}>{row}</Fragment>;
         })}
       </ul>
     </ClipFrame>
