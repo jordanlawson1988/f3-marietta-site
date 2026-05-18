@@ -64,6 +64,34 @@ test("custom: invalid (to in future) returns null", () => {
   assert.equal(r, null);
 });
 
+test("custom: to === today is allowed (boundary)", () => {
+  const r = parseTimeRange(
+    { range: "custom", from: "2026-05-01", to: "2026-05-15" },
+    NOW,
+  );
+  assert.ok(r);
+  assert.equal(r!.slug, "custom");
+  assert.equal(r!.to.toISOString().slice(0, 10), "2026-05-15");
+});
+
+test("custom: span exactly 2 calendar years across leap year is allowed", () => {
+  // 2024 is a leap year; 2024-01-01 → 2026-01-01 = 731 days
+  const r = parseTimeRange(
+    { range: "custom", from: "2024-01-01", to: "2026-01-01" },
+    NOW,
+  );
+  assert.ok(r, "2 calendar years across a leap year should be allowed");
+});
+
+test("custom: span > 2 calendar years is rejected (post-leap-year boundary)", () => {
+  // 2024-01-01 → 2026-01-02 = one day past 2 calendar years
+  const r = parseTimeRange(
+    { range: "custom", from: "2024-01-01", to: "2026-01-02" },
+    NOW,
+  );
+  assert.equal(r, null);
+});
+
 test("custom: span > 2 years returns null", () => {
   const r = parseTimeRange(
     { range: "custom", from: "2023-01-01", to: "2026-01-02" },

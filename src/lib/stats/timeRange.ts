@@ -23,8 +23,14 @@ export type TimeRange = {
   label: string;
 };
 
-const TWO_YEARS_MS = 2 * 365 * 24 * 60 * 60 * 1000;
-
+/**
+ * Convert a Date to UTC midnight of its UTC calendar date.
+ * NOTE: This uses UTC components — when `now` is a local-time Date evening in
+ * a negative-UTC-offset timezone (e.g. America/New_York after 8pm), the UTC
+ * calendar date can be the next day. Callers should pass a server-side `now`
+ * (server runtime is UTC) rather than a browser-local Date for predictable
+ * "today" semantics.
+ */
 function toDateOnly(d: Date): Date {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 }
@@ -68,7 +74,10 @@ export function parseTimeRange(
   if (!from || !to) return null;
   if (from.getTime() > to.getTime()) return null;
   if (to.getTime() > today.getTime()) return null;
-  if (to.getTime() - from.getTime() > TWO_YEARS_MS) return null;
+  const maxTo = new Date(
+    Date.UTC(from.getUTCFullYear() + 2, from.getUTCMonth(), from.getUTCDate())
+  );
+  if (to.getTime() > maxTo.getTime()) return null;
   return {
     slug,
     from,
