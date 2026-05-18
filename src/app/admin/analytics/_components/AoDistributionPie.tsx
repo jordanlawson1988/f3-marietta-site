@@ -51,7 +51,12 @@ export function AoDistributionPie({ data }: { data: Datum[] }) {
     <ClipFrame padding="p-6" className="min-h-[220px]">
       <MonoTag>// ao distribution</MonoTag>
       <div className="flex items-center gap-4 mt-3">
-        <svg viewBox="0 0 120 120" className="w-28 h-28">
+        <svg
+          viewBox="0 0 120 120"
+          className="w-28 h-28"
+          role="img"
+          aria-label={`AO distribution. ${legendItems.map((s) => `${s.ao} ${s.pct}%`).join(", ")}.`}
+        >
           {singleSlice ? (
             // Single-AO PAX: arcPath produces a degenerate sliver (sin(2π)≈0).
             // Render a full circle instead — matches Phase 1 PostsByAoChart pattern.
