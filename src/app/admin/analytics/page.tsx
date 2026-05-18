@@ -8,6 +8,8 @@ import { MetricCard } from "./_components/MetricCard";
 import { PostsByAoChart } from "@/components/admin/PostsByAoChart";
 import { TopPaxChart } from "@/components/admin/TopPaxChart";
 import { getOverviewStats } from "@/lib/stats/getOverviewStats";
+import { PostsOverTimeChart } from "./_components/PostsOverTimeChart";
+import { DayOfWeekChart } from "./_components/DayOfWeekChart";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +96,15 @@ export default async function AnalyticsOverviewPage({
               data={stats.topPax}
               topN={topNParam === "all" ? undefined : parseInt(topNParam, 10) || 20}
             />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
+          <div className="md:col-span-8">
+            <PostsOverTimeChart data={stats.postsOverTime} />
+          </div>
+          <div className="md:col-span-4">
+            <DayOfWeekChart data={stats.byDayOfWeek} />
           </div>
         </div>
       </div>
