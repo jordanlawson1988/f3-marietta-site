@@ -11,13 +11,20 @@ CREATE TABLE IF NOT EXISTS pax_alias_map (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
+COMMENT ON TABLE pax_alias_map IS 'Admin-managed last-resort lookup for Slack IDs absent from slack_users; used by resolvePaxIdentity.';
+
+ALTER TABLE pax_alias_map ENABLE ROW LEVEL SECURITY;
+
 CREATE OR REPLACE FUNCTION pax_alias_map_set_updated_at()
-RETURNS trigger AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = ''
+AS $$
 BEGIN
   NEW.updated_at = now();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 DROP TRIGGER IF EXISTS pax_alias_map_updated_at ON pax_alias_map;
 CREATE TRIGGER pax_alias_map_updated_at
