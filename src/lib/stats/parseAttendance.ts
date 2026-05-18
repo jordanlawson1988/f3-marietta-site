@@ -1,7 +1,7 @@
 const PAX_LINE = /^[\s*_]*PAX[\s*_]*:\s*(.+)$/im;
 const COUNT_LINE = /^[\s*_]*COUNT[\s*_]*:\s*(\d+)/im;
 const FNG_LINE = /^[\s*_]*FNG[s]?[\s*_]*:\s*(.+)$/im;
-const SLACK_ID = /@?(U[A-Z0-9]{5,})/g;
+const SLACK_ID = /@?(U[A-Z0-9]{7,})/;
 const NUMERIC_ONLY = /^[\s*_]*\d+[\s*_]*(\(.*\))?[\s*_]*$/;
 
 const STOPWORDS = new Set([
@@ -40,20 +40,14 @@ function parseHeadcount(content: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-function parseRoster(content: string, lineRe: RegExp): Set<string> {
+function parseRosterFromRemainder(remainder: string): Set<string> {
   const out = new Set<string>();
-  if (!content) return out;
-  const match = content.match(lineRe);
-  if (!match || !match[1]) return out;
-  let remainder = match[1].trim();
-
   const slackRe = new RegExp(SLACK_ID.source, "g");
   let m: RegExpExecArray | null;
   while ((m = slackRe.exec(remainder)) !== null) {
     out.add(m[1]);
   }
   remainder = remainder.replace(slackRe, "");
-
   for (const piece of remainder.split(",")) {
     const name = piece
       .trim()
@@ -67,11 +61,18 @@ function parseRoster(content: string, lineRe: RegExp): Set<string> {
   return out;
 }
 
+function parseRoster(content: string, lineRe: RegExp): Set<string> {
+  if (!content) return new Set();
+  const match = content.match(lineRe);
+  if (!match || !match[1]) return new Set();
+  return parseRosterFromRemainder(match[1].trim());
+}
+
 function parseFngRoster(content: string): Set<string> {
   if (!content) return new Set();
   const match = content.match(FNG_LINE);
   if (!match || !match[1]) return new Set();
   const remainder = match[1].trim();
   if (NUMERIC_ONLY.test(remainder)) return new Set();
-  return parseRoster(content, FNG_LINE);
+  return parseRosterFromRemainder(remainder);
 }

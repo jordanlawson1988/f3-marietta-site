@@ -7,14 +7,14 @@ test("parses PAX line with Slack IDs and nicknames", () => {
 DATE: 2026-04-10
 AO: Black Ops
 Q: Nessie
-PAX: @U01ABC @U02DEF, Bill Nye, Nacho
+PAX: @U01ABC123 @U02DEF456, Bill Nye, Nacho
 COUNT: 5
 FNG: none
 `;
   const r = parseAttendance(text);
   assert.deepEqual(
     [...r.pax].sort(),
-    ["U01ABC", "U02DEF", "n:bill nye", "n:nacho"].sort(),
+    ["U01ABC123", "U02DEF456", "n:bill nye", "n:nacho"].sort(),
   );
 });
 
@@ -39,9 +39,9 @@ test("malformed COUNT line returns null headcount", () => {
 });
 
 test("parses FNG tokens from FNG line", () => {
-  const text = "FNG: @U99NEW, Stranger";
+  const text = "FNG: @U99NEWPAX, Stranger";
   const r = parseAttendance(text);
-  assert.deepEqual([...r.fngTokens].sort(), ["U99NEW", "n:stranger"].sort());
+  assert.deepEqual([...r.fngTokens].sort(), ["U99NEWPAX", "n:stranger"].sort());
 });
 
 test("FNG line 'none' returns empty fngTokens", () => {
@@ -64,10 +64,10 @@ test("empty content returns empty everything", () => {
 test("PAX excludes FNG names that appear in both lines", () => {
   // FNGs are counted separately; they should appear in fngTokens but
   // also in pax since the PAX line lists them.
-  const text = "PAX: @U99NEW, Bill\nFNG: @U99NEW";
+  const text = "PAX: @U99NEWPAX, Bill\nFNG: @U99NEWPAX";
   const r = parseAttendance(text);
-  assert.ok(r.pax.has("U99NEW"));
-  assert.ok(r.fngTokens.has("U99NEW"));
+  assert.ok(r.pax.has("U99NEWPAX"));
+  assert.ok(r.fngTokens.has("U99NEWPAX"));
 });
 
 test("tolerates Slack markdown wrapping (asterisks, underscores)", () => {
