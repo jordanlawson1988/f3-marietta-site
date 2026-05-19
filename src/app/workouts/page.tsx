@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   description: "All F3 Marietta AOs and workout times. Rain or shine, free of charge.",
 };
 
+// ISR safety net. Primary refresh path is on-demand: admin workout/region
+// mutations call revalidatePath('/workouts'). This 5-minute interval catches
+// cases where the revalidation call didn't fire (cold start, deploy timing).
+export const revalidate = 300;
+
 export default async function WorkoutsPage() {
   const schedule = await getWorkoutSchedule();
   const flat: WorkoutWithRegion[] = [];

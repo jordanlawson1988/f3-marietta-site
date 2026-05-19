@@ -5,6 +5,7 @@ import { MonoTag } from "@/components/ui/brand/MonoTag";
 
 const ADMIN_NAV = [
   { label: "Dashboard",  href: "/admin" },
+  { label: "Analytics",  href: "/admin/analytics" },
   { label: "Workouts",   href: "/admin/workouts" },
   { label: "Regions",    href: "/admin/regions" },
   { label: "Drafts",     href: "/admin/drafts" },

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSql } from "@/lib/db";
 import { validateAdminToken } from "@/lib/admin/auth";
 
@@ -77,6 +78,8 @@ export async function POST(request: Request) {
       }
     }
 
+    revalidatePath("/workouts");
+    revalidatePath("/");
     return NextResponse.json({ success: true, affected });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Database error";

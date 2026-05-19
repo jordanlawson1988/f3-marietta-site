@@ -16,10 +16,8 @@ async function loginAdmin(page: Page) {
   ).toBeVisible({ timeout: 15_000 });
 }
 
-const ADMIN_PATH = "/admin";
-
 test.describe("admin dashboard", () => {
-  test("renders KPI tiles, pie chart, bar chart, and nav tiles", async ({ page }) => {
+  test("renders KPI tiles, pie chart, bar chart", async ({ page }) => {
     if (!hasAdminCreds) test.skip();
     await loginAdmin(page);
     // loginAdmin already navigates to /admin and waits until the post-auth
@@ -45,15 +43,37 @@ test.describe("admin dashboard", () => {
     // --- BAR CHART ---
     // TopPaxChart always renders an h3 "Top PAX" regardless of data presence.
     await expect(page.getByRole("heading", { name: /Top PAX/i })).toBeVisible();
+  });
 
-    // --- EXISTING NAV TILES ---
-    for (const label of ["Active AOs", "Regions", "Drafts", "Newsletter"]) {
-      await expect(page.getByText(`// ${label}`)).toBeVisible();
-    }
+  test("KPI tiles drill into /admin/analytics", async ({ page }) => {
+    if (!hasAdminCreds) test.skip();
+    await loginAdmin(page);
 
-    // --- NEW WORKOUT / NEW DRAFT BUTTONS ---
-    // ChamferButton with href renders as an <a> element
-    await expect(page.getByRole("link", { name: /New Workout/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /New Draft/i })).toBeVisible();
+    // Each KPI tile is wrapped in a Link → analytics view.
+    const totalPostsLink = page.getByRole("link", {
+      name: /Drill into total posts/i,
+    });
+    await expect(totalPostsLink).toBeVisible();
+    await expect(totalPostsLink).toHaveAttribute("href", "/admin/analytics");
+
+    const fngsLink = page.getByRole("link", {
+      name: /Drill into new FNGs/i,
+    });
+    await expect(fngsLink).toHaveAttribute("href", "/admin/analytics");
+
+    const paxLink = page.getByRole("link", {
+      name: /Drill into the full PAX leaderboard/i,
+    });
+    await expect(paxLink).toHaveAttribute("href", "/admin/analytics?topN=all");
+  });
+
+  test("admin nav surfaces Analytics link", async ({ page }) => {
+    if (!hasAdminCreds) test.skip();
+    await loginAdmin(page);
+    const analyticsLink = page.locator("nav").getByRole("link", {
+      name: "Analytics",
+    });
+    await expect(analyticsLink).toBeVisible();
+    await expect(analyticsLink).toHaveAttribute("href", "/admin/analytics");
   });
 });

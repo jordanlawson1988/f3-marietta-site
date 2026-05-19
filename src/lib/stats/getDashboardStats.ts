@@ -7,12 +7,13 @@ import {
   type PaxRanking,
 } from "./resolvePaxIdentity";
 import { getAliasMap } from "./aliasMap";
+import { nameToSlug } from "./slugify";
 
 export type DashboardStats = {
   totalPosts: number;
   uniquePax: number;
   newFngs: number;
-  byAo: Array<{ ao: string; count: number }>;
+  byAo: Array<{ ao: string; aoSlug: string; count: number }>;
   topPax: PaxRanking[];
 };
 
@@ -70,7 +71,11 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
     const byAo = (byAoRows as Array<{ ao: string | null; n: number }>)
       .filter((r) => r.ao !== null)
-      .map((r) => ({ ao: r.ao as string, count: Number(r.n) }));
+      .map((r) => ({
+        ao: r.ao as string,
+        aoSlug: nameToSlug(r.ao as string),
+        count: Number(r.n),
+      }));
     const totalPosts = byAo.reduce((sum, r) => sum + r.count, 0);
 
     const paxCounts = new Map<string, number>();
