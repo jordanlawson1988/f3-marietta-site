@@ -102,3 +102,25 @@ export function serializeTimeRange(
 export function defaultTimeRange(now: Date = new Date()): TimeRange {
   return parseTimeRange({ range: "ytd" }, now)!;
 }
+
+/**
+ * Enumerate every YYYY-MM month touched by [from, to], inclusive.
+ * Used to pad monthly chart series so the x-axis spans the selected range
+ * even when some months have zero posts.
+ */
+export function monthsInRange(from: Date, to: Date): string[] {
+  const months: string[] = [];
+  let year = from.getUTCFullYear();
+  let month = from.getUTCMonth();
+  const endYear = to.getUTCFullYear();
+  const endMonth = to.getUTCMonth();
+  while (year < endYear || (year === endYear && month <= endMonth)) {
+    months.push(`${year}-${String(month + 1).padStart(2, "0")}`);
+    month += 1;
+    if (month > 11) {
+      month = 0;
+      year += 1;
+    }
+  }
+  return months;
+}

@@ -4,14 +4,14 @@ import { resolvePaxIdentity, type SlackUser } from "./resolvePaxIdentity";
 import { getAliasMap } from "./aliasMap";
 import { computeLongestStreak } from "./computeStreak";
 import { nameToSlug } from "./slugify";
-import type { TimeRange } from "./timeRange";
+import { monthsInRange, type TimeRange } from "./timeRange";
 
 export type PaxStats = {
   paxLabel: string;
   paxSlug: string;
   totalPosts: number;
   aosVisited: number;
-  firstSeenMonth: string | null; // YYYY-MM
+  firstSeenMonth: string | null; // YYYY-MM, within selected range
   longestStreak: number;
   postsOverTime: Array<{ month: string; count: number }>;
   byAo: Array<{ ao: string; aoSlug: string; count: number }>;
@@ -91,16 +91,16 @@ export async function getPaxStats(
     monthSet.set(month, (monthSet.get(month) ?? 0) + 1);
     allDates.add(f.eventDate);
   }
-  const postsOverTime = [...monthSet.entries()]
-    .map(([month, count]) => ({ month, count }))
-    .sort((a, b) => a.month.localeCompare(b.month));
+  const postsOverTime = monthsInRange(range.from, range.to).map((month) => ({
+    month,
+    count: monthSet.get(month) ?? 0,
+  }));
 
-  const firstSeenFromAll = fullYearFact
-    .filter((f) => tokenToCanonical(f.paxToken) === paxCanonicalKey)
+  const firstSeenInRange = mine
     .map((f) => f.eventDate)
     .sort()[0];
-  const firstSeenMonth = firstSeenFromAll
-    ? firstSeenFromAll.slice(0, 7)
+  const firstSeenMonth = firstSeenInRange
+    ? firstSeenInRange.slice(0, 7)
     : null;
 
   const longestStreak = computeLongestStreak([...allDates].sort());

@@ -3,6 +3,7 @@ import { getSql } from "@/lib/db";
 import { SectionHead } from "@/components/ui/brand/SectionHead";
 import { parseTimeRange, defaultTimeRange } from "@/lib/stats/timeRange";
 import { nameToSlug } from "@/lib/stats/slugify";
+import { Crumbs } from "./_components/Crumbs";
 import { FilterBar } from "./_components/FilterBar";
 import { MetricCard } from "./_components/MetricCard";
 import { PostsByAoChart } from "@/components/admin/PostsByAoChart";
@@ -72,7 +73,14 @@ export default async function AnalyticsOverviewPage({
   return (
     <section className="max-w-[1320px] mx-auto px-7 py-16">
       <SectionHead
-        eyebrow="§ Admin · Analytics"
+        eyebrow={
+          <Crumbs
+            items={[
+              { label: "§ Admin", href: "/admin" },
+              { label: "Analytics" },
+            ]}
+          />
+        }
         h2="Region BI"
         kicker={
           <>

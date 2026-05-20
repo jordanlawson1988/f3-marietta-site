@@ -14,14 +14,25 @@ export function QRotationList({
           // no Q records in range (f3_event_qs has 85% coverage; older workouts may be missing)
         </p>
       ) : (
-        <ul className="font-mono text-xs mt-4 space-y-1.5">
-          {data.map((q) => (
-            <li key={q.label} className="flex items-baseline gap-3">
-              <span className="flex-1 truncate">{q.label}</span>
-              <span className="w-8 text-right">{q.count}</span>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div
+            role="row"
+            className="font-mono text-[11px] tracking-[.15em] uppercase text-muted border-b border-line-soft pb-1.5 mt-4 flex items-baseline gap-3"
+          >
+            <span className="flex-1">Q (pax)</span>
+            <span className="w-8 text-right" title="workouts Q'd in this range">
+              Q&apos;d
+            </span>
+          </div>
+          <ul className="font-mono text-xs mt-2 space-y-1.5">
+            {data.map((q) => (
+              <li key={q.label} className="flex items-baseline gap-3">
+                <span className="flex-1 truncate">{q.label}</span>
+                <span className="w-8 text-right">{q.count}</span>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </ClipFrame>
   );

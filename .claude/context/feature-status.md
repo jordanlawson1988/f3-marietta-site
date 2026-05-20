@@ -24,7 +24,7 @@
 | Slack Integration | Complete | Event ingestion, user sync, daily reconciliation |
 | Authentication (Better Auth) | Complete | Email/password, session management, middleware cookie check |
 | AI Beatdown Builder | Complete | Q tool: generates customizable workouts using AO context, past backblasts, famous F3 beatdowns, and the Exicon. Mobile + desktop friendly, printable. |
-| Admin Dashboard Analytics | Complete (2026-05-18) | YTD KPIs + BI-style drill-downs (/admin/analytics): overview + AO/PAX detail pages, URL-driven filters, CSV export. Phase 0 data fixes: COALESCE name resolution, event_date backfill, pax_alias_map. Phase 2 backlog: cohort retention, FNG retention, AO health composite. |
+| Admin Dashboard Analytics | Complete (2026-05-18, FNG roster added 2026-05-19) | YTD KPIs + BI-style drill-downs (/admin/analytics): overview + AO/PAX detail pages, URL-driven filters, CSV export. Phase 0 data fixes: COALESCE name resolution, event_date backfill, pax_alias_map. FNG roster page (/admin/analytics/fngs) shipped 2026-05-19 via explicit scope override — list of FNGs by date/AO/name + range/all-time totals; retention/cohort analysis still Phase 2 backlog. Remaining Phase 2 backlog: cohort retention, FNG retention/cohort, AO health composite. |
 | Backblasts Newsfeed | Deprioritized | Scrolling/auto-rotating feed of recent backblasts on the homepage. Not needed right now. |
 | Upcoming Events | Deprioritized | CSAUP/convergence/2nd-F event display. Handled via the Workout builder for now. |
 
@@ -48,6 +48,7 @@
 - `/admin/analytics` — BI overview: KPIs, charts, URL-driven filters, CSV export
 - `/admin/analytics/ao/[slug]` — AO detail: posts over time, top PAX, Q rotation
 - `/admin/analytics/pax/[slug]` — PAX detail: streak, AO distribution, Q'd workouts
+- `/admin/analytics/fngs` — FNG roster: by date, AO, name; range + all-time totals
 - `/admin/analytics/export` — CSV export (overview / ao / pax / raw scopes)
 - `/admin/aliases` — PAX alias CRUD
 - `/admin/workouts` — Workout schedule manager (calendar grid)

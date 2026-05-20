@@ -3,6 +3,7 @@ import { getSql } from "@/lib/db";
 import { SectionHead } from "@/components/ui/brand/SectionHead";
 import { parseTimeRange, defaultTimeRange } from "@/lib/stats/timeRange";
 import { nameToSlug } from "@/lib/stats/slugify";
+import { Crumbs } from "../../_components/Crumbs";
 import { FilterBar } from "../../_components/FilterBar";
 import { getAoStats } from "@/lib/stats/getAoStats";
 import { getQStats } from "@/lib/stats/getQStats";
@@ -58,13 +59,22 @@ export default async function AnalyticsAoPage({
       : `?range=${range.slug}`;
   const paxHref = (paxKey: string) => {
     const label = stats.topPax.find((p) => p.key === paxKey)?.label ?? paxKey;
-    return `/admin/analytics/pax/${nameToSlug(label)}${customParam}`;
+    const sep = customParam ? "&" : "?";
+    return `/admin/analytics/pax/${nameToSlug(label)}${customParam}${sep}fromAo=${slug}`;
   };
 
   return (
     <section className="max-w-[1320px] mx-auto px-7 py-16">
       <SectionHead
-        eyebrow="§ Admin · Analytics · AO"
+        eyebrow={
+          <Crumbs
+            items={[
+              { label: "§ Admin", href: "/admin" },
+              { label: "Analytics", href: `/admin/analytics${customParam}` },
+              { label: "AO" },
+            ]}
+          />
+        }
         h2={match.ao_display_name}
         kicker={<>{range.label}</>}
         align="left"
