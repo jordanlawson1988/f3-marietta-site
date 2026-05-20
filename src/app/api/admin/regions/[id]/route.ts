@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSql } from "@/lib/db";
 import { validateAdminToken } from "@/lib/admin/auth";
+
+function revalidateWorkoutSurfaces() {
+  revalidatePath("/workouts");
+  revalidatePath("/");
+}
 
 export async function PUT(
   request: Request,
@@ -25,6 +31,7 @@ export async function PUT(
     if (data.length === 0) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
+    revalidateWorkoutSurfaces();
     return NextResponse.json({ region: data[0] });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Database error";
@@ -55,6 +62,7 @@ export async function DELETE(
     }
 
     await sql`DELETE FROM regions WHERE id = ${id}`;
+    revalidateWorkoutSurfaces();
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Database error";

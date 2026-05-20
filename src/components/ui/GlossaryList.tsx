@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { lexiconEntries, exiconEntries, type GlossaryEntry } from "@/../data/f3Glossary";
+import { searchGlossaryEntries } from "@/lib/searchGlossary";
 
 type Tab = "all" | "lexicon" | "exicon";
 
@@ -46,16 +47,12 @@ export function GlossaryList() {
     return [...lexiconEntries, ...exiconEntries];
   }, [activeTab]);
 
+  const isSearching = searchQuery.trim().length > 0;
+
   const filteredEntries = useMemo(() => {
-    if (!searchQuery.trim()) return baseEntries;
-    const q = searchQuery.toLowerCase();
-    return baseEntries.filter(
-      (e) =>
-        e.term.toLowerCase().includes(q) ||
-        e.shortDescription.toLowerCase().includes(q) ||
-        (e.longDescription && e.longDescription.toLowerCase().includes(q))
-    );
-  }, [searchQuery, baseEntries]);
+    if (!isSearching) return baseEntries;
+    return searchGlossaryEntries(baseEntries, searchQuery);
+  }, [searchQuery, baseEntries, isSearching]);
 
   const groups = useMemo(() => groupByLetter(filteredEntries), [filteredEntries]);
   const letters = useMemo(() => sortedLetters(groups), [groups]);
@@ -120,8 +117,8 @@ export function GlossaryList() {
         {searchQuery.trim() ? " matched" : " total"}
       </p>
 
-      {/* Letter groups */}
-      {letters.length === 0 ? (
+      {/* Results */}
+      {filteredEntries.length === 0 ? (
         <div className="py-16 text-center">
           <p className="font-mono text-[13px] tracking-[.05em] uppercase text-muted">
             No results for &ldquo;{searchQuery}&rdquo;
@@ -132,6 +129,24 @@ export function GlossaryList() {
           >
             Clear search
           </button>
+        </div>
+      ) : isSearching ? (
+        <div className="py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
+            {filteredEntries.map((t) => (
+              <div key={t.id} id={t.id} className="flex flex-col">
+                <span className="font-mono text-[11px] tracking-[.15em] uppercase text-muted">
+                  // {activeTab === "all" ? (isLexicon(t) ? "Lexicon" : "Exicon") : t.term}
+                </span>
+                <span className="font-display font-bold uppercase text-[22px] tracking-[-.01em] mt-1">
+                  {t.term}
+                </span>
+                <span className="mt-1 text-[14px] leading-[1.55] text-ink/80">
+                  {t.shortDescription}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         letters.map((letter) => (

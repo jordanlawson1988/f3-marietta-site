@@ -5,11 +5,14 @@ import { MonoTag } from "@/components/ui/brand/MonoTag";
 
 const ADMIN_NAV = [
   { label: "Dashboard",  href: "/admin" },
+  { label: "Analytics",  href: "/admin/analytics" },
   { label: "Workouts",   href: "/admin/workouts" },
   { label: "Regions",    href: "/admin/regions" },
   { label: "Drafts",     href: "/admin/drafts" },
   { label: "Newsletter", href: "/admin/newsletter" },
   { label: "KB",         href: "/admin/kb" },
+  { label: "Team",       href: "/admin/team" },
+  { label: "Profile",    href: "/admin/profile" },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

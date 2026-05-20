@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getSql } from "@/lib/db";
 import { validateAdminToken } from "@/lib/admin/auth";
 
@@ -48,6 +49,8 @@ export async function POST(request: Request) {
       VALUES (${ao_name}, ${workout_type}, ${day_of_week}, ${start_time}, ${end_time}, ${location_name || null}, ${address}, ${region_id}, ${map_link || null}, ${is_active ?? true})
       RETURNING *
     `;
+    revalidatePath("/workouts");
+    revalidatePath("/");
     return NextResponse.json({ workout: data[0] }, { status: 201 });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Database error";
