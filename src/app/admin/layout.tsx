@@ -11,6 +11,8 @@ const ADMIN_NAV = [
   { label: "Drafts",     href: "/admin/drafts" },
   { label: "Newsletter", href: "/admin/newsletter" },
   { label: "KB",         href: "/admin/kb" },
+  { label: "Team",       href: "/admin/team" },
+  { label: "Profile",    href: "/admin/profile" },
 ];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

@@ -1,10 +1,27 @@
 import { betterAuth } from "better-auth";
 import { Pool } from "@neondatabase/serverless";
+import { getSql } from "@/lib/db";
 
 export const auth = betterAuth({
     database: new Pool({ connectionString: process.env.DATABASE_URL }),
     emailAndPassword: {
         enabled: true,
+    },
+    databaseHooks: {
+        user: {
+            create: {
+                // Every new account lands as a pending member; an existing
+                // admin grants access in /admin/team.
+                after: async (user) => {
+                    const sql = getSql();
+                    await sql`
+                        INSERT INTO member_profiles (user_id, status)
+                        VALUES (${user.id}, 'pending')
+                        ON CONFLICT (user_id) DO NOTHING
+                    `;
+                },
+            },
+        },
     },
     session: {
         expiresIn: 60 * 60 * 24 * 7, // 7 days
