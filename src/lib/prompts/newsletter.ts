@@ -8,6 +8,7 @@ export const NEWSLETTER_SYSTEM_PROMPT = `You are writing the weekly recap newsle
 - Acknowledge the Qs (leaders) who stepped up to lead
 - Keep it warm but not soft — this is a group of men pushing each other
 - Use natural F3 language without over-explaining it
+- If "Editor notes" are provided at the end of the input, weave them into the recap naturally — they reflect live context the editor wants surfaced (themes, FNG callouts, upcoming events, corrections, vibe shifts)
 
 ## F3 Lexicon
 - PAX = participants
@@ -47,7 +48,8 @@ Do NOT wrap the JSON in markdown code fences. Return raw JSON only.`;
 export function buildUserPrompt(
   events: F3Event[],
   weekStart: string,
-  weekEnd: string
+  weekEnd: string,
+  notes?: string | null
 ): string {
   const parts: string[] = [
     `Write the weekly newsletter for F3 Marietta.`,
@@ -64,10 +66,17 @@ export function buildUserPrompt(
     byAo.set(ao, existing);
   }
 
+  const toIsoDate = (value: unknown): string | null => {
+    if (!value) return null;
+    if (value instanceof Date) return value.toISOString().split('T')[0];
+    if (typeof value === 'string') return value.split('T')[0];
+    return null;
+  };
+
   for (const [ao, aoEvents] of byAo) {
     parts.push(`## ${ao}`);
     for (const event of aoEvents) {
-      const date = event.event_date ?? event.created_at?.split('T')[0] ?? 'unknown date';
+      const date = toIsoDate(event.event_date) ?? toIsoDate(event.created_at) ?? 'unknown date';
       const q = event.q_name ?? 'unknown Q';
       const hc = event.pax_count != null ? `${event.pax_count} PAX` : 'HC unknown';
       parts.push(`- ${date} | Q: ${q} | ${hc}`);
@@ -80,6 +89,11 @@ export function buildUserPrompt(
       }
     }
     parts.push(``);
+  }
+
+  const trimmedNotes = notes?.trim();
+  if (trimmedNotes) {
+    parts.push(`## Editor notes`, trimmedNotes, ``);
   }
 
   return parts.join('\n');

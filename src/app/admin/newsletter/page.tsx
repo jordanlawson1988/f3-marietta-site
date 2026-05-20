@@ -1,26 +1,33 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { Newsletter } from '@/types/automation';
 import { StatusChip } from '@/components/ui/brand/StatusChip';
 import { SectionHead } from '@/components/ui/brand/SectionHead';
 import { ChamferButton } from '@/components/ui/brand/ChamferButton';
-import { ClipFrame } from '@/components/ui/brand/ClipFrame';
 import { MonoTag } from '@/components/ui/brand/MonoTag';
-import NewsletterPreview from '@/components/ui/NewsletterPreview';
+import { NewNewsletterModal } from './NewNewsletterModal';
 
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('en-US', {
+type FilterKey = 'all' | 'draft' | 'posted';
+
+function formatDate(value: string | null | undefined): string {
+  if (!value) return '—';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
 }
 
-function formatTimestamp(dateStr: string | null): string {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleString('en-US', {
+function formatTimestamp(value: string | null | undefined): string {
+  if (!value) return '—';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
@@ -28,39 +35,29 @@ function formatTimestamp(dateStr: string | null): string {
   });
 }
 
-function newsletterStatusVariant(status: string): 'active' | 'draft' | 'pending' | 'archived' | null {
-  if (status === 'published' || status === 'active' || status === 'posted') return 'active';
+function statusChipVariant(
+  status: string
+): 'active' | 'draft' | 'pending' | 'archived' | null {
+  if (status === 'posted' || status === 'active') return 'active';
   if (status === 'draft') return 'draft';
-  if (status === 'pending') return 'pending';
+  if (status === 'approved') return 'pending';
   if (status === 'archived') return 'archived';
   return null;
 }
 
-export default function NewsletterPage() {
+export default function NewsletterListPage() {
+  const router = useRouter();
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Editable draft state
-  const [editTitle, setEditTitle] = useState('');
-  const [editBody, setEditBody] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [posting, setPosting] = useState(false);
+  const [filter, setFilter] = useState<FilterKey>('all');
+  const [showModal, setShowModal] = useState(false);
 
   const fetchNewsletters = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/newsletter', {
-        credentials: 'include',
-      });
+      const res = await fetch('/api/admin/newsletter', { credentials: 'include' });
       if (res.ok) {
         const data: Newsletter[] = await res.json();
         setNewsletters(data);
-
-        // Initialize editor with the most recent draft
-        const draft = data.find((n) => n.status === 'draft');
-        if (draft) {
-          setEditTitle(draft.title ?? '');
-          setEditBody(draft.body_slack_mrkdwn ?? '');
-        }
       }
     } catch (err) {
       console.error('Failed to fetch newsletters:', err);
@@ -73,190 +70,190 @@ export default function NewsletterPage() {
     fetchNewsletters();
   }, [fetchNewsletters]);
 
-  const currentDraft = newsletters.find((n) => n.status === 'draft') ?? null;
-  const pastNewsletters = newsletters.filter((n) => n.status !== 'draft');
+  const currentlyPosted = useMemo(
+    () =>
+      newsletters
+        .filter((n) => n.status === 'posted')
+        .sort((a, b) =>
+          (b.posted_at ?? b.updated_at ?? '').localeCompare(a.posted_at ?? a.updated_at ?? '')
+        )[0] ?? null,
+    [newsletters]
+  );
 
-  async function handleSave() {
-    if (!currentDraft) return;
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/admin/newsletter/${currentDraft.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          title: editTitle,
-          body_slack_mrkdwn: editBody,
-        }),
-      });
-      if (res.ok) {
-        await fetchNewsletters();
-      }
-    } catch (err) {
-      console.error('Save failed:', err);
-    } finally {
-      setSaving(false);
+  const filtered = useMemo(() => {
+    if (filter === 'draft') {
+      return newsletters.filter((n) => n.status === 'draft' || n.status === 'approved');
     }
-  }
-
-  async function handleApproveAndPost() {
-    if (!currentDraft) return;
-
-    // Save any pending edits first
-    await handleSave();
-
-    setPosting(true);
-    try {
-      const res = await fetch(`/api/admin/newsletter/${currentDraft.id}/approve`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      if (res.ok) {
-        await fetchNewsletters();
-      } else {
-        const err = await res.json();
-        console.error('Post failed:', err.error);
-      }
-    } catch (err) {
-      console.error('Post failed:', err);
-    } finally {
-      setPosting(false);
+    if (filter === 'posted') {
+      return newsletters.filter((n) => n.status === 'posted');
     }
-  }
+    return newsletters;
+  }, [filter, newsletters]);
 
-  if (loading) {
-    return (
-      <div className="p-6">
-        <SectionHead eyebrow="§ Admin · Newsletter" h2="Newsletter Manager" align="left" />
-        <div className="flex items-center justify-center py-20">
-          <div className="text-muted">Loading newsletters...</div>
-        </div>
-      </div>
-    );
+  const counts = useMemo(() => {
+    let drafts = 0;
+    let posted = 0;
+    for (const n of newsletters) {
+      if (n.status === 'posted') posted += 1;
+      else drafts += 1;
+    }
+    return { all: newsletters.length, drafts, posted };
+  }, [newsletters]);
+
+  function handleCreated(id: string) {
+    setShowModal(false);
+    router.push(`/admin/newsletter/${id}`);
   }
 
   return (
-    <div className="p-6 max-w-5xl">
-      <SectionHead eyebrow="§ Admin · Newsletter" h2="Newsletter Manager" align="left" />
+    <div className="p-6 max-w-6xl">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+        <SectionHead eyebrow="§ Admin · Newsletter" h2="Newsletter Manager" align="left" />
+        <ChamferButton
+          variant="ink"
+          size="md"
+          arrow={false}
+          onClick={() => setShowModal(true)}
+        >
+          New Newsletter
+        </ChamferButton>
+      </div>
 
-      {/* Current draft editor */}
-      {currentDraft ? (
-        <div className="space-y-5 mb-10">
-          <div className="flex flex-wrap items-center gap-3">
-            <StatusChip variant="draft">{currentDraft.status}</StatusChip>
+      {currentlyPosted && (
+        <div className="border border-line-soft bg-bone/60 p-5 mb-6">
+          <div className="flex flex-wrap items-center gap-3 mb-2">
+            <MonoTag>Currently posted</MonoTag>
+            <StatusChip variant="active">posted</StatusChip>
             <span className="text-sm text-muted">
-              Week of {formatDate(currentDraft.week_start)} &ndash;{' '}
-              {formatDate(currentDraft.week_end)}
+              Week of {formatDate(currentlyPosted.week_start)} &ndash;{' '}
+              {formatDate(currentlyPosted.week_end)}
+            </span>
+            <span className="text-xs text-muted">
+              Posted {formatTimestamp(currentlyPosted.posted_at)}
+              {currentlyPosted.posted_by ? ` by ${currentlyPosted.posted_by}` : ''}
             </span>
           </div>
-
-          {/* Editable title */}
-          <div>
-            <label className="block text-xs font-mono font-medium text-muted uppercase tracking-[.1em] mb-1">
-              Title
-            </label>
-            <input
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              className="w-full px-3 py-2 bg-muted border border-border rounded-md text-foreground text-sm placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary"
-              placeholder="Newsletter title"
-            />
-          </div>
-
-          {/* Mrkdwn editor + preview wrapped in ClipFrame */}
-          <ClipFrame variant="bone" padding="p-7">
-            <NewsletterPreview value={editBody} onChange={setEditBody} />
-          </ClipFrame>
-
-          {/* Action buttons */}
-          <div className="flex flex-wrap gap-3 pt-2">
-            <ChamferButton
-              variant="ghost"
-              size="md"
-              arrow={false}
-              onClick={handleSave}
-              disabled={saving || posting}
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <p className="font-display font-bold uppercase tracking-wide text-lg text-foreground">
+              {currentlyPosted.title ?? 'Untitled'}
+            </p>
+            <Link
+              href={`/admin/newsletter/${currentlyPosted.id}`}
+              className="text-xs font-mono uppercase tracking-[.1em] text-steel hover:text-ink"
             >
-              {saving ? 'Saving...' : 'Save Edits'}
-            </ChamferButton>
-            <ChamferButton
-              variant="ink"
-              size="md"
-              arrow={false}
-              onClick={handleApproveAndPost}
-              disabled={saving || posting || !editBody.trim()}
-            >
-              {posting ? 'Posting...' : 'Approve & Post to Slack'}
-            </ChamferButton>
+              View →
+            </Link>
           </div>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <p className="font-display font-bold uppercase text-2xl tracking-wide text-muted text-center">
-            No Draft Newsletter
-          </p>
-          <p className="text-sm text-muted text-center">
-            One will be generated by the next cron run.
-          </p>
         </div>
       )}
 
-      {/* Past newsletters */}
-      {pastNewsletters.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="font-display font-bold uppercase tracking-wide text-lg text-foreground">
-            Past Newsletters
-          </h2>
-          <div className="border border-border overflow-hidden">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        {(
+          [
+            { key: 'all', label: `All (${counts.all})` },
+            { key: 'draft', label: `Drafts (${counts.drafts})` },
+            { key: 'posted', label: `Posted (${counts.posted})` },
+          ] as { key: FilterKey; label: string }[]
+        ).map((opt) => {
+          const active = filter === opt.key;
+          return (
+            <button
+              key={opt.key}
+              type="button"
+              onClick={() => setFilter(opt.key)}
+              aria-pressed={active}
+              className={`px-3 py-1.5 text-xs font-mono uppercase tracking-[.1em] border transition-colors ${
+                active
+                  ? 'bg-ink text-bone border-ink'
+                  : 'bg-bone text-foreground/70 border-line-soft hover:border-ink'
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-16">
+          <div className="text-muted">Loading newsletters…</div>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 gap-3 border border-dashed border-line-soft">
+          <p className="font-display font-bold uppercase text-xl tracking-wide text-muted text-center">
+            {newsletters.length === 0 ? 'No newsletters yet' : 'No matches for this filter'}
+          </p>
+          {newsletters.length === 0 && (
+            <p className="text-sm text-muted">
+              Click <strong>New Newsletter</strong> to start one for a specific week.
+            </p>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Desktop / tablet table */}
+          <div className="hidden md:block border border-line-soft overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-left bg-muted/30">
-                    <th className="px-4 py-3">
-                      <MonoTag>Week</MonoTag>
-                    </th>
-                    <th className="px-4 py-3">
-                      <MonoTag>Title</MonoTag>
-                    </th>
-                    <th className="px-4 py-3">
-                      <MonoTag>Status</MonoTag>
-                    </th>
-                    <th className="px-4 py-3">
-                      <MonoTag>Posted</MonoTag>
-                    </th>
-                    <th className="px-4 py-3">
-                      <MonoTag>Slack TS</MonoTag>
-                    </th>
+                  <tr className="border-b border-line-soft text-left bg-muted/30">
+                    <th className="px-4 py-3"><MonoTag>Status</MonoTag></th>
+                    <th className="px-4 py-3"><MonoTag>Week</MonoTag></th>
+                    <th className="px-4 py-3"><MonoTag>Title</MonoTag></th>
+                    <th className="px-4 py-3"><MonoTag>Last edited</MonoTag></th>
+                    <th className="px-4 py-3"><MonoTag>Posted</MonoTag></th>
+                    <th className="px-4 py-3 text-right"><MonoTag>Action</MonoTag></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pastNewsletters.map((nl) => {
-                    const chipVariant = newsletterStatusVariant(nl.status);
+                  {filtered.map((n) => {
+                    const variant = statusChipVariant(n.status);
                     return (
                       <tr
-                        key={nl.id}
-                        className="border-b border-border last:border-b-0 transition-colors hover:bg-steel/5 border-l-2 border-l-transparent hover:border-l-steel"
+                        key={n.id}
+                        className="border-b border-line-soft last:border-b-0 hover:bg-steel/5 border-l-2 border-l-transparent hover:border-l-steel transition-colors"
                       >
-                        <td className="px-4 py-3 text-muted whitespace-nowrap">
-                          {formatDate(nl.week_start)} &ndash;{' '}
-                          {formatDate(nl.week_end)}
-                        </td>
-                        <td className="px-4 py-3 text-foreground font-medium">
-                          {nl.title ?? 'Untitled'}
-                        </td>
                         <td className="px-4 py-3">
-                          {chipVariant ? (
-                            <StatusChip variant={chipVariant}>{nl.status}</StatusChip>
+                          {variant ? (
+                            <StatusChip variant={variant}>{n.status}</StatusChip>
                           ) : (
-                            <MonoTag>{nl.status}</MonoTag>
+                            <MonoTag>{n.status}</MonoTag>
                           )}
                         </td>
                         <td className="px-4 py-3 text-muted whitespace-nowrap">
-                          {formatTimestamp(nl.posted_at)}
+                          {formatDate(n.week_start)} – {formatDate(n.week_end)}
                         </td>
-                        <td className="px-4 py-3 text-muted font-mono text-xs whitespace-nowrap">
-                          {nl.slack_message_ts ?? '—'}
+                        <td className="px-4 py-3 text-foreground font-medium">
+                          {n.title ?? <span className="text-muted italic">(untitled)</span>}
+                        </td>
+                        <td className="px-4 py-3 text-muted whitespace-nowrap">
+                          <div>{formatTimestamp(n.updated_at)}</div>
+                          {n.last_edited_by && (
+                            <div className="text-xs">by {n.last_edited_by}</div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-muted whitespace-nowrap">
+                          {n.posted_at ? (
+                            <>
+                              <div>{formatTimestamp(n.posted_at)}</div>
+                              {n.posted_by && (
+                                <div className="text-xs">by {n.posted_by}</div>
+                              )}
+                            </>
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Link href={`/admin/newsletter/${n.id}`}>
+                            <ChamferButton
+                              variant="steel"
+                              size="sm"
+                              arrow={false}
+                            >
+                              {n.status === 'posted' ? 'View' : 'Edit'}
+                            </ChamferButton>
+                          </Link>
                         </td>
                       </tr>
                     );
@@ -265,15 +262,52 @@ export default function NewsletterPage() {
               </table>
             </div>
           </div>
-        </div>
+
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-3">
+            {filtered.map((n) => {
+              const variant = statusChipVariant(n.status);
+              return (
+                <Link
+                  key={n.id}
+                  href={`/admin/newsletter/${n.id}`}
+                  className="block border border-line-soft p-4 hover:border-ink transition-colors"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    {variant ? (
+                      <StatusChip variant={variant}>{n.status}</StatusChip>
+                    ) : (
+                      <MonoTag>{n.status}</MonoTag>
+                    )}
+                    <span className="text-xs text-muted">
+                      {formatDate(n.week_start)} – {formatDate(n.week_end)}
+                    </span>
+                  </div>
+                  <p className="font-medium text-foreground">
+                    {n.title ?? <span className="text-muted italic">(untitled)</span>}
+                  </p>
+                  <p className="text-xs text-muted mt-2">
+                    Updated {formatTimestamp(n.updated_at)}
+                    {n.last_edited_by ? ` by ${n.last_edited_by}` : ''}
+                  </p>
+                  {n.posted_at && (
+                    <p className="text-xs text-muted">
+                      Posted {formatTimestamp(n.posted_at)}
+                      {n.posted_by ? ` by ${n.posted_by}` : ''}
+                    </p>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </>
       )}
 
-      {pastNewsletters.length === 0 && !currentDraft && (
-        <div className="flex flex-col items-center gap-4 py-16">
-          <p className="font-display font-bold uppercase text-2xl tracking-wide text-muted text-center">
-            No Newsletters Yet
-          </p>
-        </div>
+      {showModal && (
+        <NewNewsletterModal
+          onClose={() => setShowModal(false)}
+          onCreated={handleCreated}
+        />
       )}
     </div>
   );
