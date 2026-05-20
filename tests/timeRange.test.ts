@@ -5,6 +5,7 @@ import {
   TIME_RANGE_LABELS,
   parseTimeRange,
   serializeTimeRange,
+  monthsInRange,
   type TimeRangeSlug,
 } from "../src/lib/stats/timeRange";
 
@@ -155,4 +156,38 @@ test("vocabulary contract: TIME_RANGE_LABELS keys match TIME_RANGE_SLUGS", () =>
   const labelKeys = Object.keys(TIME_RANGE_LABELS).sort();
   const slugs = [...TIME_RANGE_SLUGS].sort();
   assert.deepEqual(labelKeys, slugs);
+});
+
+// --- monthsInRange: enumerate YYYY-MM strings inclusive of start and end ---
+
+test("monthsInRange: same month returns single entry", () => {
+  const r = parseTimeRange(
+    { range: "custom", from: "2026-03-05", to: "2026-03-20" },
+    NOW,
+  )!;
+  assert.deepEqual(monthsInRange(r.from, r.to), ["2026-03"]);
+});
+
+test("monthsInRange: multi-month custom range pads empty months", () => {
+  const r = parseTimeRange(
+    { range: "custom", from: "2025-11-03", to: "2026-05-15" },
+    NOW,
+  )!;
+  assert.deepEqual(monthsInRange(r.from, r.to), [
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+  ]);
+});
+
+test("monthsInRange: crosses year boundary", () => {
+  const r = parseTimeRange(
+    { range: "custom", from: "2025-12-15", to: "2026-01-15" },
+    NOW,
+  )!;
+  assert.deepEqual(monthsInRange(r.from, r.to), ["2025-12", "2026-01"]);
 });

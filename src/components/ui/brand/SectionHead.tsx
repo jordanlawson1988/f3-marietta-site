@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { EyebrowLabel } from "./EyebrowLabel";
 
 type Props = {
-  eyebrow: string;
+  eyebrow: ReactNode;
   h2: ReactNode;
   kicker?: ReactNode;
   align?: "left" | "center" | "split";

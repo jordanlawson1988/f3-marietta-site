@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 
@@ -21,7 +22,13 @@ function arcPath(
   return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
 }
 
-export function AoDistributionPie({ data }: { data: Datum[] }) {
+export function AoDistributionPie({
+  data,
+  aoHref,
+}: {
+  data: Datum[];
+  aoHref?: (aoSlug: string) => string;
+}) {
   if (data.length === 0) {
     return (
       <ClipFrame padding="p-6" className="min-h-[220px]">
@@ -67,19 +74,42 @@ export function AoDistributionPie({ data }: { data: Datum[] }) {
             ))
           )}
         </svg>
-        <ul className="font-mono text-xs flex-1 space-y-1">
-          {legendItems.map((s) => (
-            <li key={s.ao} className="flex items-baseline gap-2">
-              <span
-                className="w-3 h-3 inline-block"
-                style={{ backgroundColor: s.color }}
-              />
-              <span className="flex-1 truncate">{s.ao}</span>
-              <span className="text-muted">{s.count}</span>
-              <span className="w-8 text-right text-muted">{s.pct}%</span>
-            </li>
-          ))}
-        </ul>
+        <div className="flex-1">
+          <div
+            role="row"
+            className="font-mono text-[11px] tracking-[.15em] uppercase text-muted border-b border-line-soft pb-1.5 flex items-baseline gap-2"
+          >
+            <span className="w-3 inline-block" aria-hidden />
+            <span className="flex-1">AO</span>
+            <span title="posts in this range">posts</span>
+            <span className="w-8 text-right">%</span>
+          </div>
+          <ul className="font-mono text-xs mt-2 space-y-1">
+            {legendItems.map((s) => {
+              const href = aoHref?.(s.aoSlug);
+              return (
+                <li key={s.ao} className="flex items-baseline gap-2">
+                  <span
+                    className="w-3 h-3 inline-block"
+                    style={{ backgroundColor: s.color }}
+                  />
+                  {href ? (
+                    <Link
+                      href={href}
+                      className="flex-1 truncate hover:text-ink underline-offset-4 hover:underline transition-colors"
+                    >
+                      {s.ao}
+                    </Link>
+                  ) : (
+                    <span className="flex-1 truncate">{s.ao}</span>
+                  )}
+                  <span className="text-muted">{s.count}</span>
+                  <span className="w-8 text-right text-muted">{s.pct}%</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       </div>
     </ClipFrame>
   );

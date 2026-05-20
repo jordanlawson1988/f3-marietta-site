@@ -23,8 +23,8 @@ export function DashboardStats({ totalPosts, uniquePax, newFngs, aoCount }: Prop
         tag="// new fngs ytd"
         value={newFngs}
         sub="parsed from backblast FNG: lines"
-        href="/admin/analytics"
-        ariaLabel="Drill into new FNGs in the analytics view"
+        href="/admin/analytics/fngs"
+        ariaLabel="Drill into the FNG roster"
       />
       <Stat
         tag="// unique pax ytd"

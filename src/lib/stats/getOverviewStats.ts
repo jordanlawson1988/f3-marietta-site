@@ -4,7 +4,7 @@ import { resolvePaxIdentity, type SlackUser, type PaxRanking } from "./resolvePa
 import { getAliasMap } from "./aliasMap";
 import { nameToSlug } from "./slugify";
 import { parseAttendance } from "./parseAttendance";
-import type { TimeRange } from "./timeRange";
+import { monthsInRange, type TimeRange } from "./timeRange";
 
 export type OverviewStats = {
   totalPosts: number;
@@ -130,37 +130,43 @@ export async function getOverviewStats(
             (headcounts.reduce((s, h) => s + h, 0) / headcounts.length) * 10,
           ) / 10;
 
-    // Client-side AO filter for month/dow rows as well
-    const postsOverTime = (monthRows as Array<{ month: string; n: number }>)
-      .filter(() => !aoSlug) // when AO-filtered, these reflect unfiltered DB counts
-      // We only use month/dow from the unfiltered query when no AO filter is set.
-      // When AO-filtered, derive from fact rows for accuracy.
-      .map((r) => ({ month: r.month, count: Number(r.n) }));
-
-    const byDayOfWeek = (dowRows as Array<{ dow: number; n: number }>)
-      .filter(() => !aoSlug)
-      .map((r) => ({ dow: Number(r.dow), count: Number(r.n) }));
-
-    // When AO filter is set, compute postsOverTime and byDayOfWeek from fact
-    let finalPostsOverTime = postsOverTime;
-    let finalByDayOfWeek = byDayOfWeek;
+    // Build a month->count lookup from whichever source is authoritative.
+    // No AO filter: use unfiltered DB monthRows. AO filter: re-aggregate fact.
+    const monthCounts = new Map<string, number>();
     if (aoSlug) {
-      const monthMap = new Map<string, number>();
-      const dowMap = new Map<number, number>();
       const seenForCharts = new Set<string>();
       for (const f of fact) {
         if (!seenForCharts.has(f.eventId)) {
           seenForCharts.add(f.eventId);
           const month = f.eventDate.slice(0, 7);
-          monthMap.set(month, (monthMap.get(month) ?? 0) + 1);
+          monthCounts.set(month, (monthCounts.get(month) ?? 0) + 1);
+        }
+      }
+    } else {
+      for (const r of monthRows as Array<{ month: string; n: number }>) {
+        monthCounts.set(r.month, Number(r.n));
+      }
+    }
+    const finalPostsOverTime = monthsInRange(range.from, range.to).map(
+      (month) => ({ month, count: monthCounts.get(month) ?? 0 }),
+    );
+
+    const byDayOfWeek = (dowRows as Array<{ dow: number; n: number }>)
+      .filter(() => !aoSlug)
+      .map((r) => ({ dow: Number(r.dow), count: Number(r.n) }));
+
+    let finalByDayOfWeek = byDayOfWeek;
+    if (aoSlug) {
+      const dowMap = new Map<number, number>();
+      const seenForDow = new Set<string>();
+      for (const f of fact) {
+        if (!seenForDow.has(f.eventId)) {
+          seenForDow.add(f.eventId);
           const d = new Date(f.eventDate + "T00:00:00Z");
           const dow = d.getUTCDay();
           dowMap.set(dow, (dowMap.get(dow) ?? 0) + 1);
         }
       }
-      finalPostsOverTime = [...monthMap.entries()]
-        .map(([month, count]) => ({ month, count }))
-        .sort((a, b) => a.month.localeCompare(b.month));
       finalByDayOfWeek = [...dowMap.entries()]
         .map(([dow, count]) => ({ dow, count }))
         .sort((a, b) => a.dow - b.dow);
