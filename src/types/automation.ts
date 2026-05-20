@@ -25,12 +25,16 @@ export interface Newsletter {
   title: string | null;
   body_markdown: string | null;
   body_slack_mrkdwn: string | null;
+  notes: string | null;
   status: 'draft' | 'approved' | 'posted';
   slack_message_ts: string | null;
   approved_at: string | null;
   posted_at: string | null;
   created_at: string;
   updated_at: string;
+  created_by: string | null;
+  last_edited_by: string | null;
+  posted_by: string | null;
 }
 
 export interface AgentRun {
