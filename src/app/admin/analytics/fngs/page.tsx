@@ -34,9 +34,6 @@ export default async function AnalyticsFngsPage({
       ? ""
       : `?range=${range.slug}`;
 
-  const aoHref = (aoSlug: string) =>
-    `/admin/analytics/ao/${aoSlug}${rangeParam}`;
-
   return (
     <section className="max-w-[1320px] mx-auto px-7 py-16">
       <SectionHead
@@ -77,40 +74,36 @@ export default async function AnalyticsFngsPage({
                 role="row"
                 className="font-mono text-[11px] tracking-[.15em] uppercase text-muted border-b border-line-soft pb-1.5 mt-4 flex items-baseline gap-3"
               >
-                <span className="w-24">date</span>
-                <span className="flex-1">FNG</span>
-                <span className="flex-1">AO</span>
-                <span
-                  className="w-12 text-right"
-                  title="cumulative FNG count up to and including this entry"
-                >
-                  #
-                </span>
+                <span className="w-24 shrink-0">date</span>
+                <span className="w-36 shrink-0">FNG</span>
+                <span className="flex-1">beatdown</span>
+                <span className="w-32 shrink-0">Q</span>
+                <span className="w-28 shrink-0">AO</span>
               </div>
-              <ul className="font-mono text-xs mt-2 space-y-1">
-                {data.entries
-                  .slice()
-                  .sort((a, b) => a.eventDate.localeCompare(b.eventDate))
-                  .map((e, i) => ({ ...e, runningTotal: i + 1 }))
-                  .sort((a, b) => b.eventDate.localeCompare(a.eventDate))
-                  .map((e) => (
-                    <li
-                      key={e.fngKey}
-                      className="flex items-baseline gap-3"
+              <ul className="font-mono text-xs mt-2 space-y-0.5">
+                {data.entries.map((e) => (
+                  <li key={e.fngKey}>
+                    <Link
+                      href={`/backblasts/${e.eventId}`}
+                      className="flex items-baseline gap-3 -mx-2 px-2 py-1.5 text-ink hover:bg-ink/30 transition-colors"
+                      title={`Open backblast — ${e.fngLabel}${e.qName ? ` · Q ${e.qName}` : ""}`}
                     >
-                      <span className="w-24 text-muted">{e.eventDate}</span>
-                      <span className="flex-1 truncate">{e.fngLabel}</span>
-                      <Link
-                        href={aoHref(e.aoSlug)}
-                        className="flex-1 truncate text-ink hover:text-ink underline-offset-4 hover:underline transition-colors"
-                      >
-                        {e.aoName}
-                      </Link>
-                      <span className="w-12 text-right text-muted">
-                        {e.runningTotal}
+                      <span className="w-24 shrink-0 text-muted">
+                        {e.eventDate}
                       </span>
-                    </li>
-                  ))}
+                      <span className="w-36 shrink-0 truncate">{e.fngLabel}</span>
+                      <span className="flex-1 truncate text-muted">
+                        {e.beatdownTitle ?? "—"}
+                      </span>
+                      <span className="w-32 shrink-0 truncate text-muted">
+                        {e.qName ?? "—"}
+                      </span>
+                      <span className="w-28 shrink-0 truncate text-muted">
+                        {e.aoName}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </>
           )}
