@@ -8,6 +8,7 @@ const ADMIN_NAV = [
   { label: "Analytics",  href: "/admin/analytics" },
   { label: "Workouts",   href: "/admin/workouts" },
   { label: "Regions",    href: "/admin/regions" },
+  { label: "AO Channels", href: "/admin/ao-channels" },
   { label: "Drafts",     href: "/admin/drafts" },
   { label: "Newsletter", href: "/admin/newsletter" },
   { label: "KB",         href: "/admin/kb" },
