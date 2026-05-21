@@ -76,3 +76,17 @@ function parseFngRoster(content: string): Set<string> {
   if (NUMERIC_ONLY.test(remainder)) return new Set();
   return parseRosterFromRemainder(remainder);
 }
+
+/**
+ * Extract the beatdown name from a backblast's content_text. F3 backblasts
+ * follow "Backblast! <NAME> DATE: <date> AO: ..." — the name is the text
+ * between the "Backblast!" prefix and the DATE marker. The dedicated `title`
+ * column is almost always null, so this is the reliable source. Returns null
+ * when the format doesn't match or the captured name is blank.
+ */
+export function parseBeatdownTitle(content: string): string | null {
+  if (!content) return null;
+  const m = content.match(/Backblast!\s*(.+?)\s+DATE\s*:/i);
+  const title = m?.[1]?.trim();
+  return title ? title : null;
+}
