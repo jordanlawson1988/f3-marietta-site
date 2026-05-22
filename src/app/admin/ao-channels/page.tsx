@@ -34,7 +34,7 @@ export default function AoChannelsAdminPage() {
 
   // Sync state
   const [isSyncing, setIsSyncing] = useState(false);
-  const [syncResult, setSyncResult] = useState<{ processed: number; errors: number; channels: number } | null>(null);
+  const [syncResult, setSyncResult] = useState<{ processed: number; errors: number; channels: number; notInChannel: string[] } | null>(null);
 
   const fetchChannels = async () => {
     try {
@@ -108,7 +108,12 @@ export default function AoChannelsAdminPage() {
       if (res.ok) {
         const data = await res.json();
         const baseMsg = editingChannel ? "Channel updated." : "Channel registered.";
-        setMessage(data.warning ? `${baseMsg} Warning: ${data.warning}` : baseMsg);
+        const parts = [baseMsg];
+        if (data.warning) parts.push(`Warning: ${data.warning}`);
+        if (data.botStatus?.warning) parts.push(data.botStatus.warning);
+        else if (data.botStatus?.backfilled > 0) parts.push(`Bot joined — backfilled ${data.botStatus.backfilled} post(s).`);
+        else if (data.botStatus?.inChannel) parts.push("Bot is in the channel.");
+        setMessage(parts.join(" "));
         setShowModal(false);
         fetchChannels();
       } else {
@@ -166,7 +171,7 @@ export default function AoChannelsAdminPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setSyncResult({ processed: data.processed, errors: data.errors, channels: data.channels });
+        setSyncResult({ processed: data.processed, errors: data.errors, channels: data.channels, notInChannel: data.notInChannel ?? [] });
         fetchChannels();
       } else {
         const data = await res.json();
@@ -202,6 +207,9 @@ export default function AoChannelsAdminPage() {
           {syncResult && (
             <span className="font-mono text-xs text-muted">
               // {syncResult.processed} processed · {syncResult.errors} errors · {syncResult.channels} channels
+              {syncResult.notInChannel.length > 0 && (
+                <span className="text-rust"> · ⚠ bot not in: {syncResult.notInChannel.join(", ")}</span>
+              )}
             </span>
           )}
         </div>
@@ -396,7 +404,8 @@ export default function AoChannelsAdminPage() {
 
               {/* Bot invite reminder */}
               <p className="text-xs text-muted border-l-2 border-steel/40 pl-3 py-1">
-                Invite the F3 bot to the channel in Slack first, or posts will not flow.
+                The bot auto-joins public channels on save and backfills recent posts. Private or
+                archived channels still need a manual <span className="font-mono">/invite @f3_marietta_backblast</span>.
               </p>
 
               {error && <p className="text-rust text-sm">{error}</p>}

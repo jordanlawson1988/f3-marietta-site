@@ -5,6 +5,7 @@ export interface ReconcileResult {
   processed: number;
   errors: number;
   channels: number;
+  notInChannel: string[];
 }
 
 interface SlackMessage {
@@ -19,10 +20,131 @@ interface SlackMessage {
   blocks?: unknown[];
 }
 
-interface SlackConversationsResponse {
+export interface SlackConversationsResponse {
   ok: boolean;
   messages?: SlackMessage[];
   error?: string;
+}
+
+export type ChannelHistoryFetcher = (channelId: string) => Promise<SlackConversationsResponse>;
+
+interface ReconcileChannelDeps {
+  sql: ReturnType<typeof getSql>;
+  fetchHistory: ChannelHistoryFetcher;
+  normalize: typeof normalizeSlackMessage;
+}
+
+/**
+ * Pull + idempotently upsert one channel's recent backblast/preblast history.
+ * All I/O is injected (sql, fetchHistory, normalize) so this is unit-testable.
+ */
+export async function reconcileChannel(
+  channel: { slack_channel_id: string; ao_display_name: string },
+  deps: ReconcileChannelDeps
+): Promise<{ processed: number; errors: number; notInChannel: boolean }> {
+  const { sql, fetchHistory, normalize } = deps;
+  let processed = 0;
+  let errors = 0;
+
+  let data: SlackConversationsResponse;
+  try {
+    data = await fetchHistory(channel.slack_channel_id);
+  } catch (err) {
+    console.error(`Error fetching channel ${channel.slack_channel_id}:`, err);
+    return { processed: 0, errors: 1, notInChannel: false };
+  }
+
+  if (!data.ok) {
+    console.error(`Error fetching channel ${channel.slack_channel_id}:`, data.error);
+    return { processed: 0, errors: 1, notInChannel: data.error === 'not_in_channel' };
+  }
+
+  for (const message of data.messages || []) {
+    if (message.subtype === 'tombstone') continue;
+    if (message.subtype === 'thread_broadcast') continue;
+    if (message.thread_ts && message.thread_ts !== message.ts) continue;
+
+    // metadata.event_type is required to detect bot-posted backblasts
+    // (their text doesn't start with "Backblast")
+    const rawPayload = JSON.stringify({
+      event: {
+        type: 'message',
+        channel: channel.slack_channel_id,
+        ts: message.ts,
+        text: message.text || '',
+        user: message.user,
+        bot_id: message.bot_id,
+        metadata: message.metadata,
+        blocks: message.blocks,
+      },
+    });
+
+    if (!isBackblastPayload(rawPayload) && !isPreblastPayload(rawPayload)) {
+      continue;
+    }
+
+    try {
+      const normalized = await normalize(rawPayload, channel.ao_display_name);
+
+      await sql`
+        INSERT INTO f3_events (slack_channel_id, slack_message_ts, slack_permalink, ao_display_name, event_kind, title, event_date, event_time, location_text, q_slack_user_id, q_name, pax_count, content_text, content_html, content_json, raw_envelope_json, is_deleted)
+        VALUES (${normalized.slack_channel_id}, ${normalized.slack_message_ts}, ${normalized.slack_permalink || null}, ${channel.ao_display_name}, ${normalized.event_kind}, ${normalized.title || null}, ${normalized.event_date || null}, ${normalized.event_time || null}, ${normalized.location_text || null}, ${normalized.q_slack_user_id || null}, ${normalized.q_name || null}, ${normalized.pax_count || null}, ${normalized.content_text || null}, ${normalized.content_html || null}, ${JSON.stringify(normalized.content_json)}, ${JSON.stringify(normalized.raw_envelope_json)}, ${false})
+        ON CONFLICT (slack_channel_id, slack_message_ts) DO UPDATE SET
+          slack_permalink = EXCLUDED.slack_permalink,
+          ao_display_name = EXCLUDED.ao_display_name,
+          event_kind = EXCLUDED.event_kind,
+          title = EXCLUDED.title,
+          event_date = EXCLUDED.event_date,
+          event_time = EXCLUDED.event_time,
+          location_text = EXCLUDED.location_text,
+          q_slack_user_id = EXCLUDED.q_slack_user_id,
+          q_name = EXCLUDED.q_name,
+          pax_count = EXCLUDED.pax_count,
+          content_text = EXCLUDED.content_text,
+          content_html = EXCLUDED.content_html,
+          content_json = EXCLUDED.content_json,
+          raw_envelope_json = EXCLUDED.raw_envelope_json,
+          is_deleted = EXCLUDED.is_deleted,
+          updated_at = now()
+      `;
+
+      processed++;
+    } catch (err) {
+      console.error(`Error processing message ${message.ts}:`, err);
+      errors++;
+    }
+  }
+
+  return { processed, errors, notInChannel: false };
+}
+
+/** Build the real Slack history fetcher (last-100 via conversations.history). */
+function makeHistoryFetcher(botToken: string): ChannelHistoryFetcher {
+  return async (channelId) => {
+    const response = await fetch(
+      `https://slack.com/api/conversations.history?channel=${channelId}&limit=100`,
+      {
+        headers: {
+          Authorization: `Bearer ${botToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return (await response.json()) as SlackConversationsResponse;
+  };
+}
+
+/** Reconcile a single channel with real deps — used by the create/enable API. */
+export async function reconcileSingleChannel(
+  channel: { slack_channel_id: string; ao_display_name: string }
+): Promise<{ processed: number; errors: number; notInChannel: boolean }> {
+  const botToken = process.env.SLACK_BOT_TOKEN;
+  if (!botToken) throw new Error('SLACK_BOT_TOKEN not configured');
+  return reconcileChannel(channel, {
+    sql: getSql(),
+    fetchHistory: makeHistoryFetcher(botToken),
+    normalize: normalizeSlackMessage,
+  });
 }
 
 /**
@@ -45,98 +167,26 @@ export async function reconcileEnabledChannels(): Promise<ReconcileResult> {
 
   if (!channels || channels.length === 0) {
     console.error('No enabled channels found');
-    return { processed: 0, errors: 0, channels: 0 };
+    return { processed: 0, errors: 0, channels: 0, notInChannel: [] };
   }
 
-  let processedCount = 0;
-  let errorCount = 0;
+  const fetchHistory = makeHistoryFetcher(botToken);
+  let processed = 0;
+  let errors = 0;
+  const notInChannel: string[] = [];
 
-  // Process each channel
   for (const channel of channels) {
-    try {
-      // Fetch recent messages from Slack (last 100 messages)
-      const response = await fetch(
-        `https://slack.com/api/conversations.history?channel=${channel.slack_channel_id}&limit=100`,
-        {
-          headers: {
-            Authorization: `Bearer ${botToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      const data: SlackConversationsResponse = await response.json();
-
-      if (!data.ok) {
-        console.error(`Error fetching channel ${channel.slack_channel_id}:`, data.error);
-        errorCount++;
-        continue;
-      }
-
-      // Process each message
-      for (const message of data.messages || []) {
-        if (message.subtype === 'tombstone') continue;
-        if (message.subtype === 'thread_broadcast') continue;
-        if (message.thread_ts && message.thread_ts !== message.ts) continue;
-
-        // Build raw payload preserving metadata and blocks
-        // metadata.event_type is required to detect bot-posted backblasts
-        // (their text doesn't start with "Backblast")
-        const rawPayload = JSON.stringify({
-          event: {
-            type: 'message',
-            channel: channel.slack_channel_id,
-            ts: message.ts,
-            text: message.text || '',
-            user: message.user,
-            bot_id: message.bot_id,
-            metadata: message.metadata,
-            blocks: message.blocks,
-          },
-        });
-
-        if (!isBackblastPayload(rawPayload) && !isPreblastPayload(rawPayload)) {
-          continue;
-        }
-
-        try {
-          const normalized = await normalizeSlackMessage(rawPayload, channel.ao_display_name);
-
-          await sql`
-            INSERT INTO f3_events (slack_channel_id, slack_message_ts, slack_permalink, ao_display_name, event_kind, title, event_date, event_time, location_text, q_slack_user_id, q_name, pax_count, content_text, content_html, content_json, raw_envelope_json, is_deleted)
-            VALUES (${normalized.slack_channel_id}, ${normalized.slack_message_ts}, ${normalized.slack_permalink || null}, ${channel.ao_display_name}, ${normalized.event_kind}, ${normalized.title || null}, ${normalized.event_date || null}, ${normalized.event_time || null}, ${normalized.location_text || null}, ${normalized.q_slack_user_id || null}, ${normalized.q_name || null}, ${normalized.pax_count || null}, ${normalized.content_text || null}, ${normalized.content_html || null}, ${JSON.stringify(normalized.content_json)}, ${JSON.stringify(normalized.raw_envelope_json)}, ${false})
-            ON CONFLICT (slack_channel_id, slack_message_ts) DO UPDATE SET
-              slack_permalink = EXCLUDED.slack_permalink,
-              ao_display_name = EXCLUDED.ao_display_name,
-              event_kind = EXCLUDED.event_kind,
-              title = EXCLUDED.title,
-              event_date = EXCLUDED.event_date,
-              event_time = EXCLUDED.event_time,
-              location_text = EXCLUDED.location_text,
-              q_slack_user_id = EXCLUDED.q_slack_user_id,
-              q_name = EXCLUDED.q_name,
-              pax_count = EXCLUDED.pax_count,
-              content_text = EXCLUDED.content_text,
-              content_html = EXCLUDED.content_html,
-              content_json = EXCLUDED.content_json,
-              raw_envelope_json = EXCLUDED.raw_envelope_json,
-              is_deleted = EXCLUDED.is_deleted,
-              updated_at = now()
-          `;
-
-          processedCount++;
-        } catch (err) {
-          console.error(`Error processing message ${message.ts}:`, err);
-          errorCount++;
-        }
-      }
-    } catch (err) {
-      console.error(`Error processing channel ${channel.slack_channel_id}:`, err);
-      errorCount++;
-    }
+    const ch = {
+      slack_channel_id: channel.slack_channel_id as string,
+      ao_display_name: channel.ao_display_name as string,
+    };
+    const r = await reconcileChannel(ch, { sql, fetchHistory, normalize: normalizeSlackMessage });
+    processed += r.processed;
+    errors += r.errors;
+    if (r.notInChannel) notInChannel.push(ch.ao_display_name);
   }
 
-  console.log(`Reconciliation complete: ${processedCount} processed, ${errorCount} errors`);
+  console.log(`Reconciliation complete: ${processed} processed, ${errors} errors`);
 
-  return { processed: processedCount, errors: errorCount, channels: channels.length };
+  return { processed, errors, channels: channels.length, notInChannel };
 }

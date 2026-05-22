@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const { processed, errors, channels } = await reconcileEnabledChannels();
+        const { processed, errors, channels, notInChannel } = await reconcileEnabledChannels();
 
         // Revalidate home + backblasts — reconciliation can insert many
         // historical rows so both surfaces may have drifted.
@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
             processed,
             errors,
             channels,
+            notInChannel,
         });
     } catch (error) {
         console.error('Reconciliation error:', error);
