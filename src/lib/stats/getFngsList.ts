@@ -1,6 +1,6 @@
 import { getSql } from "@/lib/db";
 import { getAliasMap } from "./aliasMap";
-import { parseAttendance } from "./parseAttendance";
+import { parseAttendance, parseBeatdownTitle } from "./parseAttendance";
 import { nameToSlug } from "./slugify";
 import type { TimeRange } from "./timeRange";
 
@@ -10,6 +10,9 @@ export type FngEntry = {
   aoSlug: string;
   fngKey: string;
   fngLabel: string;
+  eventId: string;
+  beatdownTitle: string | null;
+  qName: string | null;
 };
 
 export type FngsList = {
@@ -19,6 +22,7 @@ export type FngsList = {
 };
 
 type Row = {
+  event_id: string;
   event_date: string;
   ao_name: string;
   content_text: string | null;
@@ -42,6 +46,7 @@ export async function getFngsList(range: TimeRange): Promise<FngsList> {
   const [rangeRows, allTimeRows, slackUsers, aliasMap] = await Promise.all([
     sql`
       SELECT
+        e.id::text AS event_id,
         to_char(e.event_date, 'YYYY-MM-DD') AS event_date,
         e.ao_display_name AS ao_name,
         e.content_text
@@ -86,10 +91,31 @@ export async function getFngsList(range: TimeRange): Promise<FngsList> {
     return { key: `n:${lower}`, label: titleCase(lower) };
   };
 
+  // Resolve the Q (beatdown leader) per event from the structured f3_event_qs
+  // table — the q_name column is almost always null, so we join + resolve the
+  // Slack id with the same name map used for FNG identities.
+  const rangeEventIds = rangeRows.map((r) => r.event_id);
+  const qRows = rangeEventIds.length
+    ? ((await sql`
+        SELECT event_id::text AS event_id, q_slack_user_id
+        FROM f3_event_qs
+        WHERE event_id::text = ANY(${rangeEventIds})
+          AND q_slack_user_id IS NOT NULL
+      `) as Array<{ event_id: string; q_slack_user_id: string }>)
+    : [];
+  const qByEvent = new Map<string, string>();
+  for (const qr of qRows) {
+    if (!qByEvent.has(qr.event_id)) {
+      qByEvent.set(qr.event_id, resolve(qr.q_slack_user_id).label);
+    }
+  }
+
   // Earliest FNG callout per canonical identity in the selected range.
   const earliestByKey = new Map<string, FngEntry>();
   for (const row of rangeRows) {
     const tokens = parseAttendance(row.content_text ?? "").fngTokens;
+    const beatdownTitle = parseBeatdownTitle(row.content_text ?? "");
+    const qName = qByEvent.get(row.event_id) ?? null;
     for (const token of tokens) {
       const { key, label } = resolve(token);
       const candidate: FngEntry = {
@@ -98,6 +124,9 @@ export async function getFngsList(range: TimeRange): Promise<FngsList> {
         aoSlug: nameToSlug(row.ao_name),
         fngKey: key,
         fngLabel: label,
+        eventId: row.event_id,
+        beatdownTitle,
+        qName,
       };
       const existing = earliestByKey.get(key);
       if (!existing || candidate.eventDate < existing.eventDate) {
