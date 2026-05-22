@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getSql } from '@/lib/db';
 import { validateAdminToken } from '@/lib/admin/auth';
 import { validateAoChannelInput } from '@/lib/admin/aoChannelValidation';
+import { joinSlackChannel, resolveBotForChannel } from '@/lib/slack/joinChannel';
+import { reconcileSingleChannel } from '@/lib/slack/reconcileChannels';
 
 export async function GET(request: Request) {
   const authError = await validateAdminToken(request);
@@ -34,10 +37,25 @@ export async function POST(request: Request) {
       VALUES (${v.value.slack_channel_id}, ${v.value.slack_channel_name}, ${v.value.ao_display_name}, ${v.value.is_enabled})
       RETURNING *
     `;
+    const channel = data[0] as { id: string; slack_channel_id: string; ao_display_name: string; is_enabled: boolean };
+
+    let botStatus = null;
+    if (channel.is_enabled) {
+      botStatus = await resolveBotForChannel(
+        { slackChannelId: channel.slack_channel_id, displayName: channel.ao_display_name, prevEnabled: false, nextEnabled: true },
+        { join: joinSlackChannel, reconcile: reconcileSingleChannel }
+      );
+      if (botStatus.backfilled > 0) {
+        revalidatePath('/backblasts');
+        revalidatePath('/');
+      }
+    }
+
     return NextResponse.json(
       {
-        channel: data[0],
+        channel,
         warning: nameDup.length ? 'Another channel already uses this display name (analytics groups by it)' : null,
+        botStatus,
       },
       { status: 201 }
     );
