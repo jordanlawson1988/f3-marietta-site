@@ -34,3 +34,34 @@ export async function joinSlackChannel(
 export function shouldBackfill(prevEnabled: boolean, nextEnabled: boolean, botInChannel: boolean): boolean {
   return nextEnabled && !prevEnabled && botInChannel;
 }
+
+export type BotStatus = { inChannel: boolean; backfilled: number; warning: string | null };
+
+interface ResolveBotDeps {
+  join: (channelId: string) => Promise<JoinOutcome>;
+  reconcile: (channel: { slack_channel_id: string; ao_display_name: string }) => Promise<{ processed: number }>;
+}
+
+/** On create/enable: join the channel and (on enable-transition) backfill its history. Never throws — returns status. */
+export async function resolveBotForChannel(
+  args: { slackChannelId: string; displayName: string; prevEnabled: boolean; nextEnabled: boolean },
+  deps: ResolveBotDeps
+): Promise<BotStatus> {
+  const { slackChannelId, displayName, prevEnabled, nextEnabled } = args;
+  if (!nextEnabled) return { inChannel: false, backfilled: 0, warning: null };
+
+  const outcome = await deps.join(slackChannelId);
+  if (outcome.status === 'cannot_join') {
+    return {
+      inChannel: false,
+      backfilled: 0,
+      warning: `Couldn't auto-join ${displayName} (${outcome.reason}). Invite @f3_marietta_backblast to the channel in Slack.`,
+    };
+  }
+
+  if (shouldBackfill(prevEnabled, nextEnabled, true)) {
+    const { processed } = await deps.reconcile({ slack_channel_id: slackChannelId, ao_display_name: displayName });
+    return { inChannel: true, backfilled: processed, warning: null };
+  }
+  return { inChannel: true, backfilled: 0, warning: null };
+}

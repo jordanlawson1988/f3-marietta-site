@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { shouldBackfill, joinSlackChannel } from '../src/lib/slack/joinChannel';
+import { shouldBackfill, joinSlackChannel, resolveBotForChannel } from '../src/lib/slack/joinChannel';
 
 type JoinFn = (args: { channel: string }) => Promise<unknown>;
 const fakeClient = (join: JoinFn) => ({ conversations: { join } });
@@ -38,4 +38,47 @@ test('joinSlackChannel rethrows unexpected errors', async () => {
     () => joinSlackChannel('C1', fakeClient(async () => { throw { data: { error: 'ratelimited' } }; })),
     (err: unknown) => (err as { data?: { error?: string } })?.data?.error === 'ratelimited'
   );
+});
+
+const base = { slackChannelId: 'C1', displayName: 'Kenmo' };
+const joinIn = async () => ({ status: 'in' } as const);
+const joinCannot = async () => ({ status: 'cannot_join', reason: 'method_not_supported_for_channel_type' } as const);
+
+test('resolveBotForChannel: disabled → no join, no warning', async () => {
+  let joined = false;
+  const r = await resolveBotForChannel(
+    { ...base, prevEnabled: false, nextEnabled: false },
+    { join: async () => { joined = true; return { status: 'in' }; }, reconcile: async () => ({ processed: 9 }) }
+  );
+  assert.equal(joined, false);
+  assert.deepEqual(r, { inChannel: false, backfilled: 0, warning: null });
+});
+
+test('resolveBotForChannel: enable-transition + joinable → backfills', async () => {
+  const r = await resolveBotForChannel(
+    { ...base, prevEnabled: false, nextEnabled: true },
+    { join: joinIn, reconcile: async () => ({ processed: 4 }) }
+  );
+  assert.deepEqual(r, { inChannel: true, backfilled: 4, warning: null });
+});
+
+test('resolveBotForChannel: already enabled (edit) → in channel, no backfill', async () => {
+  let reconciled = false;
+  const r = await resolveBotForChannel(
+    { ...base, prevEnabled: true, nextEnabled: true },
+    { join: joinIn, reconcile: async () => { reconciled = true; return { processed: 1 }; } }
+  );
+  assert.equal(reconciled, false);
+  assert.deepEqual(r, { inChannel: true, backfilled: 0, warning: null });
+});
+
+test('resolveBotForChannel: cannot join → warning, no backfill', async () => {
+  const r = await resolveBotForChannel(
+    { ...base, prevEnabled: false, nextEnabled: true },
+    { join: joinCannot, reconcile: async () => ({ processed: 5 }) }
+  );
+  assert.equal(r.inChannel, false);
+  assert.equal(r.backfilled, 0);
+  assert.match(r.warning ?? '', /Kenmo/);
+  assert.match(r.warning ?? '', /invite/i);
 });
