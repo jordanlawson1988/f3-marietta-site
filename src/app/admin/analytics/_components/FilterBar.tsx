@@ -113,9 +113,14 @@ export function FilterBar({ aoOptions = [], showAoFilter = true, showTopN = true
   }
 
   const chipBase =
-    "inline-flex items-center px-3 py-1.5 border font-mono text-[11px] tracking-[.12em] uppercase transition-colors";
+    "inline-flex items-center px-3 py-1.5 border font-mono text-[11px] tracking-[.12em] uppercase transition-all";
   const chipOn = "bg-foreground text-background border-foreground";
   const chipOff = "bg-transparent border-black/20 hover:border-foreground hover:bg-black/5";
+  // When one+ AO chips are selected, unselected chips fade to signal they're
+  // still clickable but not part of the current filter. Hover restores full
+  // opacity so labels stay readable.
+  const someAoSelected = selectedSlugs.length > 0;
+  const chipDim = "opacity-40 hover:opacity-100";
 
   return (
     <ClipFrame padding="p-5" className="mb-6">
@@ -177,13 +182,14 @@ export function FilterBar({ aoOptions = [], showAoFilter = true, showTopN = true
             </button>
             {aoOptions.map((a) => {
               const on = selectedSlugs.includes(a.aoSlug);
+              const dim = someAoSelected && !on;
               return (
                 <button
                   key={a.aoSlug}
                   type="button"
                   onClick={() => toggleAo(a.aoSlug)}
                   aria-pressed={on}
-                  className={`${chipBase} ${on ? chipOn : chipOff}`}
+                  className={`${chipBase} ${on ? chipOn : chipOff} ${dim ? chipDim : ""}`}
                 >
                   <span
                     className="inline-block w-2 h-2 rounded-full mr-2 border border-black/40"
