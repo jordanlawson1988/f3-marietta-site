@@ -9,8 +9,10 @@ import { MetricCard } from "./_components/MetricCard";
 import { PostsByAoChart } from "@/components/admin/PostsByAoChart";
 import { TopPaxChart } from "@/components/admin/TopPaxChart";
 import { getOverviewStats } from "@/lib/stats/getOverviewStats";
+import { getBeatdownsList } from "@/lib/stats/getBeatdownsList";
 import { PostsOverTimeChart } from "./_components/PostsOverTimeChart";
 import { DayOfWeekChart } from "./_components/DayOfWeekChart";
+import { BeatdownsList } from "./_components/BeatdownsList";
 import { ExportButton } from "./_components/ExportButton";
 
 export const dynamic = "force-dynamic";
@@ -41,7 +43,10 @@ export default async function AnalyticsOverviewPage({
   const topN =
     topNParam === "all" ? Number.MAX_SAFE_INTEGER : parseInt(topNParam, 10) || 20;
 
-  const stats = await getOverviewStats(range, aoSlugs.length > 0 ? aoSlugs : null, topN);
+  const [stats, beatdowns] = await Promise.all([
+    getOverviewStats(range, aoSlugs.length > 0 ? aoSlugs : null, topN),
+    getBeatdownsList(range, aoSlugs.length > 0 ? aoSlugs : null),
+  ]);
 
   // Chip row uses the FULL ranked list (allAoRanking) — not the filtered
   // byAo — so selecting one AO doesn't make the others vanish from the
@@ -137,6 +142,10 @@ export default async function AnalyticsOverviewPage({
           <div className="md:col-span-4">
             <DayOfWeekChart data={stats.byDayOfWeek} />
           </div>
+        </div>
+
+        <div className="mt-4">
+          <BeatdownsList data={beatdowns} />
         </div>
 
         <div className="mt-6 flex flex-wrap gap-3">
