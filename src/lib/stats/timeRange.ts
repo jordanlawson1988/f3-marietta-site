@@ -1,6 +1,6 @@
 export const TIME_RANGE_SLUGS = [
+  "current-month",
   "ytd",
-  "mtd",
   "last-30",
   "last-90",
   "custom",
@@ -9,8 +9,8 @@ export const TIME_RANGE_SLUGS = [
 export type TimeRangeSlug = (typeof TIME_RANGE_SLUGS)[number];
 
 export const TIME_RANGE_LABELS: Record<TimeRangeSlug, string> = {
+  "current-month": "Current month",
   ytd: "Year-to-date",
-  mtd: "Month-to-date",
   "last-30": "Last 30 days",
   "last-90": "Last 90 days",
   custom: "Custom range",
@@ -35,6 +35,23 @@ function toDateOnly(d: Date): Date {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 }
 
+/**
+ * The F3 Marietta audience is regional (Eastern Time). For "current month"
+ * we calculate the date in ET so that an admin viewing the dashboard at 11pm
+ * local on the last day of the month still sees the month they're in, not
+ * the next UTC day.
+ */
+function etDateComponents(d: Date): { year: number; month: number; day: number } {
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const [year, month, day] = fmt.format(d).split("-").map(Number);
+  return { year, month: month - 1, day };
+}
+
 function parseIsoDate(s: string): Date | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
   const t = Date.parse(s + "T00:00:00Z");
@@ -56,11 +73,11 @@ export function parseTimeRange(
     const from = new Date(Date.UTC(today.getUTCFullYear(), 0, 1));
     return { slug, from, to: today, label: TIME_RANGE_LABELS[slug] };
   }
-  if (slug === "mtd") {
-    const from = new Date(
-      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1),
-    );
-    return { slug, from, to: today, label: TIME_RANGE_LABELS[slug] };
+  if (slug === "current-month") {
+    const et = etDateComponents(now);
+    const from = new Date(Date.UTC(et.year, et.month, 1));
+    const to = new Date(Date.UTC(et.year, et.month, et.day));
+    return { slug, from, to, label: TIME_RANGE_LABELS[slug] };
   }
   if (slug === "last-30" || slug === "last-90") {
     const days = slug === "last-30" ? 30 : 90;
@@ -100,7 +117,7 @@ export function serializeTimeRange(
 }
 
 export function defaultTimeRange(now: Date = new Date()): TimeRange {
-  return parseTimeRange({ range: "ytd" }, now)!;
+  return parseTimeRange({ range: "current-month" }, now)!;
 }
 
 /**

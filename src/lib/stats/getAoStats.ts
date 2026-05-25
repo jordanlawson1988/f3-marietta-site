@@ -22,7 +22,7 @@ export async function getAoStats(
   const match = rows.find((r) => nameToSlug(r.ao_display_name) === aoSlug);
   if (!match) return null;
 
-  const overview = await getOverviewStats(range, aoSlug, topN);
+  const overview = await getOverviewStats(range, [aoSlug], topN);
   return {
     ...overview,
     aoName: match.ao_display_name,

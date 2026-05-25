@@ -19,9 +19,14 @@ export type OverviewStats = {
 
 export async function getOverviewStats(
   range: TimeRange,
-  aoSlug: string | null,
+  aoSlugs: string[] | null,
   topN: number,
 ): Promise<OverviewStats> {
+  // Empty array behaves as "no filter" — matches the URL contract where an
+  // empty/missing `ao` param means all AOs.
+  const aoFilter = aoSlugs && aoSlugs.length > 0 ? aoSlugs : null;
+  const matchesAo = (slug: string) => aoFilter === null || aoFilter.includes(slug);
+
   try {
     const sql = getSql();
     const from = range.from.toISOString().slice(0, 10);
@@ -74,13 +79,12 @@ export async function getOverviewStats(
           WHERE display_name IS NOT NULL OR real_name IS NOT NULL
         `,
         getAliasMap(),
-        getAttendanceFact({ from: range.from, to: range.to, aoSlug: aoSlug ?? undefined }),
+        getAttendanceFact({ from: range.from, to: range.to, aoSlugs: aoFilter ?? undefined }),
       ]);
 
-    // Client-side AO filter (consistent with getAttendanceFact pattern)
     const byAo = (byAoRows as Array<{ ao: string | null; n: number }>)
       .filter((r) => r.ao !== null)
-      .filter((r) => !aoSlug || nameToSlug(r.ao!) === aoSlug)
+      .filter((r) => matchesAo(nameToSlug(r.ao!)))
       .map((r) => ({ ao: r.ao!, aoSlug: nameToSlug(r.ao!), count: Number(r.n) }));
 
     const totalPosts = byAo.reduce((s, r) => s + r.count, 0);
@@ -116,7 +120,7 @@ export async function getOverviewStats(
 
     const fngs = new Set<string>();
     for (const r of fngParseRows) {
-      if (aoSlug && (r.ao_name === null || nameToSlug(r.ao_name) !== aoSlug)) continue;
+      if (aoFilter && (r.ao_name === null || !matchesAo(nameToSlug(r.ao_name)))) continue;
       for (const t of parseAttendance(r.content_text ?? "").fngTokens) fngs.add(t);
     }
     const fngCounts = new Map<string, number>();
@@ -133,7 +137,7 @@ export async function getOverviewStats(
     // Build a month->count lookup from whichever source is authoritative.
     // No AO filter: use unfiltered DB monthRows. AO filter: re-aggregate fact.
     const monthCounts = new Map<string, number>();
-    if (aoSlug) {
+    if (aoFilter) {
       const seenForCharts = new Set<string>();
       for (const f of fact) {
         if (!seenForCharts.has(f.eventId)) {
@@ -152,11 +156,11 @@ export async function getOverviewStats(
     );
 
     const byDayOfWeek = (dowRows as Array<{ dow: number; n: number }>)
-      .filter(() => !aoSlug)
+      .filter(() => !aoFilter)
       .map((r) => ({ dow: Number(r.dow), count: Number(r.n) }));
 
     let finalByDayOfWeek = byDayOfWeek;
-    if (aoSlug) {
+    if (aoFilter) {
       const dowMap = new Map<number, number>();
       const seenForDow = new Set<string>();
       for (const f of fact) {

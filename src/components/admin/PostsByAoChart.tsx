@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
+import { getAoColor, AO_OTHER_COLOR } from "@/lib/stats/aoColors";
 
 type Datum = { ao: string; count: number; aoSlug?: string };
 
@@ -12,8 +13,6 @@ type Props = {
   href?: (slug: string) => string;
 };
 
-const COLORS = ["#d4a93c", "#0a0a0a", "#7e6b3a", "#b8a160", "#d4d0c2"];
-
 function buildArcs(data: Datum[], total: number): Slice[] {
   const top = data.slice(0, 4);
   const rest = data.slice(4);
@@ -21,14 +20,14 @@ function buildArcs(data: Datum[], total: number): Slice[] {
   const flat: Array<{ ao: string; count: number; color: string; aoSlug?: string }> = top.map((d, i) => ({
     ao: d.ao,
     count: d.count,
-    color: COLORS[i],
+    color: getAoColor(i),
     aoSlug: d.aoSlug,
   }));
   if (rest.length > 0) {
     flat.push({
       ao: rest.length === 1 ? rest[0].ao : `Other (${rest.length} AOs)`,
       count: rest.reduce((s, r) => s + r.count, 0),
-      color: COLORS[4],
+      color: AO_OTHER_COLOR,
     });
   }
 

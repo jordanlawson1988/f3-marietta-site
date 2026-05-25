@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { getSql } from "@/lib/db";
 import { SectionHead } from "@/components/ui/brand/SectionHead";
 import { parseTimeRange, defaultTimeRange } from "@/lib/stats/timeRange";
 import { nameToSlug } from "@/lib/stats/slugify";
+import Link from "next/link";
 import { Crumbs } from "./_components/Crumbs";
 import { FilterBar } from "./_components/FilterBar";
 import { MetricCard } from "./_components/MetricCard";
@@ -17,21 +17,6 @@ export const dynamic = "force-dynamic";
 
 type SP = { range?: string; from?: string; to?: string; ao?: string; topN?: string };
 
-async function loadAos() {
-  const sql = getSql();
-  const rows = (await sql`
-    SELECT DISTINCT f3_events.ao_display_name
-    FROM ao_channels
-    JOIN f3_events ON ao_channels.slack_channel_id = f3_events.slack_channel_id
-    WHERE ao_channels.is_enabled = true AND f3_events.ao_display_name IS NOT NULL
-    ORDER BY f3_events.ao_display_name
-  `) as Array<{ ao_display_name: string }>;
-  return rows.map((r) => ({
-    aoSlug: nameToSlug(r.ao_display_name),
-    aoName: r.ao_display_name,
-  }));
-}
-
 export default async function AnalyticsOverviewPage({
   searchParams,
 }: {
@@ -44,23 +29,35 @@ export default async function AnalyticsOverviewPage({
     range = defaultTimeRange();
   }
 
-  const aos = await loadAos();
-  const aoSlug = sp.ao && sp.ao !== "all" ? sp.ao : null;
-  if (aoSlug && !aos.find((a) => a.aoSlug === aoSlug)) {
-    redirect(`/admin/analytics?range=${range.slug}`);
-  }
+  // Multi-AO CSV. Backwards-compatible: single-slug links like ?ao=foo
+  // parse into a one-element array; legacy ?ao=all is treated as empty.
+  const rawAo = sp.ao;
+  const aoSlugs =
+    rawAo && rawAo !== "all"
+      ? rawAo.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
 
   const topNParam = sp.topN ?? "20";
   const topN =
     topNParam === "all" ? Number.MAX_SAFE_INTEGER : parseInt(topNParam, 10) || 20;
 
-  const stats = await getOverviewStats(range, aoSlug, topN);
+  const stats = await getOverviewStats(range, aoSlugs.length > 0 ? aoSlugs : null, topN);
+
+  // Rank AO chips by post count in the active range — same order as the pie
+  // chart wedges so the color dots line up. Drop unknown selected slugs
+  // silently rather than redirecting; a stale link with one bad slug should
+  // still render the rest of the selection.
+  const aoOptions = stats.byAo.map((row, rank) => ({
+    aoSlug: row.aoSlug,
+    aoName: row.ao,
+    rank,
+  }));
 
   // Build URL suffix that preserves current range filter
   const rangeParam =
     range.slug === "custom"
       ? `?range=custom&from=${range.from.toISOString().slice(0, 10)}&to=${range.to.toISOString().slice(0, 10)}`
-      : range.slug === "ytd"
+      : range.slug === "current-month"
       ? ""
       : `?range=${range.slug}`;
 
@@ -85,18 +82,28 @@ export default async function AnalyticsOverviewPage({
         kicker={
           <>
             {range.label}
-            {aoSlug ? ` · ${aos.find((a) => a.aoSlug === aoSlug)?.aoName}` : ""}
+            {aoSlugs.length > 0
+              ? ` · ${aoSlugs.length === 1
+                  ? (stats.byAo.find((b) => b.aoSlug === aoSlugs[0])?.ao ?? aoSlugs[0])
+                  : `${aoSlugs.length} AOs`}`
+              : ""}
           </>
         }
         align="left"
       />
       <div className="mt-10">
-        <FilterBar aos={aos} />
+        <FilterBar aoOptions={aoOptions} />
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 mb-6">
           <MetricCard label="total posts" value={stats.totalPosts} />
           <MetricCard label="unique pax" value={stats.uniquePax} />
-          <MetricCard label="new fngs" value={stats.newFngs} />
+          <Link
+            href={`/admin/analytics/fngs${rangeParam}`}
+            className="block transition-opacity hover:opacity-80"
+            aria-label="Drill into the FNG roster"
+          >
+            <MetricCard label="new fngs" value={stats.newFngs} />
+          </Link>
           <MetricCard
             label="avg headcount"
             value={stats.avgHeadcount ?? "—"}

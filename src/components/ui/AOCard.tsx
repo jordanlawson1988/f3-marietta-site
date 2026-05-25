@@ -61,6 +61,12 @@ export function AOCard({ workout, code, status = "active", qName, className = ""
         </div>
       </div>
 
+      {workout.workout_type && (
+        <div className="mt-3 border-l-[3px] border-rust bg-rust/10 px-3 py-2 font-mono text-[11px] tracking-[.12em] uppercase text-rust">
+          // {workout.workout_type}
+        </div>
+      )}
+
       <div className="mt-5 flex items-center justify-between">
         <MonoTag>{qName ? `Q · ${qName}` : "Peer-Led"}</MonoTag>
         <Link
