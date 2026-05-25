@@ -43,11 +43,10 @@ export default async function AnalyticsOverviewPage({
 
   const stats = await getOverviewStats(range, aoSlugs.length > 0 ? aoSlugs : null, topN);
 
-  // Rank AO chips by post count in the active range — same order as the pie
-  // chart wedges so the color dots line up. Drop unknown selected slugs
-  // silently rather than redirecting; a stale link with one bad slug should
-  // still render the rest of the selection.
-  const aoOptions = stats.byAo.map((row, rank) => ({
+  // Chip row uses the FULL ranked list (allAoRanking) — not the filtered
+  // byAo — so selecting one AO doesn't make the others vanish from the
+  // filter. Selected chips highlight; unselected stay visible (dimmed).
+  const aoOptions = stats.allAoRanking.map((row, rank) => ({
     aoSlug: row.aoSlug,
     aoName: row.ao,
     rank,
