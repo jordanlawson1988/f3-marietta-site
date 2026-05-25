@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { TIME_RANGE_SLUGS, TIME_RANGE_LABELS, type TimeRangeSlug } from "@/lib/stats/timeRange";
 import { ClipFrame } from "@/components/ui/brand/ClipFrame";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
+import { getAoColor } from "@/lib/stats/aoColors";
 
-const DEFAULTS: Record<string, string> = { range: "ytd", ao: "all", topN: "20" };
+const DEFAULTS: Record<string, string> = { range: "current-month", topN: "20" };
 
 type Props = {
-  aos?: Array<{ aoSlug: string; aoName: string }>;
+  aoOptions?: Array<{ aoSlug: string; aoName: string; rank: number }>;
   showAoFilter?: boolean;
   showTopN?: boolean;
 };
@@ -22,15 +23,23 @@ function daysAgoIso(days: number): string {
   return new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
 }
 
-export function FilterBar({ aos = [], showAoFilter = true, showTopN = true }: Props) {
+function parseAoCsv(raw: string | null): string[] {
+  if (!raw) return [];
+  return raw.split(",").map((s) => s.trim()).filter(Boolean);
+}
+
+export function FilterBar({ aoOptions = [], showAoFilter = true, showTopN = true }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentRange = (searchParams.get("range") ?? "ytd") as TimeRangeSlug;
-  const currentAo = searchParams.get("ao") ?? "all";
+  const currentRange = (searchParams.get("range") ?? "current-month") as TimeRangeSlug;
   const currentTopN = searchParams.get("topN") ?? "20";
   const currentFrom = searchParams.get("from") ?? "";
   const currentTo = searchParams.get("to") ?? "";
+  const selectedSlugs = useMemo(
+    () => parseAoCsv(searchParams.get("ao")),
+    [searchParams],
+  );
 
   const isCustomActive = currentRange === "custom" && !!currentFrom && !!currentTo;
 
@@ -39,7 +48,6 @@ export function FilterBar({ aos = [], showAoFilter = true, showTopN = true }: Pr
   const [toInput, setToInput] = useState<string>(currentTo || todayIso());
   const [customError, setCustomError] = useState<string>("");
 
-  // Sync local state when URL changes (e.g. back button, drill-down preserves custom range)
   useEffect(() => {
     if (isCustomActive) {
       setShowCustom(true);
@@ -62,9 +70,19 @@ export function FilterBar({ aos = [], showAoFilter = true, showTopN = true }: Pr
     router.push(`${pathname}?${p.toString()}`);
   }
 
+  function setAoSlugs(slugs: string[]) {
+    setParam("ao", slugs.length === 0 ? "" : slugs.join(","));
+  }
+
+  function toggleAo(slug: string) {
+    const next = selectedSlugs.includes(slug)
+      ? selectedSlugs.filter((s) => s !== slug)
+      : [...selectedSlugs, slug];
+    setAoSlugs(next);
+  }
+
   function handleRangeClick(slug: TimeRangeSlug) {
     if (slug === "custom") {
-      // Toggle picker rather than navigating — actual apply happens on Apply click
       setShowCustom((open) => !open);
       setCustomError("");
       return;
@@ -94,11 +112,16 @@ export function FilterBar({ aos = [], showAoFilter = true, showTopN = true }: Pr
     router.push(`${pathname}?${p.toString()}`);
   }
 
+  const chipBase =
+    "inline-flex items-center px-3 py-1.5 border font-mono text-[11px] tracking-[.12em] uppercase transition-colors";
+  const chipOn = "bg-foreground text-background border-foreground";
+  const chipOff = "bg-transparent border-black/20 hover:border-foreground hover:bg-black/5";
+
   return (
     <ClipFrame padding="p-5" className="mb-6">
       <MonoTag>// filters</MonoTag>
       <div className="mt-3 grid grid-cols-1 md:grid-cols-12 gap-3 font-mono text-xs">
-        <div className="md:col-span-6 flex flex-wrap gap-2 items-center">
+        <div className="md:col-span-10 flex flex-wrap gap-2 items-center">
           <span className="text-muted">range:</span>
           {TIME_RANGE_SLUGS.map((slug) => {
             const isActive =
@@ -110,34 +133,13 @@ export function FilterBar({ aos = [], showAoFilter = true, showTopN = true }: Pr
                 onClick={() => handleRangeClick(slug)}
                 aria-pressed={isActive}
                 aria-expanded={slug === "custom" ? showCustom : undefined}
-                className={
-                  isActive
-                    ? "bg-foreground text-background px-3 py-1.5"
-                    : "border border-black/20 px-3 py-1.5 hover:bg-black/5"
-                }
+                className={`${chipBase} ${isActive ? chipOn : chipOff}`}
               >
                 {TIME_RANGE_LABELS[slug]}
               </button>
             );
           })}
         </div>
-
-        {showAoFilter && aos.length > 0 && (
-          <div className="md:col-span-4 flex items-center gap-2">
-            <label htmlFor="ao-filter" className="text-muted">ao:</label>
-            <select
-              id="ao-filter"
-              value={currentAo}
-              onChange={(e) => setParam("ao", e.target.value)}
-              className="flex-1 border border-black/20 px-2 py-1.5"
-            >
-              <option value="all">All AOs</option>
-              {aos.map((a) => (
-                <option key={a.aoSlug} value={a.aoSlug}>{a.aoName}</option>
-              ))}
-            </select>
-          </div>
-        )}
 
         {showTopN && (
           <div className="md:col-span-2 flex items-center gap-2">
@@ -155,6 +157,46 @@ export function FilterBar({ aos = [], showAoFilter = true, showTopN = true }: Pr
           </div>
         )}
       </div>
+
+      {showAoFilter && aoOptions.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-black/10">
+          <div className="flex items-center gap-3 mb-2">
+            <span className="font-mono text-[11px] tracking-[.15em] uppercase text-muted">
+              // ao filter
+              {selectedSlugs.length > 0 ? ` · ${selectedSlugs.length} selected` : ""}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setAoSlugs([])}
+              aria-pressed={selectedSlugs.length === 0}
+              className={`${chipBase} ${selectedSlugs.length === 0 ? chipOn : chipOff}`}
+            >
+              All AOs
+            </button>
+            {aoOptions.map((a) => {
+              const on = selectedSlugs.includes(a.aoSlug);
+              return (
+                <button
+                  key={a.aoSlug}
+                  type="button"
+                  onClick={() => toggleAo(a.aoSlug)}
+                  aria-pressed={on}
+                  className={`${chipBase} ${on ? chipOn : chipOff}`}
+                >
+                  <span
+                    className="inline-block w-2 h-2 rounded-full mr-2 border border-black/40"
+                    style={{ background: getAoColor(a.rank) }}
+                    aria-hidden="true"
+                  />
+                  {a.aoName}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {showCustom && (
         <div className="mt-4 pt-4 border-t border-black/10 flex flex-wrap items-end gap-3 font-mono text-xs">
@@ -193,7 +235,7 @@ export function FilterBar({ aos = [], showAoFilter = true, showTopN = true }: Pr
               type="button"
               onClick={() => {
                 setShowCustom(false);
-                setParam("range", "ytd");
+                setParam("range", "current-month");
               }}
               className="border border-black/20 px-3 py-1.5 hover:bg-black/5"
             >

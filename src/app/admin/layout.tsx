@@ -4,8 +4,7 @@ import { AdminAuthProvider } from "./AdminAuthContext";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 
 const ADMIN_NAV = [
-  { label: "Dashboard",  href: "/admin" },
-  { label: "Analytics",  href: "/admin/analytics" },
+  { label: "Dashboard",  href: "/admin/analytics" },
   { label: "Workouts",   href: "/admin/workouts" },
   { label: "Regions",    href: "/admin/regions" },
   { label: "AO Channels", href: "/admin/ao-channels" },

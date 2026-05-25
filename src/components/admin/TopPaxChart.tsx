@@ -6,19 +6,21 @@ import type { PaxRanking } from "@/lib/stats/resolvePaxIdentity";
 
 export function TopPaxChart({
   data,
-  topN = 20,
+  topN,
   href,
 }: {
   data: PaxRanking[];
+  // undefined sentinel = render the entire ranked list (URL "all" case).
   topN?: number;
   href?: (paxKey: string) => string;
 }) {
-  const visible = topN ? data.slice(0, topN) : data;
+  const visible = topN === undefined ? data : data.slice(0, topN);
+  const label = topN === undefined ? "all" : String(topN);
 
   if (visible.length === 0) {
     return (
       <ClipFrame padding="p-6" className="min-h-[260px]">
-        <MonoTag>{`// top posters · top ${topN ?? "all"}`}</MonoTag>
+        <MonoTag>{`// top posters · top ${label}`}</MonoTag>
         <h3 className="font-display font-black uppercase text-[24px] tracking-[-.01em] mt-3 mb-4">
           Top PAX
         </h3>
@@ -31,7 +33,7 @@ export function TopPaxChart({
 
   return (
     <ClipFrame padding="p-6" className="min-h-[260px]">
-      <MonoTag>{`// top posters · top ${topN ?? "all"}`}</MonoTag>
+      <MonoTag>{`// top posters · top ${label}`}</MonoTag>
       <h3 className="font-display font-black uppercase text-[24px] tracking-[-.01em] mt-3 mb-4">
         Top PAX
       </h3>
