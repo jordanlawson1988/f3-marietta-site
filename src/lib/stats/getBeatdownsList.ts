@@ -21,6 +21,11 @@ type EventRow = {
   event_date: string;
   ao_name: string;
   content_text: string | null;
+  // Slack ingest writes the raw "Q · name" string here (broad coverage).
+  // f3_event_qs only gets a row when the parser matched a Slack user_id
+  // (~85% coverage per QRotationList comment). We use q_name as the
+  // fallback so the dashboard list doesn't render "—" for the ~15% gap.
+  q_name: string | null;
 };
 
 type SlackUserRow = {
@@ -54,7 +59,8 @@ export async function getBeatdownsList(
         e.id::text AS event_id,
         to_char(e.event_date, 'YYYY-MM-DD') AS event_date,
         e.ao_display_name AS ao_name,
-        e.content_text
+        e.content_text,
+        e.q_name
       FROM f3_events e
       JOIN ao_channels c ON c.slack_channel_id = e.slack_channel_id
       WHERE e.event_kind = 'backblast'
@@ -111,13 +117,28 @@ export async function getBeatdownsList(
 
   return filtered.map((row) => {
     const parsed = parseAttendance(row.content_text ?? "");
+    const resolved = qsByEvent.get(row.event_id) ?? [];
+    // Prefer the relational source (slack_users names); fall back to the
+    // raw q_name text from the event row when the Slack parser couldn't
+    // structure a Q entry. q_name often contains multiple Qs separated by
+    // commas or slashes — split conservatively so the column doesn't get
+    // mangled.
+    const qNames =
+      resolved.length > 0
+        ? resolved
+        : row.q_name
+          ? row.q_name
+              .split(/[,/&]| and /i)
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : [];
     return {
       eventId: row.event_id,
       eventDate: row.event_date,
       aoName: row.ao_name,
       aoSlug: nameToSlug(row.ao_name),
       beatdownTitle: parseBeatdownTitle(row.content_text ?? ""),
-      qNames: qsByEvent.get(row.event_id) ?? [],
+      qNames,
       headcount: parsed.headcount,
       fngCount: parsed.fngTokens.size,
       paxCount: parsed.pax.size,
