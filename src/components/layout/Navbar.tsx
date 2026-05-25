@@ -31,6 +31,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   { name: "Workouts", href: "/workouts" },
   { name: "Backblasts", href: "/backblasts" },
+  { name: "Stats", href: "/stats" },
   {
     name: "Resources",
     children: [
