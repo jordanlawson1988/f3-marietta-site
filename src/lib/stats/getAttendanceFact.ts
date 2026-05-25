@@ -16,7 +16,8 @@ export type FactRow = {
 export type AttendanceFactQuery = {
   from: Date;
   to: Date;
-  aoSlug?: string;
+  // Empty/missing means no AO filter. Multiple slugs are OR'd.
+  aoSlugs?: string[];
 };
 
 /**
@@ -71,10 +72,11 @@ export async function getAttendanceFact(
     qsByEvent.get(row.event_id)!.add(row.pax_token);
   }
 
+  const aoFilter = q.aoSlugs && q.aoSlugs.length > 0 ? q.aoSlugs : null;
   const rows: FactRow[] = [];
   for (const e of events) {
     const aoSlug = nameToSlug(e.ao_name);
-    if (q.aoSlug && aoSlug !== q.aoSlug) continue;
+    if (aoFilter && !aoFilter.includes(aoSlug)) continue;
     const parsed = parseAttendance(e.content_text ?? "");
     const qsHere = qsByEvent.get(e.event_id) ?? new Set();
     const fngCount = parsed.fngTokens.size;

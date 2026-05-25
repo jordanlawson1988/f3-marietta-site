@@ -48,7 +48,7 @@ export async function GET(request: Request) {
   const scope = (url.searchParams.get("scope") ?? "overview") as Scope;
   const range =
     parseTimeRange({
-      range: url.searchParams.get("range") ?? "ytd",
+      range: url.searchParams.get("range") ?? "current-month",
       from: url.searchParams.get("from") ?? undefined,
       to: url.searchParams.get("to") ?? undefined,
     }) ?? defaultTimeRange();

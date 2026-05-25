@@ -39,7 +39,7 @@ export default async function AnalyticsPaxPage({
   const rangeParam =
     range.slug === "custom"
       ? `?range=custom&from=${range.from.toISOString().slice(0, 10)}&to=${range.to.toISOString().slice(0, 10)}`
-      : range.slug === "ytd"
+      : range.slug === "current-month"
       ? ""
       : `?range=${range.slug}`;
 

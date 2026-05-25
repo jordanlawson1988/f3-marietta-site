@@ -6,6 +6,7 @@ import {
   parseTimeRange,
   serializeTimeRange,
   monthsInRange,
+  defaultTimeRange,
   type TimeRangeSlug,
 } from "../src/lib/stats/timeRange";
 
@@ -19,11 +20,30 @@ test("ytd: from = Jan 1 of current year, to = today", () => {
   assert.equal(r.label, "Year-to-date");
 });
 
-test("mtd: from = first of current month, to = today", () => {
-  const r = parseTimeRange({ range: "mtd" }, NOW)!;
-  assert.equal(r.slug, "mtd");
+test("current-month: from = first of current month in ET, to = today in ET", () => {
+  const r = parseTimeRange({ range: "current-month" }, NOW)!;
+  assert.equal(r.slug, "current-month");
   assert.equal(r.from.toISOString().slice(0, 10), "2026-05-01");
   assert.equal(r.to.toISOString().slice(0, 10), "2026-05-15");
+  assert.equal(r.label, "Current month");
+});
+
+test("current-month: late ET evening near month boundary uses ET date not UTC", () => {
+  // 2026-04-30 23:00 ET == 2026-05-01 03:00 UTC. The user perceives it as
+  // still April, so current-month should be April, not May.
+  const lateEt = new Date("2026-04-30T23:00:00-04:00");
+  const r = parseTimeRange({ range: "current-month" }, lateEt)!;
+  assert.equal(r.from.toISOString().slice(0, 10), "2026-04-01");
+  assert.equal(r.to.toISOString().slice(0, 10), "2026-04-30");
+});
+
+test("defaultTimeRange returns current-month", () => {
+  const r = defaultTimeRange(NOW);
+  assert.equal(r.slug, "current-month");
+});
+
+test("mtd slug is no longer recognized (replaced by current-month)", () => {
+  assert.equal(parseTimeRange({ range: "mtd" }, NOW), null);
 });
 
 test("last-30: rolling 30 days back from today", () => {
