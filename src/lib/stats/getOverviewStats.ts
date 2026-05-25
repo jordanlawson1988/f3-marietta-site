@@ -12,6 +12,11 @@ export type OverviewStats = {
   newFngs: number;
   avgHeadcount: number | null;
   byAo: Array<{ ao: string; aoSlug: string; count: number }>;
+  // Full AO ranking for the same time range, NOT narrowed by the AO filter.
+  // The chip row uses this so unselected AOs stay visible (dimmed) and the
+  // user can keep building a multi-select instead of being stranded with just
+  // the one chip they clicked.
+  allAoRanking: Array<{ ao: string; aoSlug: string; count: number }>;
   topPax: PaxRanking[];
   postsOverTime: Array<{ month: string; count: number }>; // YYYY-MM
   byDayOfWeek: Array<{ dow: number; count: number }>; // 0=Sun
@@ -82,10 +87,10 @@ export async function getOverviewStats(
         getAttendanceFact({ from: range.from, to: range.to, aoSlugs: aoFilter ?? undefined }),
       ]);
 
-    const byAo = (byAoRows as Array<{ ao: string | null; n: number }>)
+    const allAoRanking = (byAoRows as Array<{ ao: string | null; n: number }>)
       .filter((r) => r.ao !== null)
-      .filter((r) => matchesAo(nameToSlug(r.ao!)))
       .map((r) => ({ ao: r.ao!, aoSlug: nameToSlug(r.ao!), count: Number(r.n) }));
+    const byAo = allAoRanking.filter((r) => matchesAo(r.aoSlug));
 
     const totalPosts = byAo.reduce((s, r) => s + r.count, 0);
 
@@ -182,6 +187,7 @@ export async function getOverviewStats(
       newFngs,
       avgHeadcount,
       byAo,
+      allAoRanking,
       topPax,
       postsOverTime: finalPostsOverTime,
       byDayOfWeek: finalByDayOfWeek,
@@ -194,6 +200,7 @@ export async function getOverviewStats(
       newFngs: 0,
       avgHeadcount: null,
       byAo: [],
+      allAoRanking: [],
       topPax: [],
       postsOverTime: [],
       byDayOfWeek: [],
