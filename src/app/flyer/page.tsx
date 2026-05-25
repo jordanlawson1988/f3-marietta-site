@@ -66,14 +66,13 @@ export default async function FlyerPage() {
     }
   }
 
-  // Group by day for the layout, but only primary-region (Marietta) entries
-  // make the front-of-flyer schedule. Nearby regions appear in a smaller
-  // footer band so we keep the flyer Marietta-centric.
+  // Marietta region only — nearby regions live on the /workouts page but
+  // shouldn't compete for ink on the flyer. The flyer is the Marietta
+  // recruitment artifact.
   const byDay = DAYS.map((d) => ({
     ...d,
     primary: rows.filter((r) => r.day === d.idx && r.isPrimary),
-    nearby: rows.filter((r) => r.day === d.idx && !r.isPrimary),
-  })).filter((d) => d.primary.length > 0 || d.nearby.length > 0);
+  })).filter((d) => d.primary.length > 0);
 
   const totalActiveAos = new Set(
     rows.filter((r) => r.isPrimary).map((r) => r.workout.ao_name),
@@ -192,11 +191,11 @@ export default async function FlyerPage() {
                     {d.label}
                   </span>
                   <span className="font-mono text-[9px] tracking-[.18em] uppercase text-[var(--muted)] ml-auto">
-                    {d.primary.length + d.nearby.length} post{d.primary.length + d.nearby.length === 1 ? "" : "s"}
+                    {d.primary.length} post{d.primary.length === 1 ? "" : "s"}
                   </span>
                 </div>
                 <ul className="space-y-1.5">
-                  {[...d.primary, ...d.nearby].map((r, i) => (
+                  {d.primary.map((r, i) => (
                     <li key={`${d.idx}-${i}`} className="flex items-start gap-2">
                       <span
                         className="mt-1 inline-block h-[10px] w-[3px] shrink-0"
@@ -211,11 +210,6 @@ export default async function FlyerPage() {
                           <span className="font-display font-bold uppercase tracking-[.02em] text-[13px] leading-tight truncate">
                             {r.workout.ao_name}
                           </span>
-                          {!r.isPrimary && (
-                            <span className="font-mono text-[8px] tracking-[.18em] uppercase text-[var(--muted)]">
-                              {r.regionName}
-                            </span>
-                          )}
                         </div>
                         <div className="flex items-baseline gap-2 ml-[76px] -mt-0.5">
                           <span className="font-mono text-[9px] tracking-[.18em] uppercase" style={{ color: workoutTypeAccent(r.workout.workout_type) }}>
