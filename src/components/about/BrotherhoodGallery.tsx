@@ -77,21 +77,23 @@ export async function BrotherhoodGallery() {
               <figcaption className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-4">
                 <div>
                   <MonoTag variant="bone">
-                    § {hero.eventDate ? formatStamp(hero.eventDate) : "Marietta"}
+                    § {hero.aoName ?? "Marietta"}
                   </MonoTag>
                   <div className="mt-1 font-display font-bold uppercase text-bone text-[clamp(22px,2.4vw,32px)] leading-[1] tracking-[-.005em]">
                     The Gloom Doesn&apos;t Care.
                   </div>
                 </div>
-                <span className="font-mono text-[10px] tracking-[.22em] uppercase text-bone/60 hidden sm:inline">
-                  05:30 / GA
-                </span>
+                {hero.eventDate && (
+                  <span className="font-mono text-[10px] tracking-[.22em] uppercase text-bone/60 hidden sm:inline">
+                    {formatStamp(hero.eventDate)}
+                  </span>
+                )}
               </figcaption>
             </figure>
 
             {/* Right column — two stacked photos */}
             <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 lg:gap-5">
-              {[top, bottom].map((p, i) => {
+              {[top, bottom].map((p) => {
                 const stamp = formatStamp(p.eventDate);
                 return (
                   <figure
@@ -101,8 +103,8 @@ export async function BrotherhoodGallery() {
                     <Image
                       src={p.url}
                       alt={
-                        stamp
-                          ? `F3 Marietta PAX — ${stamp}`
+                        p.aoName
+                          ? `F3 Marietta PAX — ${p.aoName}`
                           : "F3 Marietta PAX"
                       }
                       fill
@@ -115,11 +117,13 @@ export async function BrotherhoodGallery() {
                     />
                     <figcaption className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                       <MonoTag variant="bone">
-                        § {stamp ?? (i === 0 ? "Battlefield" : "Last Stand")}
+                        § {p.aoName ?? "Marietta"}
                       </MonoTag>
-                      <span className="font-mono text-[10px] tracking-[.2em] uppercase text-bone/50">
-                        {i === 0 ? "FNG-friendly" : "Open"}
-                      </span>
+                      {stamp && (
+                        <span className="font-mono text-[10px] tracking-[.2em] uppercase text-bone/50">
+                          {stamp}
+                        </span>
+                      )}
                     </figcaption>
                   </figure>
                 );

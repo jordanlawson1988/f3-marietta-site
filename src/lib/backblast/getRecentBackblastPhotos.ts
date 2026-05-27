@@ -4,6 +4,7 @@ import { extractFirstImageUrl } from "@/lib/backblast/getBackblastsPaginated";
 export interface RecentBackblastPhoto {
   url: string;
   eventDate: string | null;
+  aoName: string | null;
 }
 
 /**
@@ -40,7 +41,7 @@ export async function getRecentBackblastPhotosWithMeta(
     // (channel, AO, date, kind) so galleries don't show two takes of
     // the same beatdown.
     const rows = await sql`
-      SELECT content_json, event_date, created_at
+      SELECT content_json, event_date, ao_display_name, created_at
       FROM f3_events
       WHERE event_kind = 'backblast' AND is_deleted = false
         AND id NOT IN (
@@ -60,11 +61,19 @@ export async function getRecentBackblastPhotosWithMeta(
     const photos: RecentBackblastPhoto[] = [];
     const seen = new Set<string>();
     for (const r of rows) {
-      const row = r as { content_json: unknown; event_date: string | null };
+      const row = r as {
+        content_json: unknown;
+        event_date: string | null;
+        ao_display_name: string | null;
+      };
       const url = extractFirstImageUrl(row.content_json);
       if (!url || seen.has(url)) continue;
       seen.add(url);
-      photos.push({ url, eventDate: row.event_date ?? null });
+      photos.push({
+        url,
+        eventDate: row.event_date ?? null,
+        aoName: row.ao_display_name ?? null,
+      });
       if (photos.length >= limit) break;
     }
     return photos;
