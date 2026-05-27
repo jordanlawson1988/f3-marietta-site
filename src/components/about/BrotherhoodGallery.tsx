@@ -48,9 +48,8 @@ export async function BrotherhoodGallery() {
             h2={<>Faces of the gloom.</>}
             kicker={
               <>
-                Real men, every Tuesday and Thursday at 05:30. Not stock.
-                Not models. Your neighbors, your coworkers, your accountability
-                partners — sharpening each other in the dark.
+                F3 Exists to Invigorate Male Community Leadership through
+                small, local workout groups.
               </>
             }
           />

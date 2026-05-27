@@ -49,11 +49,6 @@ export async function PaxMosaic() {
                 muster.
               </h2>
             </div>
-            <p className="max-w-sm text-[15px] leading-[1.6] text-bone/70">
-              Every photo below is a real F3 Marietta beatdown — pulled
-              straight from the latest backblasts. Your neighbors. 05:30.
-              No filter.
-            </p>
           </div>
         </ScrollReveal>
 

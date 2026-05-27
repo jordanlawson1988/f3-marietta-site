@@ -6,7 +6,7 @@ import type { WorkoutScheduleRow } from "@/types/workout";
 
 type Props = {
   workout: WorkoutScheduleRow;
-  code?: string;
+  regionLabel?: string;
   status?: "active" | "launch";
   qName?: string;
   className?: string;
@@ -21,7 +21,7 @@ function formatTime(hhmmss: string): string {
   return `${hour12}:${m.toString().padStart(2, "0")}${ampm}`;
 }
 
-export function AOCard({ workout, code, status = "active", qName, className = "" }: Props) {
+export function AOCard({ workout, regionLabel, status = "active", qName, className = "" }: Props) {
   const dayLabel = DAY_LABELS[workout.day_of_week % 7];
   const timeLabel = formatTime(workout.start_time);
   // Anchor for deep links from the TopBar "Next Muster" link. scroll-margin
@@ -40,7 +40,7 @@ export function AOCard({ workout, code, status = "active", qName, className = ""
         className="absolute top-0 left-0 right-0 h-[3px] bg-steel origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
       />
       <div className="flex items-center justify-between gap-3 mb-5">
-        <MonoTag>{code ?? "F3.MAR"}</MonoTag>
+        <MonoTag>{regionLabel ?? "MARIETTA"}</MonoTag>
         <StatusChip variant={status}>{status === "launch" ? "Launching" : "Active"}</StatusChip>
       </div>
       <h3 className="font-display font-bold uppercase text-[clamp(28px,3vw,34px)] leading-none tracking-[-.01em]">

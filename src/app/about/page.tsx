@@ -36,10 +36,6 @@ export default function AboutPage() {
         meter={{ left: "Coordinates · 33.9526° N, 84.5499° W", right: "Region · Marietta, GA" }}
       />
 
-      {/* Real PAX photos pulled from the most-recent backblasts. Hidden if
-          the database doesn't have enough real photos to render honestly. */}
-      <PaxMosaic />
-
       <section className="bg-bone py-24">
         <div className="max-w-[1320px] mx-auto px-7">
           <ScrollReveal>
@@ -55,6 +51,10 @@ export default function AboutPage() {
           </ScrollReveal>
         </div>
       </section>
+
+      {/* Real PAX photos pulled from the most-recent backblasts. Hidden if
+          the database doesn't have enough real photos to render honestly. */}
+      <PaxMosaic />
 
       {/* Editorial 3-photo gallery. Lives between the mission statement
           and the timeline so the abstract framing ("plant/grow/serve")

@@ -108,7 +108,6 @@ export function WorkoutsFilter({ workouts, limit }: Props) {
               sublabel="The home region · core AOs"
               tone="primary"
               workouts={marietta}
-              codePrefix="MAR"
             />
           )}
 
@@ -124,7 +123,6 @@ export function WorkoutsFilter({ workouts, limit }: Props) {
                 }
                 tone="secondary"
                 workouts={others}
-                codePrefix="REG"
               />
             </div>
           )}
@@ -151,10 +149,9 @@ type RegionGroupProps = {
   sublabel: string;
   tone: "primary" | "secondary";
   workouts: WorkoutWithRegion[];
-  codePrefix: string;
 };
 
-function RegionGroup({ heading, sublabel, tone, workouts, codePrefix }: RegionGroupProps) {
+function RegionGroup({ heading, sublabel, tone, workouts }: RegionGroupProps) {
   const toneAccent = tone === "primary" ? "bg-steel text-bone" : "bg-ink/8 text-ink";
   const toneRule = tone === "primary" ? "bg-steel" : "bg-ink/20";
 
@@ -186,11 +183,11 @@ function RegionGroup({ heading, sublabel, tone, workouts, codePrefix }: RegionGr
           using a 260px floor keeps cards from overflowing horizontally
           (body has overflow-x:hidden, so overflow == invisible content). */}
       <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))" }}>
-        {workouts.map((w, i) => (
+        {workouts.map((w) => (
           <AOCard
             key={w.id}
             workout={w}
-            code={`F3.${codePrefix}.${String(i + 1).padStart(2, "0")}`}
+            regionLabel={w.region_name.toUpperCase()}
             status={w.is_active ? "active" : "launch"}
           />
         ))}
