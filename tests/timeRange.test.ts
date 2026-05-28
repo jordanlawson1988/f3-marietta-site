@@ -17,7 +17,7 @@ test("ytd: from = Jan 1 of current year, to = today", () => {
   assert.equal(r.slug, "ytd");
   assert.equal(r.from.toISOString().slice(0, 10), "2026-01-01");
   assert.equal(r.to.toISOString().slice(0, 10), "2026-05-15");
-  assert.equal(r.label, "Year-to-date");
+  assert.equal(r.label, "YTD");
 });
 
 test("current-month: from = first of current month in ET, to = today in ET", () => {
@@ -25,7 +25,30 @@ test("current-month: from = first of current month in ET, to = today in ET", () 
   assert.equal(r.slug, "current-month");
   assert.equal(r.from.toISOString().slice(0, 10), "2026-05-01");
   assert.equal(r.to.toISOString().slice(0, 10), "2026-05-15");
-  assert.equal(r.label, "Current month");
+  assert.equal(r.label, "This month");
+});
+
+test("current-week: from = Monday of current ET week, to = today in ET", () => {
+  // 2026-05-15 is a Friday → Monday of that ISO week is 2026-05-11
+  const r = parseTimeRange({ range: "current-week" }, NOW)!;
+  assert.equal(r.slug, "current-week");
+  assert.equal(r.from.toISOString().slice(0, 10), "2026-05-11");
+  assert.equal(r.to.toISOString().slice(0, 10), "2026-05-15");
+  assert.equal(r.label, "This week");
+});
+
+test("current-week: Sunday rolls back to the prior Monday (ISO week)", () => {
+  // 2026-05-17 is a Sunday → ISO Monday is 2026-05-11
+  const sunday = new Date("2026-05-17T12:00:00-04:00");
+  const r = parseTimeRange({ range: "current-week" }, sunday)!;
+  assert.equal(r.from.toISOString().slice(0, 10), "2026-05-11");
+});
+
+test("trailing-365: rolling 365 days back from today", () => {
+  const r = parseTimeRange({ range: "trailing-365" }, NOW)!;
+  assert.equal(r.slug, "trailing-365");
+  assert.equal(r.from.toISOString().slice(0, 10), "2025-05-15");
+  assert.equal(r.to.toISOString().slice(0, 10), "2026-05-15");
 });
 
 test("current-month: late ET evening near month boundary uses ET date not UTC", () => {
@@ -33,6 +56,56 @@ test("current-month: late ET evening near month boundary uses ET date not UTC", 
   // still April, so current-month should be April, not May.
   const lateEt = new Date("2026-04-30T23:00:00-04:00");
   const r = parseTimeRange({ range: "current-month" }, lateEt)!;
+  assert.equal(r.from.toISOString().slice(0, 10), "2026-04-01");
+  assert.equal(r.to.toISOString().slice(0, 10), "2026-04-30");
+});
+
+test("last-month mid-month: from = 1st of previous month, to = last day of previous month", () => {
+  // NOW = 2026-05-15 → last-month should be Apr 1 – Apr 30
+  const r = parseTimeRange({ range: "last-month" }, NOW)!;
+  assert.equal(r.slug, "last-month");
+  assert.equal(r.from.toISOString().slice(0, 10), "2026-04-01");
+  assert.equal(r.to.toISOString().slice(0, 10), "2026-04-30");
+  assert.equal(r.label, "Last month");
+});
+
+test("last-month on the 1st of the current month still points to the prior month", () => {
+  // NOW = 2026-06-01 → last-month should be May 1 – May 31
+  const firstOfMonth = new Date("2026-06-01T12:00:00-04:00");
+  const r = parseTimeRange({ range: "last-month" }, firstOfMonth)!;
+  assert.equal(r.from.toISOString().slice(0, 10), "2026-05-01");
+  assert.equal(r.to.toISOString().slice(0, 10), "2026-05-31");
+});
+
+test("last-month in January crosses the year boundary into December", () => {
+  // NOW = 2026-01-15 → last-month should be Dec 1 – Dec 31, 2025
+  const january = new Date("2026-01-15T12:00:00-05:00");
+  const r = parseTimeRange({ range: "last-month" }, january)!;
+  assert.equal(r.from.toISOString().slice(0, 10), "2025-12-01");
+  assert.equal(r.to.toISOString().slice(0, 10), "2025-12-31");
+});
+
+test("last-month handles a 28-day February correctly", () => {
+  // NOW = 2026-03-10 → last-month should be Feb 1 – Feb 28, 2026 (not 29)
+  const march = new Date("2026-03-10T12:00:00-05:00");
+  const r = parseTimeRange({ range: "last-month" }, march)!;
+  assert.equal(r.from.toISOString().slice(0, 10), "2026-02-01");
+  assert.equal(r.to.toISOString().slice(0, 10), "2026-02-28");
+});
+
+test("last-month handles a 29-day February (leap year) correctly", () => {
+  // NOW = 2024-03-10 → last-month should be Feb 1 – Feb 29, 2024
+  const leapMarch = new Date("2024-03-10T12:00:00-05:00");
+  const r = parseTimeRange({ range: "last-month" }, leapMarch)!;
+  assert.equal(r.from.toISOString().slice(0, 10), "2024-02-01");
+  assert.equal(r.to.toISOString().slice(0, 10), "2024-02-29");
+});
+
+test("last-month uses ET (not UTC) for the calendar — late evening near month boundary", () => {
+  // 2026-05-01 00:30 ET == 2026-05-01 04:30 UTC. ET-perceived month is May,
+  // so last-month is April — same as if it were noon on May 1.
+  const earlyMay = new Date("2026-05-01T00:30:00-04:00");
+  const r = parseTimeRange({ range: "last-month" }, earlyMay)!;
   assert.equal(r.from.toISOString().slice(0, 10), "2026-04-01");
   assert.equal(r.to.toISOString().slice(0, 10), "2026-04-30");
 });
