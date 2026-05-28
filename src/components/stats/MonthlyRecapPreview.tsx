@@ -152,7 +152,7 @@ export function MonthlyRecapPreview() {
                         <th className="pb-2 pr-3 font-normal">PAX</th>
                         <th className="pb-2 pr-3 font-normal text-right">posts</th>
                         <th className="pb-2 pr-3 font-normal text-right">AOs</th>
-                        <th className="pb-2 pr-3 font-normal text-right">Q'd</th>
+                        <th className="pb-2 pr-3 font-normal text-right">Q&apos;d</th>
                         <th className="pb-2 font-normal">link</th>
                       </tr>
                     </thead>
