@@ -57,7 +57,6 @@ export function AOCard({ workout, regionLabel, status = "active", qName, classNa
         <div className="flex items-center gap-4">
           <MonoTag>{dayLabel}</MonoTag>
           <span className="font-display font-semibold text-[15px]">{timeLabel}</span>
-          <MonoTag variant="steel">· GLOOM</MonoTag>
         </div>
       </div>
 
@@ -67,15 +66,16 @@ export function AOCard({ workout, regionLabel, status = "active", qName, classNa
         </div>
       )}
 
-      <div className="mt-5 flex items-center justify-between">
-        <MonoTag>{qName ? `Q · ${qName}` : "Peer-Led"}</MonoTag>
+      <div className="mt-5 flex items-start justify-between gap-4">
+        <MonoTag className="shrink-0 mt-0.5">{qName ? `Q · ${qName}` : "Peer-Led"}</MonoTag>
         <Link
           href={workout.map_link ?? `https://www.google.com/maps?q=${encodeURIComponent(workout.address)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-mono text-[11px] tracking-[.15em] uppercase text-steel inline-flex items-center gap-1 group-hover:gap-2.5 transition-all"
+          title="Open in maps"
+          className="font-mono text-[11px] leading-snug tracking-[.05em] text-steel text-right hover:text-ink hover:underline underline-offset-4 transition-colors"
         >
-          Directions <span aria-hidden="true">→</span>
+          {workout.address}
         </Link>
       </div>
     </article>
