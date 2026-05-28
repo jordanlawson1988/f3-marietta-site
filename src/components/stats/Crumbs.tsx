@@ -10,7 +10,7 @@ export function Crumbs({ items }: { items: Crumb[] }) {
       className="inline-flex items-center gap-2.5 font-mono text-[11px] tracking-[.2em] uppercase"
     >
       <span className="h-px w-7 bg-muted" aria-hidden />
-      <ol className="inline-flex items-center gap-2">
+      <ol className="inline-flex items-center gap-2 flex-wrap">
         {items.map((c, i) => {
           const isLast = i === items.length - 1;
           return (

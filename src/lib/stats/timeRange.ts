@@ -1,19 +1,25 @@
 export const TIME_RANGE_SLUGS = [
+  "current-week",
   "current-month",
-  "ytd",
+  "last-month",
   "last-30",
   "last-90",
+  "ytd",
+  "trailing-365",
   "custom",
 ] as const;
 
 export type TimeRangeSlug = (typeof TIME_RANGE_SLUGS)[number];
 
 export const TIME_RANGE_LABELS: Record<TimeRangeSlug, string> = {
-  "current-month": "Current month",
-  ytd: "Year-to-date",
-  "last-30": "Last 30 days",
-  "last-90": "Last 90 days",
-  custom: "Custom range",
+  "current-week": "This week",
+  "current-month": "This month",
+  "last-month": "Last month",
+  "last-30": "Last 30d",
+  "last-90": "Last 90d",
+  ytd: "YTD",
+  "trailing-365": "Trailing 12mo",
+  custom: "Custom",
 };
 
 export type TimeRange = {
@@ -73,14 +79,36 @@ export function parseTimeRange(
     const from = new Date(Date.UTC(today.getUTCFullYear(), 0, 1));
     return { slug, from, to: today, label: TIME_RANGE_LABELS[slug] };
   }
+  if (slug === "current-week") {
+    // ISO week, Monday-anchored, ET-aware. Compute Monday of the user's ET
+    // calendar day so a Sunday-night admin sees the week they just lived
+    // through, not the upcoming one.
+    const et = etDateComponents(now);
+    const etToday = new Date(Date.UTC(et.year, et.month, et.day));
+    const dow = etToday.getUTCDay(); // 0 = Sun
+    const daysFromMonday = dow === 0 ? 6 : dow - 1;
+    const from = new Date(etToday.getTime() - daysFromMonday * 86_400_000);
+    return { slug, from, to: etToday, label: TIME_RANGE_LABELS[slug] };
+  }
   if (slug === "current-month") {
     const et = etDateComponents(now);
     const from = new Date(Date.UTC(et.year, et.month, 1));
     const to = new Date(Date.UTC(et.year, et.month, et.day));
     return { slug, from, to, label: TIME_RANGE_LABELS[slug] };
   }
-  if (slug === "last-30" || slug === "last-90") {
-    const days = slug === "last-30" ? 30 : 90;
+  if (slug === "last-month") {
+    // The full prior calendar month, anchored to the ET-perceived "today".
+    // Using day-0 of the current month gives the last day of the previous
+    // month, which correctly handles 28/29/30/31-day months and crossing
+    // the year boundary in January.
+    const et = etDateComponents(now);
+    const from = new Date(Date.UTC(et.year, et.month - 1, 1));
+    const to = new Date(Date.UTC(et.year, et.month, 0));
+    return { slug, from, to, label: TIME_RANGE_LABELS[slug] };
+  }
+  if (slug === "last-30" || slug === "last-90" || slug === "trailing-365") {
+    const days =
+      slug === "last-30" ? 30 : slug === "last-90" ? 90 : 365;
     const from = new Date(today.getTime() - days * 24 * 60 * 60 * 1000);
     return { slug, from, to: today, label: TIME_RANGE_LABELS[slug] };
   }

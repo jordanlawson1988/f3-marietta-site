@@ -22,79 +22,74 @@ test.describe("Admin BI Analytics", () => {
     await loginAdmin(page);
   });
 
-  test("overview renders all 4 KPI tiles and 4 charts", async ({ page }) => {
+  test("overview renders KPI tiles, trend, heatmap, and Q leaderboard", async ({ page }) => {
     await page.goto("/admin/analytics");
-    // 4 MetricCard labels — rendered as MonoTag "// label"
+    // KPI tile labels — rendered as MonoTag "// label" inside KpiTile
     await expect(page.getByText("// total posts")).toBeVisible();
     await expect(page.getByText("// unique pax")).toBeVisible();
     await expect(page.getByText("// new fngs")).toBeVisible();
     await expect(page.getByText("// avg headcount")).toBeVisible();
-    // SVG pie chart
-    await expect(page.locator("svg").first()).toBeVisible();
-    // PostsOverTimeChart MonoTag text
-    await expect(
-      page.getByText("// posts over time · monthly")
-    ).toBeVisible();
-    // DayOfWeekChart MonoTag text
-    await expect(
-      page.getByText("// posts by day of week")
-    ).toBeVisible();
+    // Trend chart eyebrow
+    await expect(page.getByText("// posts over time · monthly").first()).toBeVisible();
+    // Day × time heatmap eyebrow
+    await expect(page.getByText("// day × time").first()).toBeVisible();
+    // Q leaderboard eyebrow (new section)
+    await expect(page.getByText("// q leaderboard · in range").first()).toBeVisible();
+    // AO leaderboard eyebrow (new section, replaces old pie chart)
+    await expect(page.getByText("// ao leaderboard · in range").first()).toBeVisible();
   });
 
   test("filter change updates URL and re-renders", async ({ page }) => {
     await page.goto("/admin/analytics");
-    // FilterBar button uses TIME_RANGE_LABELS["last-30"] = "Last 30 days"
-    await page.getByRole("button", { name: "Last 30 days" }).click();
+    // FilterBar button uses TIME_RANGE_LABELS["last-30"] = "Last 30d"
+    await page.getByRole("button", { name: "Last 30d" }).click();
     await expect(page).toHaveURL(/range=last-30/);
-    // The FilterBar button should now be aria-pressed=true
     await expect(
-      page.getByRole("button", { name: "Last 30 days" })
+      page.getByRole("button", { name: "Last 30d" })
     ).toHaveAttribute("aria-pressed", "true");
   });
 
   test("AO drill-down navigates correctly", async ({ page }) => {
     await page.goto("/admin/analytics");
-    // PostsByAoChart legend renders <Link href={href(a.aoSlug)}> for each slice
+    // AoLeaderboardTable wraps each row in <Link href={aoHref(slug)}>
     const firstAoLink = page
       .locator('a[href*="/admin/analytics/ao/"]')
       .first();
     await firstAoLink.click();
     await expect(page).toHaveURL(/\/admin\/analytics\/ao\//);
-    // AO detail page has its own "// total posts" MetricCard
+    // AO detail page has KPI tiles too
     await expect(page.getByText("// total posts")).toBeVisible({ timeout: 15_000 });
   });
 
   test("PAX drill-down navigates correctly", async ({ page }) => {
     await page.goto("/admin/analytics");
-    // TopPaxChart wraps each row in <Link href={href(p.key)}>
+    // PaxLeaderboardTable wraps each row in <Link href={paxHref(key)}>
     const firstPaxLink = page
       .locator('a[href*="/admin/analytics/pax/"]')
       .first();
     await firstPaxLink.click();
     await expect(page).toHaveURL(/\/admin\/analytics\/pax\//);
-    // PAX detail page has a "// longest streak" MetricCard
     await expect(page.getByText("// longest streak")).toBeVisible({
       timeout: 15_000,
     });
   });
 
   test("drill-down preserves time range", async ({ page }) => {
-    await page.goto("/admin/analytics?range=mtd");
+    await page.goto("/admin/analytics?range=last-30");
     const firstAoLink = page
       .locator('a[href*="/admin/analytics/ao/"]')
       .first();
-    // Grab the href before navigating so we can assert the range is carried
     const href = await firstAoLink.getAttribute("href");
-    expect(href).toMatch(/range=mtd/);
+    expect(href).toMatch(/range=last-30/);
     await firstAoLink.click();
-    await expect(page).toHaveURL(/range=mtd/);
+    await expect(page).toHaveURL(/range=last-30/);
   });
 
   test("CSV export triggers download", async ({ page }) => {
     await page.goto("/admin/analytics");
     const downloadPromise = page.waitForEvent("download");
     // ExportButton renders as a plain <a> tag with the label text
-    await page.getByRole("link", { name: "Download CSV (overview)" }).click();
+    await page.getByRole("link", { name: "Overview CSV" }).click();
     const dl = await downloadPromise;
     expect(dl.suggestedFilename()).toMatch(/^f3-analytics-overview.*\.csv$/);
   });
