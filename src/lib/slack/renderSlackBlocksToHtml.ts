@@ -211,7 +211,10 @@ async function renderRichTextSection(
                     userName = await userLookup(userId);
                 }
                 htmlParts.push(`<span class="mention">@${escapeHtml(userName)}</span>`);
-                textParts.push(`@${userName}`);
+                // Keep the raw id in the text channel (matching the mrkdwn path's
+                // `<@U..> -> @U..`) so content_text parsing can resolve the Q/PAX
+                // by Slack id. Display uses the HTML channel.
+                textParts.push(`@${userId}`);
                 break;
 
             case 'channel':
