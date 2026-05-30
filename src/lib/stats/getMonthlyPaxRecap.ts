@@ -1,5 +1,5 @@
 import { getSql } from "@/lib/db";
-import { getAttendanceFact } from "./getAttendanceFact";
+import { getAttendanceFact, type FactRow } from "./getAttendanceFact";
 import { getAliasMap } from "./aliasMap";
 import { nameToSlug } from "./slugify";
 import type { SlackUser } from "./resolvePaxIdentity";
@@ -21,16 +21,138 @@ export type PaxRecapRow = {
 };
 
 /**
- * Build the recipient list for the monthly PAX recap DM. Each row carries
- * a Slack user id so the cron can post directly — PAX who exist only as
- * nicknames (no Slack mapping) are dropped, since we can't DM them.
+ * A PAX who posted in the window but cannot be DMed because their token has
+ * no Slack mapping (nickname-only, unmapped). They get no recap and are
+ * surfaced in the run report so an admin can add an alias.
+ */
+export type UnreachableRow = {
+  paxToken: string; // original token, e.g. "n:bulldog"
+  paxLabel: string; // human label, e.g. "bulldog"
+  posts: number; // distinct events in the window
+  reason: "no-slack-mapping";
+};
+
+export type RecapAggregate = {
+  recipients: PaxRecapRow[];
+  unreachable: UnreachableRow[];
+};
+
+export type RecapMaps = {
+  /** slack_user_id → display name */
+  nameById: Map<string, string>;
+  /** lowercased name → slack_user_id (for nickname-only tokens) */
+  idByName: Map<string, string>;
+  /** slack_user_id → name (alias overrides) */
+  aliasMap: Map<string, string>;
+};
+
+/**
+ * Pure aggregation of attendance fact rows into recap recipients and
+ * unreachable PAX. No I/O — tests construct fact rows + maps directly.
+ *
+ * - Reachable: token resolves to a Slack id (U-prefixed always; nickname via
+ *   idByName). Aggregated by slack id into a recipient row.
+ * - Unreachable: token resolves to null (nickname-only, unmapped). Aggregated
+ *   by token, counting distinct events as `posts`.
+ *
+ * Both lists are sorted by posts desc (most active first).
+ */
+export function aggregateRecapRows(
+  fact: FactRow[],
+  maps: RecapMaps,
+): RecapAggregate {
+  const { nameById, idByName, aliasMap } = maps;
+
+  /** Resolve a paxToken to a Slack user id, or null when unreachable. */
+  const resolveSlackId = (token: string): string | null => {
+    if (token.startsWith("U")) return token; // valid Slack id → DM-able
+    if (token.startsWith("n:")) return idByName.get(token.slice(2)) ?? null;
+    return null;
+  };
+
+  const labelForToken = (token: string): string =>
+    token.startsWith("n:") ? token.slice(2) : token;
+
+  type Agg = {
+    slackUserId: string;
+    paxLabel: string;
+    posts: Set<string>;
+    aoSlugs: Set<string>;
+    aoNames: Set<string>;
+    qd: number;
+  };
+  const byId = new Map<string, Agg>();
+
+  type Unreach = { paxToken: string; paxLabel: string; posts: Set<string> };
+  const unreachByToken = new Map<string, Unreach>();
+
+  for (const f of fact) {
+    const slackId = resolveSlackId(f.paxToken);
+
+    if (!slackId) {
+      let u = unreachByToken.get(f.paxToken);
+      if (!u) {
+        u = { paxToken: f.paxToken, paxLabel: labelForToken(f.paxToken), posts: new Set() };
+        unreachByToken.set(f.paxToken, u);
+      }
+      u.posts.add(f.eventId);
+      continue;
+    }
+
+    const label =
+      nameById.get(slackId) ?? aliasMap.get(slackId) ?? labelForToken(f.paxToken);
+
+    let agg = byId.get(slackId);
+    if (!agg) {
+      agg = {
+        slackUserId: slackId,
+        paxLabel: label,
+        posts: new Set(),
+        aoSlugs: new Set(),
+        aoNames: new Set(),
+        qd: 0,
+      };
+      byId.set(slackId, agg);
+    }
+    agg.posts.add(f.eventId);
+    agg.aoSlugs.add(f.aoSlug);
+    agg.aoNames.add(f.aoName);
+    if (f.isQ) agg.qd += 1;
+  }
+
+  const recipients: PaxRecapRow[] = [...byId.values()].map((a) => ({
+    slackUserId: a.slackUserId,
+    paxLabel: a.paxLabel,
+    paxSlug: nameToSlug(a.paxLabel),
+    posts: a.posts.size,
+    aos: a.aoSlugs.size,
+    qd: a.qd,
+    aoNames: [...a.aoNames].sort(),
+  }));
+  recipients.sort((a, b) => b.posts - a.posts);
+
+  const unreachable: UnreachableRow[] = [...unreachByToken.values()].map((u) => ({
+    paxToken: u.paxToken,
+    paxLabel: u.paxLabel,
+    posts: u.posts.size,
+    reason: "no-slack-mapping" as const,
+  }));
+  unreachable.sort((a, b) => b.posts - a.posts);
+
+  return { recipients, unreachable };
+}
+
+/**
+ * Build the recipient list for the monthly PAX recap DM plus the list of
+ * unreachable PAX (posted but un-DMable). Each recipient row carries a Slack
+ * user id so the cron can post directly.
  *
  * Identity resolution mirrors the rest of the BI surface but inverts the
  * usual direction: we need name → slack_user_id, not slack_user_id → name.
  */
 export async function getMonthlyPaxRecap(
   range: TimeRange,
-): Promise<PaxRecapRow[]> {
+): Promise<RecapAggregate> {
   try {
     const sql = getSql();
     const [fact, slackUsers, aliasMap] = await Promise.all([
@@ -61,71 +183,9 @@ export async function getMonthlyPaxRecap(
       }
     }
 
-    /** Resolve a paxToken to a Slack user id, or null when unreachable. */
-    const resolveSlackId = (token: string): string | null => {
-      if (token.startsWith("U")) {
-        return nameById.has(token) || aliasMap.has(token) ? token : token;
-      }
-      if (token.startsWith("n:")) {
-        const lower = token.slice(2);
-        return idByName.get(lower) ?? null;
-      }
-      return null;
-    };
-
-    type Agg = {
-      slackUserId: string;
-      paxLabel: string;
-      posts: Set<string>;
-      aoSlugs: Set<string>;
-      aoNames: Set<string>;
-      qd: number;
-    };
-    const byId = new Map<string, Agg>();
-
-    for (const f of fact) {
-      const slackId = resolveSlackId(f.paxToken);
-      if (!slackId) continue;
-      const label =
-        nameById.get(slackId) ??
-        aliasMap.get(slackId) ??
-        (f.paxToken.startsWith("n:") ? f.paxToken.slice(2) : f.paxToken);
-
-      let agg = byId.get(slackId);
-      if (!agg) {
-        agg = {
-          slackUserId: slackId,
-          paxLabel: label,
-          posts: new Set(),
-          aoSlugs: new Set(),
-          aoNames: new Set(),
-          qd: 0,
-        };
-        byId.set(slackId, agg);
-      }
-      agg.posts.add(f.eventId);
-      agg.aoSlugs.add(f.aoSlug);
-      agg.aoNames.add(f.aoName);
-      if (f.isQ) agg.qd += 1;
-    }
-
-    const rows: PaxRecapRow[] = [];
-    for (const a of byId.values()) {
-      rows.push({
-        slackUserId: a.slackUserId,
-        paxLabel: a.paxLabel,
-        paxSlug: nameToSlug(a.paxLabel),
-        posts: a.posts.size,
-        aos: a.aoSlugs.size,
-        qd: a.qd,
-        aoNames: [...a.aoNames].sort(),
-      });
-    }
-
-    rows.sort((a, b) => b.posts - a.posts);
-    return rows;
+    return aggregateRecapRows(fact, { nameById, idByName, aliasMap });
   } catch (err) {
     console.error("[getMonthlyPaxRecap] failed:", err);
-    return [];
+    return { recipients: [], unreachable: [] };
   }
 }
