@@ -164,7 +164,7 @@ export function WorkoutModal({
           </div>
 
           {/* Workout Type + Day */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <MonoTag variant="bone">// Workout Type</MonoTag>
               <input
@@ -198,7 +198,7 @@ export function WorkoutModal({
           </div>
 
           {/* Start/End Time */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <MonoTag variant="bone">// Start Time</MonoTag>
               <input

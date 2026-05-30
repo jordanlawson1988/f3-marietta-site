@@ -219,8 +219,8 @@ export default function AoChannelsAdminPage() {
       {isLoading ? (
         <div className="text-muted">Loading...</div>
       ) : (
-        <div className="border border-line-soft overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="border border-line-soft overflow-x-auto">
+          <table className="w-full min-w-[720px] text-sm">
             <thead>
               <tr className="border-b border-line-soft text-left">
                 <th className="px-4 py-3">
