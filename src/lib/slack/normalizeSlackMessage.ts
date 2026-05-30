@@ -8,6 +8,18 @@ import { resolveSlackUserName } from './lookupSlackUser';
 import { renderSlackBlocksToHtml } from './renderSlackBlocksToHtml';
 
 /**
+ * Strip leading Slack mrkdwn markup (*bold*, _italic_, ~strike~, `code`,
+ * > blockquote) and whitespace before keyword detection. The Slackblast app
+ * tags posts with metadata.event_type, but a Q who types the F3 template by
+ * hand produces text that begins with `*Backblast! ...*` — so a naive
+ * text.startsWith('backblast') misses it. Single source of truth for the
+ * detection/title/kind paths below. (Germantown incident, 2026-05-30.)
+ */
+export function stripLeadingMarkup(text: string): string {
+    return (text || '').replace(/^[\s>*_~`]+/, '');
+}
+
+/**
  * Normalize a Slack event payload into canonical F3 event format
  * 
  * Handles both event shapes:
@@ -61,15 +73,24 @@ export async function normalizeSlackMessage(
     if (!event_date && blocks.length > 0) {
         event_date = extractDateFromBlocks(blocks);
     }
+    // Fallback: hand-typed backblasts (no metadata, rich_text blocks) carry the
+    // DATE only in the message text, e.g. "*DATE*: 2026-05-30". Without this the
+    // row has event_date=null and is invisible to every stats query.
+    if (!event_date) {
+        event_date = extractDateFromText((message.text as string) || '');
+    }
 
-    // Extract Q information
-    const q_slack_user_id = extractQSlackUserId(eventPayload, event_kind);
+    // Extract Q (metadata first, then the "Q:" line of a hand-typed backblast).
+    const messageText = (message.text as string) || '';
+    const q_slack_user_id = extractQSlackUserId(eventPayload, event_kind, messageText);
+    // Resilient: a failed name lookup must not drop the whole event — keep the
+    // stats-critical q_slack_user_id even if display-name resolution fails.
     const q_name = q_slack_user_id
-        ? await resolveSlackUserName(q_slack_user_id)
+        ? await resolveSlackUserName(q_slack_user_id).catch(() => null)
         : null;
 
-    // Extract PAX count
-    const pax_count = extractPaxCount(eventPayload, event_kind);
+    // Extract PAX count (metadata first, then the "COUNT:"/"PAX:" line of text).
+    const pax_count = extractPaxCount(eventPayload, event_kind, messageText);
 
     // Render HTML content
     const userLookup = async (userId: string) => resolveSlackUserName(userId);
@@ -124,9 +145,9 @@ function determineEventKind(eventType: string, message: Record<string, unknown>)
         return 'preblast';
     }
 
-    // Fallback: check message text
+    // Fallback: check message text (tolerate leading Slack markup like *Backblast!*)
     const text = (message.text as string) || '';
-    const lowerText = text.toLowerCase();
+    const lowerText = stripLeadingMarkup(text).toLowerCase();
 
     if (lowerText.startsWith('backblast')) {
         return 'backblast';
@@ -151,14 +172,16 @@ function extractTitle(
         return eventPayload.title;
     }
 
-    // Fallback: parse from message text
+    // Fallback: parse from message text (tolerate leading/trailing Slack markup
+    // like *Backblast! Germantown*)
     const text = (message.text as string) || '';
-    const firstLine = text.split('\n')[0] || '';
+    const firstLine = stripLeadingMarkup(text.split('\n')[0] || '');
 
     // Match "Backblast! Title" or "Preblast: Title" patterns
     const match = firstLine.match(/^(?:backblast|preblast)[!:]?\s*(.+)?$/i);
     if (match && match[1]) {
-        return match[1].trim();
+        const title = match[1].trim().replace(/[*_~`]+$/, '').trim();
+        return title || null;
     }
 
     return null;
@@ -234,17 +257,53 @@ function extractDateFromBlocks(blocks: unknown[]): string | null {
         const b = block as Record<string, unknown>;
         const text = (b.text as Record<string, unknown>)?.text as string | undefined;
         if (!text) continue;
+        const found = extractDateFromText(text);
+        if (found) return found;
+    }
+    return null;
+}
 
-        const match = text.match(/\*?DATE\*?:\s*(\d{4}-\d{2}-\d{2})/i);
-        if (match) {
-            return match[1];
-        }
+/**
+ * Extract a "*DATE*: 2026-05-30" (or MM/DD/YYYY) marker from raw text. Single
+ * source of truth for the DATE pattern, used by both the block scan and the
+ * hand-typed-text fallback.
+ */
+function extractDateFromText(text: string): string | null {
+    if (!text) return null;
+    const iso = text.match(/\*?DATE\*?:\s*(\d{4}-\d{2}-\d{2})/i);
+    if (iso) return iso[1];
+    const us = text.match(/\*?DATE\*?:\s*(\d{1,2}\/\d{1,2}\/\d{4})/i);
+    if (us) return parseDate(us[1]);
+    return null;
+}
 
-        // Also try US date format: MM/DD/YYYY
-        const usMatch = text.match(/\*?DATE\*?:\s*(\d{1,2}\/\d{1,2}\/\d{4})/i);
-        if (usMatch) {
-            return parseDate(usMatch[1]);
-        }
+/**
+ * Parse the "Q:" line of a hand-typed backblast for the first Slack user id.
+ * Tolerates leading markup (`*Q*:`). Returns null when absent.
+ */
+function extractQIdFromText(text: string): string | null {
+    if (!text) return null;
+    const line = text.split('\n').find((l) => /^\s*[*_~`>]*\s*Q\s*[*_~`]*\s*:/i.test(l));
+    if (!line) return null;
+    const m = line.match(/<@(U[A-Z0-9]{7,})>/);
+    return m ? m[1] : null;
+}
+
+/**
+ * Read PAX headcount from a hand-typed backblast: prefer the "COUNT:" line,
+ * else count the <@U...> mentions on the "PAX:" line. Returns null when absent.
+ */
+function extractCountFromText(text: string): number | null {
+    if (!text) return null;
+    const countMatch = text.match(/^\s*[*_~`>]*\s*COUNT\s*[*_~`]*\s*:\s*(\d+)/im);
+    if (countMatch) {
+        const n = parseInt(countMatch[1], 10);
+        if (!isNaN(n)) return n;
+    }
+    const paxLine = text.split('\n').find((l) => /^\s*[*_~`>]*\s*PAX\s*[*_~`]*\s*:/i.test(l));
+    if (paxLine) {
+        const ids = paxLine.match(/<@U[A-Z0-9]{7,}>/g);
+        if (ids && ids.length) return ids.length;
     }
     return null;
 }
@@ -269,11 +328,17 @@ function extractLocation(eventPayload: Record<string, unknown>): string | null {
  */
 function extractQSlackUserId(
     eventPayload: Record<string, unknown>,
-    eventKind: EventKind
+    eventKind: EventKind,
+    messageText = ''
 ): string | null {
-    // Backblast: the_q contains Slack user ID
+    // Backblast: the_q contains Slack user ID (Slackblast app)
     if (eventKind === 'backblast' && eventPayload.the_q) {
         return String(eventPayload.the_q);
+    }
+
+    // Fallback: hand-typed backblast — read the "Q:" line of the message text.
+    if (eventKind === 'backblast') {
+        return extractQIdFromText(messageText);
     }
 
     // Preblast: qs[] contains external IDs (not Slack IDs)
@@ -288,9 +353,10 @@ function extractQSlackUserId(
  */
 function extractPaxCount(
     eventPayload: Record<string, unknown>,
-    eventKind: EventKind
+    eventKind: EventKind,
+    messageText = ''
 ): number | null {
-    // Backblast: count from the_pax array length
+    // Backblast: count from the_pax array length (Slackblast app)
     if (eventKind === 'backblast' && Array.isArray(eventPayload.the_pax)) {
         return eventPayload.the_pax.length;
     }
@@ -304,6 +370,11 @@ function extractPaxCount(
     if (eventPayload.count !== undefined) {
         const count = parseInt(String(eventPayload.count), 10);
         if (!isNaN(count)) return count;
+    }
+
+    // Fallback: hand-typed backblast — read the COUNT line, else count PAX mentions.
+    if (eventKind === 'backblast') {
+        return extractCountFromText(messageText);
     }
 
     return null;
@@ -431,8 +502,8 @@ export function isBackblastPayload(rawPayload: string): boolean {
             return true;
         }
 
-        // Check text
-        return text.toLowerCase().startsWith('backblast');
+        // Check text (tolerate leading Slack markup like *Backblast!*)
+        return stripLeadingMarkup(text).toLowerCase().startsWith('backblast');
     } catch {
         return false;
     }
@@ -456,7 +527,7 @@ export function isPreblastPayload(rawPayload: string): boolean {
             return true;
         }
 
-        return text.toLowerCase().startsWith('preblast');
+        return stripLeadingMarkup(text).toLowerCase().startsWith('preblast');
     } catch {
         return false;
     }
