@@ -1,6 +1,6 @@
 import { parseTimeRange } from "./timeRange";
 import { getMonthlyPaxRecap } from "./getMonthlyPaxRecap";
-import type { PaxRecapRow } from "./getMonthlyPaxRecap";
+import type { PaxRecapRow, UnreachableRow } from "./getMonthlyPaxRecap";
 
 const DEFAULT_SITE_URL = "https://www.f3marietta.com";
 
@@ -52,6 +52,7 @@ export type RecapSample = {
 export type RecapPlan = {
   window: RecapWindow;
   recipients: PaxRecapRow[];
+  unreachable: UnreachableRow[];
   sample: RecapSample | null;
 };
 
@@ -67,7 +68,7 @@ export async function planMonthlyRecap(now: Date = new Date()): Promise<RecapPla
     throw new Error("Failed to compute last-month range");
   }
   const monthLabel = formatRecapMonth(range.from);
-  const recipients = await getMonthlyPaxRecap(range);
+  const { recipients, unreachable } = await getMonthlyPaxRecap(range);
   const window = {
     from: range.from.toISOString().slice(0, 10),
     to: range.to.toISOString().slice(0, 10),
@@ -76,6 +77,7 @@ export async function planMonthlyRecap(now: Date = new Date()): Promise<RecapPla
   return {
     window,
     recipients,
+    unreachable,
     sample: buildRecapSample(recipients, monthLabel),
   };
 }

@@ -35,5 +35,7 @@ export async function GET(request: Request) {
       url: buildPaxRecapUrl(r.paxSlug),
     })),
     recipientCount: plan.recipients.length,
+    unreachable: plan.unreachable,
+    unreachableCount: plan.unreachable.length,
   });
 }
