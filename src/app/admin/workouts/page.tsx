@@ -167,12 +167,12 @@ export default function WorkoutsAdminPage() {
       <SectionHead eyebrow="§ Admin · Workouts" h2="Schedule Manager" align="left" />
 
       {/* Toolbar */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-[#8899aa]">Filter:</span>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mb-1">
+          <span className="text-xs text-[#8899aa] shrink-0">Filter:</span>
           <button
             onClick={() => setRegionFilter(null)}
-            className={`px-2.5 py-1 rounded-full text-xs transition-colors ${
+            className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap shrink-0 transition-colors ${
               !regionFilter
                 ? "bg-[#4A76A8] text-white"
                 : "bg-[#23334a] text-gray-400 hover:text-white"
@@ -186,7 +186,7 @@ export default function WorkoutsAdminPage() {
               onClick={() =>
                 setRegionFilter(regionFilter === r.id ? null : r.id)
               }
-              className={`px-2.5 py-1 rounded-full text-xs transition-colors ${
+              className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap shrink-0 transition-colors ${
                 regionFilter === r.id
                   ? "bg-[#4A76A8] text-white"
                   : "bg-[#23334a] text-gray-400 hover:text-white"

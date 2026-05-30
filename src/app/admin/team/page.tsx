@@ -190,8 +190,8 @@ export default function AdminTeamPage() {
                 {group.length === 0 ? (
                   <p className="font-mono text-xs text-muted px-1">// None</p>
                 ) : (
-                  <div className="border border-line-soft overflow-hidden">
-                    <table className="w-full text-sm">
+                  <div className="border border-line-soft overflow-x-auto">
+                    <table className="w-full min-w-[560px] text-sm">
                       <thead>
                         <tr className="border-b border-line-soft text-left bg-bone/30">
                           <th className="px-4 py-2">
