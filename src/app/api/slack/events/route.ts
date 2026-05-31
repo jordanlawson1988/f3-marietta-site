@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { getSql } from '@/lib/db';
 import { verifySlackSignature } from '@/lib/slack/slackVerify';
 import { normalizeSlackMessage, isBackblastPayload, isPreblastPayload } from '@/lib/slack/normalizeSlackMessage';
+import { extractSlackImageFiles, rehostSlackImageFiles, appendImageBlocks } from '@/lib/slack/slackImages';
 import type { NormalizedEvent } from '@/types/f3Event';
 
 // Slack event types
@@ -163,6 +164,22 @@ async function handleF3EventUpsert(
     try {
         // Normalize the Slack message
         const normalized = await normalizeSlackMessage(rawPayload, aoDisplayName);
+
+        // Re-host any human-uploaded photos (Slack file attachments) to Vercel
+        // Blob and inject image blocks so the display surfaces them. Non-fatal.
+        try {
+            const envelope = JSON.parse(rawPayload);
+            const msg = envelope?.event?.message || envelope?.event || {};
+            const imageFiles = extractSlackImageFiles(msg);
+            if (imageFiles.length > 0) {
+                const urls = await rehostSlackImageFiles(imageFiles);
+                if (urls.length > 0) {
+                    normalized.content_json = appendImageBlocks(normalized.content_json, urls);
+                }
+            }
+        } catch (photoErr) {
+            console.error('[slack/events] photo rehost failed (non-fatal):', photoErr);
+        }
 
         // Prepare the f3_events record
         const record = {
