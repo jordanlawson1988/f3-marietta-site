@@ -1,5 +1,6 @@
 import { getSql } from '@/lib/db';
 import { normalizeSlackMessage, isBackblastPayload, isPreblastPayload } from '@/lib/slack/normalizeSlackMessage';
+import { extractSlackImageFiles, rehostSlackImageFiles, appendImageBlocks } from '@/lib/slack/slackImages';
 
 export interface ReconcileResult {
   processed: number;
@@ -17,6 +18,7 @@ interface SlackMessage {
   thread_ts?: string;
   metadata?: Record<string, unknown>;
   blocks?: unknown[];
+  files?: unknown[];
 }
 
 interface SlackConversationsResponse {
@@ -92,6 +94,7 @@ export async function reconcileEnabledChannels(): Promise<ReconcileResult> {
             bot_id: message.bot_id,
             metadata: message.metadata,
             blocks: message.blocks,
+            files: message.files,
           },
         });
 
@@ -101,6 +104,20 @@ export async function reconcileEnabledChannels(): Promise<ReconcileResult> {
 
         try {
           const normalized = await normalizeSlackMessage(rawPayload, channel.ao_display_name);
+
+          // Re-host human-uploaded photos (Slack file attachments) to Blob and
+          // inject image blocks so the display surfaces them. Non-fatal.
+          try {
+            const imageFiles = extractSlackImageFiles({ files: message.files });
+            if (imageFiles.length > 0) {
+              const urls = await rehostSlackImageFiles(imageFiles);
+              if (urls.length > 0) {
+                normalized.content_json = appendImageBlocks(normalized.content_json, urls);
+              }
+            }
+          } catch (photoErr) {
+            console.error('[reconcile] photo rehost failed (non-fatal):', photoErr);
+          }
 
           await sql`
             INSERT INTO f3_events (slack_channel_id, slack_message_ts, slack_permalink, ao_display_name, event_kind, title, event_date, event_time, location_text, q_slack_user_id, q_name, pax_count, content_text, content_html, content_json, raw_envelope_json, is_deleted)
