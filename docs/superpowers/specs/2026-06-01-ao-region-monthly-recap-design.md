@@ -112,11 +112,13 @@ Mirrors the just-shipped `monthly-pax-recap` for consistency and maximum reuse.
     attendance fact once (`getAttendanceFact`), the AO channel map
     (`ao_channels` where `is_enabled`), and the name maps
     (`slack_users` + `getAliasMap`). Slices the fact per-AO and region-wide and
-    emits a plan. **AO matching:** a fact row belongs to an enabled AO when
-    `nameToSlug(fact.aoName) === nameToSlug(ao_channels.ao_display_name)`. **Region
-    totals count every fact row** in the window (the whole Marietta region),
-    including rows whose AO has no enabled channel — those count region-wide but
-    produce no per-AO post.
+    emits a plan. **AO scoping:** `getAttendanceFact` already JOINs `ao_channels`
+    and filters to `is_enabled = true`, so every fact row is from an enabled AO.
+    Per-AO blocks group fact rows by `nameToSlug(fact.aoName)` and match to a
+    channel by `nameToSlug(ao_display_name)`. **Region totals aggregate all fact
+    rows** in the window. An enabled AO with no fact rows is skipped; a fact slug
+    with no matching channel row (name drift) still counts region-wide and is
+    surfaced in the run-report rather than silently dropped.
   - `rankPaxForRecap(factSubset, maps): RankedPax[]` — pure aggregation →
     `{ label, posts, qd }[]` sorted posts desc / label asc. Shared by AO and
     region. Includes **unmapped/nickname-only PAX by label** (see edge cases).
