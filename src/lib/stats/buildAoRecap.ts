@@ -9,6 +9,7 @@ import { getAttendanceFact } from "./getAttendanceFact";
 import { getAliasMap } from "./aliasMap";
 import { parseTimeRange } from "./timeRange";
 import { formatRecapMonth, getSiteBaseUrl, type RecapWindow } from "./buildPaxRecap";
+import { getFngsList, type FngEntry } from "./getFngsList";
 
 export type RankedPax = { label: string; posts: number; qd: number };
 
@@ -76,11 +77,45 @@ function statsFor(fact: FactRow[], maps: RecapMaps): BlockStats {
   };
 }
 
+export type FngHonoree = { label: string; slackUserId: string | null };
+export type FngWelcome = { count: number; honorees: FngHonoree[] };
+
+/** Build a welcome bucket from FNG entries (already one-per-identity). Sorts
+ *  honorees by label asc for deterministic output; null when there are none. */
+function welcomeFrom(entries: FngEntry[]): FngWelcome | null {
+  if (entries.length === 0) return null;
+  const honorees = entries
+    .map((e) => ({ label: e.fngLabel, slackUserId: e.slackUserId }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+  return { count: honorees.length, honorees };
+}
+
+/** Group deduped FNG entries into per-AO buckets (keyed by aoSlug) and a region
+ *  bucket spanning all entries. Σ(per-AO counts) == region count. Pure. */
+export function groupFngs(entries: FngEntry[]): {
+  byAoSlug: Map<string, FngWelcome>;
+  region: FngWelcome | null;
+} {
+  const bySlug = new Map<string, FngEntry[]>();
+  for (const e of entries) {
+    const arr = bySlug.get(e.aoSlug) ?? [];
+    arr.push(e);
+    bySlug.set(e.aoSlug, arr);
+  }
+  const byAoSlug = new Map<string, FngWelcome>();
+  for (const [slug, arr] of bySlug) {
+    const w = welcomeFrom(arr);
+    if (w) byAoSlug.set(slug, w);
+  }
+  return { byAoSlug, region: welcomeFrom(entries) };
+}
+
 export function buildRecapBlocks(
   fact: FactRow[],
   aoChannels: AoChannel[],
   maps: RecapMaps,
   baseUrl: string,
+  fngEntries: FngEntry[] = [],
 ): { aoBlocks: AoRecapBlock[]; regionBlock: RegionRecapBlock | null } {
   const base = baseUrl.replace(/\/+$/, "");
   const aoBlocks: AoRecapBlock[] = [];
