@@ -206,7 +206,7 @@ export async function planMonthlyAoRecap(now: Date = new Date()): Promise<AoReca
   };
 
   const sql = getSql();
-  const [fact, channelRows, slackUsers, aliasMap] = await Promise.all([
+  const [fact, channelRows, slackUsers, aliasMap, fngsList] = await Promise.all([
     getAttendanceFact({ from: range.from, to: range.to }),
     sql`SELECT slack_channel_id, ao_display_name FROM ao_channels WHERE is_enabled = true` as
       unknown as Promise<Array<{ slack_channel_id: string; ao_display_name: string }>>,
@@ -214,6 +214,7 @@ export async function planMonthlyAoRecap(now: Date = new Date()): Promise<AoReca
         WHERE display_name IS NOT NULL OR real_name IS NOT NULL` as
       unknown as Promise<Array<{ slack_user_id: string; display_name: string | null; real_name: string | null }>>,
     getAliasMap(),
+    getFngsList(range),
   ]);
 
   const nameById = new Map<string, string>();
@@ -233,7 +234,7 @@ export async function planMonthlyAoRecap(now: Date = new Date()): Promise<AoReca
     slackChannelId: c.slack_channel_id, aoDisplayName: c.ao_display_name,
   }));
   const { aoBlocks, regionBlock } = buildRecapBlocks(
-    fact, aoChannels, { nameById, idByName, aliasMap }, getSiteBaseUrl(),
+    fact, aoChannels, { nameById, idByName, aliasMap }, getSiteBaseUrl(), fngsList.entries,
   );
   const postedSlugs = new Set(aoBlocks.map((b) => b.slug));
   const skippedEmpty = aoChannels
