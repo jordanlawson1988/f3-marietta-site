@@ -8,6 +8,7 @@ import { claimRecapPost, releaseRecapPost, setRecapPostTs } from "@/lib/stats/re
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+export const runtime = "nodejs";
 
 /**
  * Monthly AO + region recap cron. On the 1st, posts a deterministic recap of
@@ -80,7 +81,7 @@ export async function GET(request: Request) {
     await sleep(250);
   }
 
-  const skippedEmpty: string[] = []; // AOs with 0 posts are absent from plan.aoBlocks
+  const skippedEmpty = plan.skippedEmpty;
   const report = buildAoRecapRunReport({ monthLabel: plan.window.monthLabel, mode, results, skippedEmpty });
   const { posted: reportPosted, error: reportError } = await postAdminReport(report);
 

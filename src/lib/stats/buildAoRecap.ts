@@ -49,7 +49,7 @@ export type ShoutOut = { names: string[]; count: number };
 
 type BlockStats = {
   posts: number; beatdowns: number; paxCount: number;
-  topPosters: ShoutOut; topQs: ShoutOut | null; top10: RankedPax[];
+  topPosters: ShoutOut | null; topQs: ShoutOut | null; top10: RankedPax[];
 };
 export type AoRecapBlock = BlockStats & {
   scope: "ao"; aoDisplayName: string; slug: string; channelId: string; url: string;
@@ -70,7 +70,7 @@ function statsFor(fact: FactRow[], maps: RecapMaps): BlockStats {
     posts: ranked.reduce((n, r) => n + r.posts, 0),
     beatdowns: new Set(fact.map((f) => f.eventId)).size,
     paxCount: ranked.length,
-    topPosters: shoutFrom(ranked, "posts") ?? { names: [], count: 0 },
+    topPosters: shoutFrom(ranked, "posts"),
     topQs: shoutFrom(ranked, "qd"),
     top10: ranked.slice(0, 10),
   };
@@ -118,8 +118,8 @@ export function buildAoRecapMessage(b: AoRecapBlock, monthLabel: string): string
     `*${b.aoDisplayName} — ${monthLabel} Recap* 🏋️`,
     `${plural(b.posts, "post")} · ${plural(b.beatdowns, "beatdown")} · ${b.paxCount} PAX`,
     "",
-    shoutLine("🏆", "Most posts", b.topPosters),
   ];
+  if (b.topPosters) lines.push(shoutLine("🏆", "Most posts", b.topPosters));
   if (b.topQs) lines.push(shoutLine("🎤", "Most Q'd", b.topQs));
   lines.push("", topTen("Top 10 by posts:", b.top10), "", `Deep dive → ${b.url}`);
   return lines.join("\n");
@@ -130,8 +130,8 @@ export function buildRegionRecapMessage(b: RegionRecapBlock, monthLabel: string)
     `*F3 Marietta — ${monthLabel} Region Recap* 🌎`,
     `${plural(b.posts, "post")} · ${plural(b.beatdowns, "beatdown")} · ${b.paxCount} PAX · ${plural(b.aoCount, "AO")}`,
     "",
-    shoutLine("🏆", "Most posts (region)", b.topPosters),
   ];
+  if (b.topPosters) lines.push(shoutLine("🏆", "Most posts (region)", b.topPosters));
   if (b.topQs) lines.push(shoutLine("🎤", "Most Q'd (region)", b.topQs));
   lines.push("", topTen("Top 10 PAX region-wide:", b.top10), "", `Deep dive → ${b.url}`);
   return lines.join("\n");
@@ -141,6 +141,8 @@ export type AoRecapPlan = {
   window: RecapWindow;
   aoBlocks: AoRecapBlock[];
   regionBlock: RegionRecapBlock | null;
+  /** Enabled AOs that had zero posts in the window (no per-AO message). */
+  skippedEmpty: string[];
 };
 
 export async function planMonthlyAoRecap(now: Date = new Date()): Promise<AoRecapPlan> {
@@ -182,5 +184,9 @@ export async function planMonthlyAoRecap(now: Date = new Date()): Promise<AoReca
   const { aoBlocks, regionBlock } = buildRecapBlocks(
     fact, aoChannels, { nameById, idByName, aliasMap }, getSiteBaseUrl(),
   );
-  return { window, aoBlocks, regionBlock };
+  const postedSlugs = new Set(aoBlocks.map((b) => b.slug));
+  const skippedEmpty = aoChannels
+    .filter((c) => !postedSlugs.has(nameToSlug(c.aoDisplayName)))
+    .map((c) => c.aoDisplayName);
+  return { window, aoBlocks, regionBlock, skippedEmpty };
 }
