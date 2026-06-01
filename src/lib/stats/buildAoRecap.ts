@@ -97,3 +97,37 @@ export function buildRecapBlocks(
   };
   return { aoBlocks, regionBlock };
 }
+
+function plural(n: number, word: string): string {
+  return `${n} ${word}${n === 1 ? "" : "s"}`;
+}
+function shoutLine(emoji: string, label: string, s: ShoutOut): string {
+  return `${emoji} ${label}: ${s.names.join(", ")} (${s.count})`;
+}
+function topTen(headerLine: string, top10: RankedPax[]): string {
+  return [headerLine, ...top10.map((p, i) => `${i + 1}. ${p.label} — ${p.posts}`)].join("\n");
+}
+
+export function buildAoRecapMessage(b: AoRecapBlock, monthLabel: string): string {
+  const lines = [
+    `*${b.aoDisplayName} — ${monthLabel} Recap* 🏋️`,
+    `${plural(b.posts, "post")} · ${plural(b.beatdowns, "beatdown")} · ${b.paxCount} PAX`,
+    "",
+    shoutLine("🏆", "Most posts", b.topPosters),
+  ];
+  if (b.topQs) lines.push(shoutLine("🎤", "Most Q'd", b.topQs));
+  lines.push("", topTen("Top 10 by posts:", b.top10), "", `Deep dive → ${b.url}`);
+  return lines.join("\n");
+}
+
+export function buildRegionRecapMessage(b: RegionRecapBlock, monthLabel: string): string {
+  const lines = [
+    `*F3 Marietta — ${monthLabel} Region Recap* 🌎`,
+    `${plural(b.posts, "post")} · ${plural(b.beatdowns, "beatdown")} · ${b.paxCount} PAX · ${plural(b.aoCount, "AO")}`,
+    "",
+    shoutLine("🏆", "Most posts (region)", b.topPosters),
+  ];
+  if (b.topQs) lines.push(shoutLine("🎤", "Most Q'd (region)", b.topQs));
+  lines.push("", topTen("Top 10 PAX region-wide:", b.top10), "", `Deep dive → ${b.url}`);
+  return lines.join("\n");
+}
