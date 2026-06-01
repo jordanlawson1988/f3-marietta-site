@@ -4,6 +4,11 @@ import { nameToSlug } from "./slugify";
 // it here so callers importing from either stats module get the same type.
 import type { RecapMaps } from "./getMonthlyPaxRecap";
 export type { RecapMaps };
+import { getSql } from "@/lib/db";
+import { getAttendanceFact } from "./getAttendanceFact";
+import { getAliasMap } from "./aliasMap";
+import { parseTimeRange } from "./timeRange";
+import { formatRecapMonth, getSiteBaseUrl, type RecapWindow } from "./buildPaxRecap";
 
 export type RankedPax = { label: string; posts: number; qd: number };
 
@@ -130,4 +135,52 @@ export function buildRegionRecapMessage(b: RegionRecapBlock, monthLabel: string)
   if (b.topQs) lines.push(shoutLine("🎤", "Most Q'd (region)", b.topQs));
   lines.push("", topTen("Top 10 PAX region-wide:", b.top10), "", `Deep dive → ${b.url}`);
   return lines.join("\n");
+}
+
+export type AoRecapPlan = {
+  window: RecapWindow;
+  aoBlocks: AoRecapBlock[];
+  regionBlock: RegionRecapBlock | null;
+};
+
+export async function planMonthlyAoRecap(now: Date = new Date()): Promise<AoRecapPlan> {
+  const range = parseTimeRange({ range: "last-month" }, now);
+  if (!range) throw new Error("Failed to compute last-month range");
+  const window: RecapWindow = {
+    from: range.from.toISOString().slice(0, 10),
+    to: range.to.toISOString().slice(0, 10),
+    monthLabel: formatRecapMonth(range.from),
+  };
+
+  const sql = getSql();
+  const [fact, channelRows, slackUsers, aliasMap] = await Promise.all([
+    getAttendanceFact({ from: range.from, to: range.to }),
+    sql`SELECT slack_channel_id, ao_display_name FROM ao_channels WHERE is_enabled = true` as
+      unknown as Promise<Array<{ slack_channel_id: string; ao_display_name: string }>>,
+    sql`SELECT slack_user_id, display_name, real_name FROM slack_users
+        WHERE display_name IS NOT NULL OR real_name IS NOT NULL` as
+      unknown as Promise<Array<{ slack_user_id: string; display_name: string | null; real_name: string | null }>>,
+    getAliasMap(),
+  ]);
+
+  const nameById = new Map<string, string>();
+  const idByName = new Map<string, string>();
+  for (const u of slackUsers) {
+    const name = u.display_name ?? u.real_name;
+    if (!name) continue;
+    nameById.set(u.slack_user_id, name);
+    idByName.set(name.toLowerCase(), u.slack_user_id);
+  }
+  for (const [id, name] of aliasMap) {
+    if (!nameById.has(id)) nameById.set(id, name);
+    if (!idByName.has(name.toLowerCase())) idByName.set(name.toLowerCase(), id);
+  }
+
+  const aoChannels: AoChannel[] = channelRows.map((c) => ({
+    slackChannelId: c.slack_channel_id, aoDisplayName: c.ao_display_name,
+  }));
+  const { aoBlocks, regionBlock } = buildRecapBlocks(
+    fact, aoChannels, { nameById, idByName, aliasMap }, getSiteBaseUrl(),
+  );
+  return { window, aoBlocks, regionBlock };
 }
