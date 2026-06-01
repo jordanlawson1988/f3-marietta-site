@@ -39,3 +39,18 @@ test("dry-run shows what would post", () => {
   assert.match(out, /Mode: dry-run/);
   assert.match(out, /Would post: 1/);
 });
+
+test("live report includes new-FNG total when > 0", () => {
+  const out = buildAoRecapRunReport({
+    monthLabel: "May 2026", mode: "live",
+    results: [r({})], skippedEmpty: [], fngTotal: 4,
+  });
+  assert.match(out, /New FNGs celebrated: 4/);
+});
+
+test("report omits FNG line when total is 0 or absent", () => {
+  const out = buildAoRecapRunReport({
+    monthLabel: "May 2026", mode: "live", results: [r({})], skippedEmpty: [],
+  });
+  assert.doesNotMatch(out, /New FNGs celebrated/);
+});

@@ -17,10 +17,12 @@ export async function GET(request: Request) {
   const aoPosts = plan.aoBlocks.map((b) => ({
     aoDisplayName: b.aoDisplayName, channelId: b.channelId,
     posts: b.posts, beatdowns: b.beatdowns, paxCount: b.paxCount,
+    fngCount: b.fngs?.count ?? 0,
     message: buildAoRecapMessage(b, plan.window.monthLabel),
   }));
   const regionPost = plan.regionBlock
     ? { channelId: process.env.SLACK_NEWSLETTER_CHANNEL_ID ?? null,
+        fngCount: plan.regionBlock.fngs?.count ?? 0,
         message: buildRegionRecapMessage(plan.regionBlock, plan.window.monthLabel) }
     : null;
 
