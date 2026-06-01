@@ -54,8 +54,12 @@ type BlockStats = {
 };
 export type AoRecapBlock = BlockStats & {
   scope: "ao"; aoDisplayName: string; slug: string; channelId: string; url: string;
+  fngs: FngWelcome | null;
 };
-export type RegionRecapBlock = BlockStats & { scope: "region"; aoCount: number; url: string };
+export type RegionRecapBlock = BlockStats & {
+  scope: "region"; aoCount: number; url: string;
+  fngs: FngWelcome | null;
+};
 
 /** Top names tied at the max value of `metric`; null when the max is 0. */
 function shoutFrom(ranked: RankedPax[], metric: "posts" | "qd"): ShoutOut | null {
@@ -118,6 +122,7 @@ export function buildRecapBlocks(
   fngEntries: FngEntry[] = [],
 ): { aoBlocks: AoRecapBlock[]; regionBlock: RegionRecapBlock | null } {
   const base = baseUrl.replace(/\/+$/, "");
+  const { byAoSlug, region } = groupFngs(fngEntries);
   const aoBlocks: AoRecapBlock[] = [];
   for (const ch of aoChannels) {
     const slug = nameToSlug(ch.aoDisplayName);
@@ -126,6 +131,7 @@ export function buildRecapBlocks(
     aoBlocks.push({
       scope: "ao", aoDisplayName: ch.aoDisplayName, slug, channelId: ch.slackChannelId,
       url: `${base}/stats?range=last-month&ao=${slug}`,
+      fngs: byAoSlug.get(slug) ?? null,
       ...statsFor(subset, maps),
     });
   }
@@ -133,6 +139,7 @@ export function buildRecapBlocks(
     scope: "region",
     aoCount: new Set(fact.map((f) => nameToSlug(f.aoName))).size,
     url: `${base}/stats?range=last-month`,
+    fngs: region,
     ...statsFor(fact, maps),
   };
   return { aoBlocks, regionBlock };

@@ -12,6 +12,7 @@ const aoBlock: AoRecapBlock = {
   topQs: { names: ["Mr Clean"], count: 5 },
   top10: [{ label: "Milton", posts: 16, qd: 4 }, { label: "Mr Clean", posts: 14, qd: 5 }],
   url: "https://www.f3marietta.com/stats?range=last-month&ao=the-battlefield",
+  fngs: null,
 };
 
 test("AO message has header, stat line, shoutouts, top-10, url", () => {
@@ -41,6 +42,7 @@ test("region message has region header, AO count, region url + labels", () => {
     topPosters: { names: ["Milton"], count: 41 }, topQs: { names: ["Mr Clean"], count: 12 },
     top10: [{ label: "Milton", posts: 41, qd: 3 }],
     url: "https://www.f3marietta.com/stats?range=last-month",
+    fngs: null,
   };
   const msg = buildRegionRecapMessage(region, "May 2026");
   assert.match(msg, /^\*F3 Marietta — May 2026 Region Recap\* 🌎/);
