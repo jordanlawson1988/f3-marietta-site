@@ -154,13 +154,21 @@ function shoutLine(emoji: string, label: string, s: ShoutOut): string {
 function topTen(headerLine: string, top10: RankedPax[]): string {
   return [headerLine, ...top10.map((p, i) => `${i + 1}. ${p.label} — ${p.posts}`)].join("\n");
 }
+function renderHonorees(f: FngWelcome): string {
+  return f.honorees.map((h) => (h.slackUserId ? `<@${h.slackUserId}>` : h.label)).join(", ");
+}
+function fngLine(f: FngWelcome, region: boolean): string {
+  const when = region ? "joined the region this month" : "this month";
+  return `🌱 ${plural(f.count, "new FNG")} ${when} — welcome ${renderHonorees(f)}! 🎉`;
+}
 
 export function buildAoRecapMessage(b: AoRecapBlock, monthLabel: string): string {
   const lines = [
     `*${b.aoDisplayName} — ${monthLabel} Recap* 🏋️`,
     `${plural(b.posts, "post")} · ${plural(b.beatdowns, "beatdown")} · ${b.paxCount} PAX`,
-    "",
   ];
+  if (b.fngs) lines.push(fngLine(b.fngs, false));
+  lines.push("");
   if (b.topPosters) lines.push(shoutLine("🏆", "Most posts", b.topPosters));
   if (b.topQs) lines.push(shoutLine("🎤", "Most Q'd", b.topQs));
   lines.push("", topTen("Top 10 by posts:", b.top10), "", `Deep dive → ${b.url}`);
@@ -171,8 +179,9 @@ export function buildRegionRecapMessage(b: RegionRecapBlock, monthLabel: string)
   const lines = [
     `*F3 Marietta — ${monthLabel} Region Recap* 🌎`,
     `${plural(b.posts, "post")} · ${plural(b.beatdowns, "beatdown")} · ${b.paxCount} PAX · ${plural(b.aoCount, "AO")}`,
-    "",
   ];
+  if (b.fngs) lines.push(fngLine(b.fngs, true));
+  lines.push("");
   if (b.topPosters) lines.push(shoutLine("🏆", "Most posts (region)", b.topPosters));
   if (b.topQs) lines.push(shoutLine("🎤", "Most Q'd (region)", b.topQs));
   lines.push("", topTen("Top 10 PAX region-wide:", b.top10), "", `Deep dive → ${b.url}`);
