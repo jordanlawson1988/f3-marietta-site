@@ -1,4 +1,5 @@
 import type { FactRow } from "./getAttendanceFact";
+import { nameToSlug } from "./slugify";
 // RecapMaps is owned by getMonthlyPaxRecap (single source of truth); re-export
 // it here so callers importing from either stats module get the same type.
 import type { RecapMaps } from "./getMonthlyPaxRecap";
@@ -36,4 +37,63 @@ export function rankPaxForRecap(fact: FactRow[], maps: RecapMaps): RankedPax[] {
   return [...byKey.values()]
     .map((a) => ({ label: a.label, posts: a.posts.size, qd: a.qd.size }))
     .sort((x, y) => y.posts - x.posts || x.label.localeCompare(y.label));
+}
+
+export type AoChannel = { slackChannelId: string; aoDisplayName: string };
+export type ShoutOut = { names: string[]; count: number };
+
+type BlockStats = {
+  posts: number; beatdowns: number; paxCount: number;
+  topPosters: ShoutOut; topQs: ShoutOut | null; top10: RankedPax[];
+};
+export type AoRecapBlock = BlockStats & {
+  scope: "ao"; aoDisplayName: string; slug: string; channelId: string; url: string;
+};
+export type RegionRecapBlock = BlockStats & { scope: "region"; aoCount: number; url: string };
+
+/** Top names tied at the max value of `metric`; null when the max is 0. */
+function shoutFrom(ranked: RankedPax[], metric: "posts" | "qd"): ShoutOut | null {
+  if (ranked.length === 0) return null;
+  const max = Math.max(...ranked.map((r) => r[metric]));
+  if (max === 0) return null;
+  return { names: ranked.filter((r) => r[metric] === max).map((r) => r.label), count: max };
+}
+
+function statsFor(fact: FactRow[], maps: RecapMaps): BlockStats {
+  const ranked = rankPaxForRecap(fact, maps);
+  return {
+    posts: ranked.reduce((n, r) => n + r.posts, 0),
+    beatdowns: new Set(fact.map((f) => f.eventId)).size,
+    paxCount: ranked.length,
+    topPosters: shoutFrom(ranked, "posts") ?? { names: [], count: 0 },
+    topQs: shoutFrom(ranked, "qd"),
+    top10: ranked.slice(0, 10),
+  };
+}
+
+export function buildRecapBlocks(
+  fact: FactRow[],
+  aoChannels: AoChannel[],
+  maps: RecapMaps,
+  baseUrl: string,
+): { aoBlocks: AoRecapBlock[]; regionBlock: RegionRecapBlock | null } {
+  const base = baseUrl.replace(/\/+$/, "");
+  const aoBlocks: AoRecapBlock[] = [];
+  for (const ch of aoChannels) {
+    const slug = nameToSlug(ch.aoDisplayName);
+    const subset = fact.filter((f) => nameToSlug(f.aoName) === slug);
+    if (subset.length === 0) continue; // skip AOs with no posts
+    aoBlocks.push({
+      scope: "ao", aoDisplayName: ch.aoDisplayName, slug, channelId: ch.slackChannelId,
+      url: `${base}/stats?range=last-month&ao=${slug}`,
+      ...statsFor(subset, maps),
+    });
+  }
+  const regionBlock: RegionRecapBlock | null = fact.length === 0 ? null : {
+    scope: "region",
+    aoCount: new Set(fact.map((f) => nameToSlug(f.aoName))).size,
+    url: `${base}/stats?range=last-month`,
+    ...statsFor(fact, maps),
+  };
+  return { aoBlocks, regionBlock };
 }
