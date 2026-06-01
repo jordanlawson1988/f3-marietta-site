@@ -491,3 +491,20 @@ CREATE INDEX marietta_bd_knowledge_generated_at_idx ON marietta_bd_knowledge (ge
 
 COMMENT ON TABLE beatdowns IS 'AI-generated beatdowns saved by Qs via the public Beatdown Builder';
 COMMENT ON TABLE marietta_bd_knowledge IS 'Nightly distilled summary of all F3 Marietta backblast patterns; consumed by the Beatdown Builder generator';
+
+-- ============================================================================
+-- Monthly AO/region recap idempotency guard
+-- ============================================================================
+-- One row per (recapped month, channel). The monthly-ao-recap cron claims a
+-- row before posting and skips channels already posted for the period, so live
+-- runs are safe to re-trigger (no double-posts).
+CREATE TABLE IF NOT EXISTS monthly_ao_recap_posts (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  period      text NOT NULL,        -- recapped month, 'YYYY-MM'
+  channel_id  text NOT NULL,        -- Slack channel posted to
+  scope       text NOT NULL,        -- 'ao' | 'region'
+  ao_name     text,                 -- AO display name for 'ao', NULL for region
+  message_ts  text,                 -- Slack ts of the delivered message
+  posted_at   timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (period, channel_id)
+);
