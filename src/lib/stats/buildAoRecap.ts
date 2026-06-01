@@ -1,10 +1,8 @@
 import type { FactRow } from "./getAttendanceFact";
-
-export type RecapMaps = {
-  nameById: Map<string, string>;  // slack_user_id → display name
-  idByName: Map<string, string>;  // lowercased name → slack_user_id
-  aliasMap: Map<string, string>;  // slack_user_id → alias name
-};
+// RecapMaps is owned by getMonthlyPaxRecap (single source of truth); re-export
+// it here so callers importing from either stats module get the same type.
+import type { RecapMaps } from "./getMonthlyPaxRecap";
+export type { RecapMaps };
 
 export type RankedPax = { label: string; posts: number; qd: number };
 

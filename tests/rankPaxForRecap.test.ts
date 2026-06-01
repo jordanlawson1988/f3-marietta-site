@@ -39,3 +39,16 @@ test("merges a nickname token into its mapped slack id (no double count)", () =>
   assert.equal(ranked.length, 1);
   assert.deepEqual(ranked[0], { label: "Milton", posts: 2, qd: 0 });
 });
+
+test("Q'd is de-duplicated per event (two Q rows for one event count once)", () => {
+  const m = maps();
+  m.nameById.set("U1", "Milton"); m.idByName.set("milton", "U1");
+  const ranked = rankPaxForRecap([
+    fr("U1", "e1", { isQ: true }), fr("U1", "e1", { isQ: true }), fr("U1", "e2"),
+  ], m);
+  assert.deepEqual(ranked[0], { label: "Milton", posts: 2, qd: 1 });
+});
+
+test("returns an empty array for empty fact input", () => {
+  assert.deepEqual(rankPaxForRecap([], maps()), []);
+});
