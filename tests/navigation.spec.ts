@@ -26,4 +26,32 @@ test.describe("Navigation (redesign)", () => {
     await page.goto("/");
     await expect(page.getByText(/Gloom Status: Active/i)).toBeVisible();
   });
+
+  // Regression: a sticky header with a backdrop-filter (frosted glass) ghosts a stale,
+  // offset copy of the page content on iOS Safari when the viewport scrolls/resizes.
+  // The sticky header must have NO backdrop-filter and a fully opaque background.
+  test("sticky header has no backdrop-filter and an opaque background (iOS ghosting regression)", async ({ page }) => {
+    await page.goto("/");
+    const header = page.getByRole("banner");
+    await expect(header).toBeVisible();
+
+    const { backdropFilter, backgroundColor } = await header.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return {
+        backdropFilter:
+          s.backdropFilter || (s as unknown as { webkitBackdropFilter?: string }).webkitBackdropFilter || "none",
+        backgroundColor: s.backgroundColor,
+      };
+    });
+
+    expect(backdropFilter).toBe("none");
+
+    const alpha = (() => {
+      const m = backgroundColor.match(/rgba?\(([^)]+)\)/);
+      if (!m) return 0;
+      const parts = m[1].split(",").map((p) => p.trim());
+      return parts.length === 4 ? parseFloat(parts[3]) : 1;
+    })();
+    expect(alpha).toBe(1);
+  });
 });
