@@ -51,7 +51,11 @@ body {
   font-size: 16px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* `overflow-x: clip` clips horizontal overflow WITHOUT turning <body> into a
+   * scroll container. On iOS Safari, `overflow-x: hidden` on body/html makes the
+   * page a scroll container whose compositing breaks during keyboard/scroll, leaving
+   * stale "ghost" frames of content from other scroll positions. `clip` avoids that. */
+  overflow-x: clip;
 }
 
 h1, h2, h3, h4, h5, h6 {

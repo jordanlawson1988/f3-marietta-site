@@ -248,7 +248,9 @@ export function Navbar() {
     <>
       <header
         className="sticky top-0 z-40 w-full border-b border-[color:var(--line-soft)]"
-        style={{ background: "var(--bone)" }}
+        // translateZ(0) pins this sticky header to its own GPU layer so iOS Safari
+        // repaints it independently of the scrolling content (prevents ghost frames).
+        style={{ background: "var(--bone)", transform: "translateZ(0)" }}
       >
         <div className="max-w-[1320px] mx-auto flex items-center justify-between gap-6 px-7 py-3.5">
           {/* Logo */}
