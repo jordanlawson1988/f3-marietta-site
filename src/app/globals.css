@@ -42,7 +42,9 @@
   --font-serif: var(--font-dm-serif);
 }
 
-html { scroll-behavior: smooth; }
+/* No smooth scroll: iOS WebKit smears/ghosts frames during ANIMATED scrolls, and
+ * focusing an input triggers an animated scroll-into-view. `auto` (instant) avoids it. */
+html { scroll-behavior: auto; }
 
 body {
   background: var(--bone);
@@ -197,8 +199,18 @@ h1, h2, h3, h4, h5, h6 {
   clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
 }
 
+/* Pin each beatdown card to its own GPU layer so iOS WebKit repaints them as
+ * independent units during the scroll-into-view that fires when an input is
+ * focused for inline editing. Without this, cards share one layer and the
+ * pre-scroll paint is left as a transparent "ghost" over the new scroll position.
+ * Safe: these cards contain no position:fixed/absolute descendants (the swap
+ * modal is itself fixed, so translateZ only promotes it to a layer). */
+.beatdown-card > * { transform: translateZ(0); }
+
 @media print {
   nav, footer, header[role="banner"], .no-print { display: none !important; }
+  /* Drop GPU layers in print so cards don't paginate oddly. */
+  .beatdown-card > * { transform: none !important; }
   .beatdown-card { background: white !important; color: #111 !important; box-shadow: none !important; }
   .beatdown-card * { background: white !important; color: #111 !important; border-color: #999 !important; }
   body { font-size: 12pt; }
