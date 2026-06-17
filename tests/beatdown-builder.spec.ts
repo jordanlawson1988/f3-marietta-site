@@ -62,4 +62,58 @@ test.describe('AI Beatdown Builder', () => {
     await page.goto('/beatdown/zzzzzzzz');
     await expect(page).toHaveTitle(/not found|404/i);
   });
+
+  // Regression: on iOS Safari, a sticky bar with a backdrop-filter (and no opaque
+  // background) renders a stale, ghosted duplicate of the content behind it when the
+  // soft keyboard opens during inline edits — the "overlapping text" mobile bug.
+  // The action bar must therefore have NO backdrop-filter and a fully opaque background.
+  test('mobile action bar has no backdrop-filter and an opaque background (inline-edit ghosting regression)', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 }); // iPhone 12 logical viewport
+
+    await page.route('**/api/beatdown/generate', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        title: fixtureDraft.title,
+        sections: fixtureDraft.sections,
+        generation_ms: 1234,
+        model: 'gemini-2.5-flash',
+        knowledge_version: null,
+      }),
+    }));
+
+    await page.goto('/beatdown-builder');
+    const aoSelect = page.getByLabel('AO');
+    const firstOption = await aoSelect.locator('option').first().getAttribute('value');
+    if (firstOption) await aoSelect.selectOption(firstOption);
+    await page.getByRole('button', { name: /generate beatdown/i }).click();
+
+    const copyBtn = page.getByRole('button', { name: /copy as slackblast/i });
+    await expect(copyBtn).toBeVisible();
+
+    // The action bar is the sticky container wrapping Save / Copy / Print.
+    const actionBar = copyBtn.locator(
+      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " sticky ")][1]'
+    );
+    await expect(actionBar).toHaveCount(1);
+
+    const { backdropFilter, backgroundColor } = await actionBar.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return {
+        backdropFilter:
+          s.backdropFilter || (s as unknown as { webkitBackdropFilter?: string }).webkitBackdropFilter || 'none',
+        backgroundColor: s.backgroundColor,
+      };
+    });
+
+    expect(backdropFilter).toBe('none');
+
+    const alpha = (() => {
+      const m = backgroundColor.match(/rgba?\(([^)]+)\)/);
+      if (!m) return 0;
+      const parts = m[1].split(',').map((p) => p.trim());
+      return parts.length === 4 ? parseFloat(parts[3]) : 1;
+    })();
+    expect(alpha).toBe(1);
+  });
 });
