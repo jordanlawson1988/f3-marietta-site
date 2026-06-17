@@ -31,7 +31,9 @@ export default function EditableText({
 
   useEffect(() => {
     if (editing && inputRef.current) {
-      inputRef.current.focus();
+      // preventScroll: avoid the browser scroll-into-view on focus, which on iOS
+      // leaves a ghost/transparent copy of the pre-scroll content over the page.
+      inputRef.current.focus({ preventScroll: true });
       inputRef.current.select?.();
     }
   }, [editing]);

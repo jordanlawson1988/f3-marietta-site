@@ -30,6 +30,11 @@ export default function BeatdownBuilderClient({ aos, famousBeatdowns }: Props) {
   const [knowledgeVersion, setKnowledgeVersion] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Once a beatdown is generated, collapse the form out of the scroll. Keeping it
+  // mounted (via `hidden`, not unmounting) preserves the user's selections, while
+  // removing its native <select> dropdowns from the painted page — those were a
+  // source of the iOS ghost/overlap and they also make the page needlessly tall.
+  const [formOpen, setFormOpen] = useState(true);
 
   async function handleGenerate(formInputs: BeatdownInputs) {
     setError(null);
@@ -47,6 +52,7 @@ export default function BeatdownBuilderClient({ aos, famousBeatdowns }: Props) {
       setGenerationMs(data.generation_ms);
       setModel(data.model);
       setKnowledgeVersion(data.knowledge_version);
+      setFormOpen(false);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -63,12 +69,25 @@ export default function BeatdownBuilderClient({ aos, famousBeatdowns }: Props) {
         </p>
       </header>
 
-      <BeatdownForm
-        aos={aos}
-        famousBeatdowns={famousBeatdowns}
-        disabled={loading}
-        onSubmit={handleGenerate}
-      />
+      {draft && (
+        <button
+          type="button"
+          onClick={() => setFormOpen((o) => !o)}
+          className="mb-4 w-full rounded-md border border-[var(--line)] bg-[var(--bone-2)] px-4 py-3 text-left text-sm font-medium no-print"
+          aria-expanded={formOpen}
+        >
+          {formOpen ? '▲ Hide inputs' : '▾ Adjust inputs & regenerate'}
+        </button>
+      )}
+
+      <div className={draft && !formOpen ? 'hidden' : undefined}>
+        <BeatdownForm
+          aos={aos}
+          famousBeatdowns={famousBeatdowns}
+          disabled={loading}
+          onSubmit={handleGenerate}
+        />
+      </div>
 
       {loading && <BeatdownLoader />}
 
