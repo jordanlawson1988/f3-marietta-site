@@ -1,6 +1,6 @@
 # F3 Marietta
 
-Next.js 16, Neon (shared DB with f3-automation), Better Auth, OpenAI `gpt-4o-mini` (public assistant), Anthropic Sonnet 4.6 (automation), Vercel Blob, Buffer, Slack Web API.
+Next.js 16, Neon (shared DB with f3-automation), Better Auth, Google Gemini `gemini-2.5-flash` (public AMA assistant + beatdown builder; beatdown falls back to a local template on transient Gemini errors), Anthropic `claude-sonnet-4` (Slack/newsletter automation), Vercel Blob, Buffer, Slack Web API.
 
 ## Key Decisions
 

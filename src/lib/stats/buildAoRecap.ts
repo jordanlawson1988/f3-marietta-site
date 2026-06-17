@@ -9,6 +9,7 @@ import { getAttendanceFact } from "./getAttendanceFact";
 import { getAliasMap } from "./aliasMap";
 import { parseTimeRange } from "./timeRange";
 import { formatRecapMonth, getSiteBaseUrl, type RecapWindow } from "./buildPaxRecap";
+import { getFngsList, type FngEntry } from "./getFngsList";
 
 export type RankedPax = { label: string; posts: number; qd: number };
 
@@ -53,8 +54,12 @@ type BlockStats = {
 };
 export type AoRecapBlock = BlockStats & {
   scope: "ao"; aoDisplayName: string; slug: string; channelId: string; url: string;
+  fngs: FngWelcome | null;
 };
-export type RegionRecapBlock = BlockStats & { scope: "region"; aoCount: number; url: string };
+export type RegionRecapBlock = BlockStats & {
+  scope: "region"; aoCount: number; url: string;
+  fngs: FngWelcome | null;
+};
 
 /** Top names tied at the max value of `metric`; null when the max is 0. */
 function shoutFrom(ranked: RankedPax[], metric: "posts" | "qd"): ShoutOut | null {
@@ -76,13 +81,48 @@ function statsFor(fact: FactRow[], maps: RecapMaps): BlockStats {
   };
 }
 
+export type FngHonoree = { label: string; slackUserId: string | null };
+export type FngWelcome = { count: number; honorees: FngHonoree[] };
+
+/** Build a welcome bucket from FNG entries (already one-per-identity). Sorts
+ *  honorees by label asc for deterministic output; null when there are none. */
+function welcomeFrom(entries: FngEntry[]): FngWelcome | null {
+  if (entries.length === 0) return null;
+  const honorees = entries
+    .map((e) => ({ label: e.fngLabel, slackUserId: e.slackUserId }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+  return { count: honorees.length, honorees };
+}
+
+/** Group deduped FNG entries into per-AO buckets (keyed by aoSlug) and a region
+ *  bucket spanning all entries. Σ(per-AO counts) == region count. Pure. */
+export function groupFngs(entries: FngEntry[]): {
+  byAoSlug: Map<string, FngWelcome>;
+  region: FngWelcome | null;
+} {
+  const bySlug = new Map<string, FngEntry[]>();
+  for (const e of entries) {
+    const arr = bySlug.get(e.aoSlug) ?? [];
+    arr.push(e);
+    bySlug.set(e.aoSlug, arr);
+  }
+  const byAoSlug = new Map<string, FngWelcome>();
+  for (const [slug, arr] of bySlug) {
+    const w = welcomeFrom(arr);
+    if (w) byAoSlug.set(slug, w);
+  }
+  return { byAoSlug, region: welcomeFrom(entries) };
+}
+
 export function buildRecapBlocks(
   fact: FactRow[],
   aoChannels: AoChannel[],
   maps: RecapMaps,
   baseUrl: string,
+  fngEntries: FngEntry[] = [],
 ): { aoBlocks: AoRecapBlock[]; regionBlock: RegionRecapBlock | null } {
   const base = baseUrl.replace(/\/+$/, "");
+  const { byAoSlug, region } = groupFngs(fngEntries);
   const aoBlocks: AoRecapBlock[] = [];
   for (const ch of aoChannels) {
     const slug = nameToSlug(ch.aoDisplayName);
@@ -91,6 +131,7 @@ export function buildRecapBlocks(
     aoBlocks.push({
       scope: "ao", aoDisplayName: ch.aoDisplayName, slug, channelId: ch.slackChannelId,
       url: `${base}/stats?range=last-month&ao=${slug}`,
+      fngs: byAoSlug.get(slug) ?? null,
       ...statsFor(subset, maps),
     });
   }
@@ -98,6 +139,7 @@ export function buildRecapBlocks(
     scope: "region",
     aoCount: new Set(fact.map((f) => nameToSlug(f.aoName))).size,
     url: `${base}/stats?range=last-month`,
+    fngs: region,
     ...statsFor(fact, maps),
   };
   return { aoBlocks, regionBlock };
@@ -112,13 +154,21 @@ function shoutLine(emoji: string, label: string, s: ShoutOut): string {
 function topTen(headerLine: string, top10: RankedPax[]): string {
   return [headerLine, ...top10.map((p, i) => `${i + 1}. ${p.label} — ${p.posts}`)].join("\n");
 }
+function renderHonorees(f: FngWelcome): string {
+  return f.honorees.map((h) => (h.slackUserId ? `<@${h.slackUserId}>` : h.label)).join(", ");
+}
+function fngLine(f: FngWelcome, region: boolean): string {
+  const when = region ? "joined the region this month" : "this month";
+  return `🌱 ${plural(f.count, "new FNG")} ${when} — welcome ${renderHonorees(f)}! 🎉`;
+}
 
 export function buildAoRecapMessage(b: AoRecapBlock, monthLabel: string): string {
   const lines = [
     `*${b.aoDisplayName} — ${monthLabel} Recap* 🏋️`,
     `${plural(b.posts, "post")} · ${plural(b.beatdowns, "beatdown")} · ${b.paxCount} PAX`,
-    "",
   ];
+  if (b.fngs) lines.push(fngLine(b.fngs, false));
+  lines.push("");
   if (b.topPosters) lines.push(shoutLine("🏆", "Most posts", b.topPosters));
   if (b.topQs) lines.push(shoutLine("🎤", "Most Q'd", b.topQs));
   lines.push("", topTen("Top 10 by posts:", b.top10), "", `Deep dive → ${b.url}`);
@@ -129,8 +179,9 @@ export function buildRegionRecapMessage(b: RegionRecapBlock, monthLabel: string)
   const lines = [
     `*F3 Marietta — ${monthLabel} Region Recap* 🌎`,
     `${plural(b.posts, "post")} · ${plural(b.beatdowns, "beatdown")} · ${b.paxCount} PAX · ${plural(b.aoCount, "AO")}`,
-    "",
   ];
+  if (b.fngs) lines.push(fngLine(b.fngs, true));
+  lines.push("");
   if (b.topPosters) lines.push(shoutLine("🏆", "Most posts (region)", b.topPosters));
   if (b.topQs) lines.push(shoutLine("🎤", "Most Q'd (region)", b.topQs));
   lines.push("", topTen("Top 10 PAX region-wide:", b.top10), "", `Deep dive → ${b.url}`);
@@ -155,7 +206,7 @@ export async function planMonthlyAoRecap(now: Date = new Date()): Promise<AoReca
   };
 
   const sql = getSql();
-  const [fact, channelRows, slackUsers, aliasMap] = await Promise.all([
+  const [fact, channelRows, slackUsers, aliasMap, fngsList] = await Promise.all([
     getAttendanceFact({ from: range.from, to: range.to }),
     sql`SELECT slack_channel_id, ao_display_name FROM ao_channels WHERE is_enabled = true` as
       unknown as Promise<Array<{ slack_channel_id: string; ao_display_name: string }>>,
@@ -163,6 +214,7 @@ export async function planMonthlyAoRecap(now: Date = new Date()): Promise<AoReca
         WHERE display_name IS NOT NULL OR real_name IS NOT NULL` as
       unknown as Promise<Array<{ slack_user_id: string; display_name: string | null; real_name: string | null }>>,
     getAliasMap(),
+    getFngsList(range),
   ]);
 
   const nameById = new Map<string, string>();
@@ -182,7 +234,7 @@ export async function planMonthlyAoRecap(now: Date = new Date()): Promise<AoReca
     slackChannelId: c.slack_channel_id, aoDisplayName: c.ao_display_name,
   }));
   const { aoBlocks, regionBlock } = buildRecapBlocks(
-    fact, aoChannels, { nameById, idByName, aliasMap }, getSiteBaseUrl(),
+    fact, aoChannels, { nameById, idByName, aliasMap }, getSiteBaseUrl(), fngsList.entries,
   );
   const postedSlugs = new Set(aoBlocks.map((b) => b.slug));
   const skippedEmpty = aoChannels
