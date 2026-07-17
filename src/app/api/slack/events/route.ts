@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getSql } from '@/lib/db';
 import { verifySlackSignature } from '@/lib/slack/slackVerify';
-import { normalizeSlackMessage, isBackblastPayload, isPreblastPayload } from '@/lib/slack/normalizeSlackMessage';
+import { normalizeSlackMessage } from '@/lib/slack/normalizeSlackMessage';
+import { triageSlackEvent } from '@/lib/slack/triageSlackEvent';
 import { extractSlackImageFiles, rehostSlackImageFiles, appendImageBlocks } from '@/lib/slack/slackImages';
 import type { NormalizedEvent } from '@/types/f3Event';
 
@@ -87,25 +88,16 @@ export async function POST(request: NextRequest) {
 async function handleSlackEvent(event: SlackEvent, rawPayload: string) {
     const { type, subtype, channel, ts } = event;
 
-    console.log('handleSlackEvent called:', { type, subtype, channel, ts });
-    console.log('Event text preview:', event.text?.substring(0, 100));
-
-    // Only process message events
-    if (type !== 'message') {
-        console.log('Not a message event, ignoring');
+    // Triage on the raw payload BEFORE any database access. Most events are
+    // ordinary channel chatter; classifying first keeps them from waking the
+    // Neon endpoint (each wake burns ~5 min of compute before autosuspend).
+    const triage = triageSlackEvent(event, rawPayload);
+    if (triage.action === 'ignore') {
+        console.log('[slack/events] ignored:', { reason: triage.reason, type, subtype, channel, ts });
         return;
     }
 
-    // Filter out thread replies - we only want top-level messages
-    // A thread reply has thread_ts that differs from ts (or message.ts for edits)
-    const messageTs = event.message?.ts || ts;
-    const threadTs = event.message?.thread_ts || event.thread_ts;
-    if (threadTs && threadTs !== messageTs) {
-        console.log('Skipping thread reply:', { messageTs, threadTs });
-        return;
-    }
-
-    // Check if this channel is in our allowlist
+    // Only backblasts/preblasts/deletions reach the allowlist check.
     const aoChannel = await getAOChannel(channel);
     if (!aoChannel) {
         console.log('Channel not in allowlist:', channel);
@@ -113,38 +105,14 @@ async function handleSlackEvent(event: SlackEvent, rawPayload: string) {
     }
     console.log('Channel matched:', aoChannel.ao_display_name);
 
-    // Handle message deletion
-    if (subtype === 'message_deleted' && event.previous_message) {
+    if (triage.action === 'delete') {
         console.log('Processing message deletion');
-        await handleMessageDeleted(channel, event.previous_message.ts);
+        await handleMessageDeleted(channel, triage.previousTs);
         return;
     }
 
-    // Handle message edit (message_changed)
-    if (subtype === 'message_changed' && event.message) {
-        console.log('Processing message edit');
-
-        if (isBackblastPayload(rawPayload) || isPreblastPayload(rawPayload)) {
-            await handleF3EventUpsert(aoChannel.ao_display_name, rawPayload, ts);
-        }
-        return;
-    }
-
-    // Handle new message (no subtype or bot_message)
-    if (!subtype || subtype === 'bot_message') {
-        console.log('Processing new message, text length:', (event.text || '').length);
-
-        const isBackblast = isBackblastPayload(rawPayload);
-        const isPreblast = isPreblastPayload(rawPayload);
-
-        if (!isBackblast && !isPreblast) {
-            console.log('Not a backblast or preblast, ignoring');
-            return;
-        }
-
-        console.log(`Message identified as ${isPreblast ? 'preblast' : 'backblast'}, upserting...`);
-        await handleF3EventUpsert(aoChannel.ao_display_name, rawPayload);
-    }
+    console.log(`Message identified as ${triage.kind}${triage.editTs ? ' (edit)' : ''}, upserting...`);
+    await handleF3EventUpsert(aoChannel.ao_display_name, rawPayload, triage.editTs);
 }
 
 async function getAOChannel(slackChannelId: string) {
@@ -245,8 +213,10 @@ async function handleF3EventUpsert(
         // Trigger revalidation — home carries BackblastsPreviewSection,
         // ImpactSection background, JoinCTASection background, and the
         // Muster Log count, so it needs to refresh alongside /backblasts.
+        // /about pulls recent backblast photos into both galleries.
         revalidatePath('/');
         revalidatePath('/backblasts');
+        revalidatePath('/about');
         if (eventId) {
             revalidatePath(`/backblasts/${eventId}`);
         }
@@ -325,5 +295,6 @@ async function handleMessageDeleted(channelId: string, messageTs: string) {
 
     revalidatePath('/');
     revalidatePath('/backblasts');
+    revalidatePath('/about');
 }
 
