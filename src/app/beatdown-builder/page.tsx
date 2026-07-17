@@ -9,7 +9,10 @@ export const metadata: Metadata = {
     'Generate F3-format beatdowns grounded in F3 Marietta backblasts and the Exicon. Customize, save, and share.',
 };
 
-export const dynamic = 'force-dynamic';
+// The AO dropdown is the page's only dynamic data and changes rarely.
+// ISR + on-demand revalidation from the admin AO routes keeps it fresh
+// without waking Neon on every visit (this page was force-dynamic before).
+export const revalidate = 3600;
 
 export default async function BeatdownBuilderPage() {
   const sql = getSql();

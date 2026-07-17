@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getSql } from '@/lib/db';
 import { validateAdminToken } from '@/lib/admin/auth';
 import { validateAoChannelInput } from '@/lib/admin/aoChannelValidation';
@@ -34,6 +35,8 @@ export async function POST(request: Request) {
       VALUES (${v.value.slack_channel_id}, ${v.value.slack_channel_name}, ${v.value.ao_display_name}, ${v.value.is_enabled})
       RETURNING *
     `;
+    // Beatdown Builder's AO dropdown is ISR-cached; refresh it on changes.
+    revalidatePath('/beatdown-builder');
     return NextResponse.json(
       {
         channel: data[0],
