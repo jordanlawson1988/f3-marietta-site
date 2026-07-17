@@ -17,9 +17,12 @@ export default function ExerciseRow({ item, onChange, onRemove, onSwap, showCoac
   const repsRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    if (editing === 'exercise') exerciseRef.current?.focus();
+    // preventScroll: focusing a field must NOT trigger the browser's
+    // scroll-into-view — on iOS that scroll leaves a ghost/transparent copy of
+    // the pre-scroll content painted over the page.
+    if (editing === 'exercise') exerciseRef.current?.focus({ preventScroll: true });
     if (editing === 'reps') {
-      repsRef.current?.focus();
+      repsRef.current?.focus({ preventScroll: true });
       repsRef.current?.select();
     }
   }, [editing]);

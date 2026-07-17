@@ -63,11 +63,11 @@ test.describe('AI Beatdown Builder', () => {
     await expect(page).toHaveTitle(/not found|404/i);
   });
 
-  // Regression: on iOS Safari, a sticky bar with a backdrop-filter (and no opaque
-  // background) renders a stale, ghosted duplicate of the content behind it when the
-  // soft keyboard opens during inline edits — the "overlapping text" mobile bug.
-  // The action bar must therefore have NO backdrop-filter and a fully opaque background.
-  test('mobile action bar has no backdrop-filter and an opaque background (inline-edit ghosting regression)', async ({ page }) => {
+  // Regression: a sticky/fixed action bar floats OVER the warmup/thang/cot content. On
+  // iOS Safari that sticky layer is repainted incorrectly when the soft keyboard opens
+  // during inline edits, superimposing content from other scroll positions ("overlapping
+  // text" bug). The action bar must stay in normal flow (below the content), never sticky.
+  test('mobile action bar stays in normal flow below the content — never floats over it', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 }); // iPhone 12 logical viewport
 
     await page.route('**/api/beatdown/generate', route => route.fulfill({
@@ -88,32 +88,29 @@ test.describe('AI Beatdown Builder', () => {
     if (firstOption) await aoSelect.selectOption(firstOption);
     await page.getByRole('button', { name: /generate beatdown/i }).click();
 
-    const copyBtn = page.getByRole('button', { name: /copy as slackblast/i });
-    await expect(copyBtn).toBeVisible();
+    const bar = page.getByTestId('beatdown-action-bar');
+    await expect(bar).toBeVisible();
 
-    // The action bar is the sticky container wrapping Save / Copy / Print.
-    const actionBar = copyBtn.locator(
-      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " sticky ")][1]'
+    // Must NOT be a sticky/fixed floating layer.
+    const position = await bar.evaluate((el) => getComputedStyle(el).position);
+    expect(['static', 'relative']).toContain(position);
+
+    // Must NOT carry a backdrop-filter (would composite a stale snapshot on iOS).
+    const backdropFilter = await bar.evaluate(
+      (el) =>
+        getComputedStyle(el).backdropFilter ||
+        (getComputedStyle(el) as unknown as { webkitBackdropFilter?: string }).webkitBackdropFilter ||
+        'none',
     );
-    await expect(actionBar).toHaveCount(1);
-
-    const { backdropFilter, backgroundColor } = await actionBar.evaluate((el) => {
-      const s = getComputedStyle(el);
-      return {
-        backdropFilter:
-          s.backdropFilter || (s as unknown as { webkitBackdropFilter?: string }).webkitBackdropFilter || 'none',
-        backgroundColor: s.backgroundColor,
-      };
-    });
-
     expect(backdropFilter).toBe('none');
 
-    const alpha = (() => {
-      const m = backgroundColor.match(/rgba?\(([^)]+)\)/);
-      if (!m) return 0;
-      const parts = m[1].split(',').map((p) => p.trim());
-      return parts.length === 4 ? parseFloat(parts[3]) : 1;
-    })();
-    expect(alpha).toBe(1);
+    // Document-space: the bar sits at/below the last content section, not over it.
+    const { barTop, lastSectionBottom } = await page.evaluate(() => {
+      const barEl = document.querySelector('[data-testid="beatdown-action-bar"]')!.getBoundingClientRect();
+      const sections = Array.from(document.querySelectorAll('section.beatdown-card > div.rounded-md'));
+      const last = sections[sections.length - 1].getBoundingClientRect();
+      return { barTop: barEl.top + window.scrollY, lastSectionBottom: last.bottom + window.scrollY };
+    });
+    expect(barTop).toBeGreaterThanOrEqual(lastSectionBottom - 1);
   });
 });

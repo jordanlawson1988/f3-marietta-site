@@ -58,6 +58,10 @@ export function FloatingAssistant() {
                     bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)",
                     right: "16px",
                     left: "auto",
+                    // Own GPU layer: a fixed element with a clip-path sharing the page's
+                    // compositing layer makes iOS Safari leave ghost trails of the
+                    // scrolling content behind it. translateZ(0) isolates it.
+                    transform: "translateZ(0)",
                     visibility: hideForMenu ? "hidden" : undefined,
                 }}
             >

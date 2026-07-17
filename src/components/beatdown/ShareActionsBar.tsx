@@ -61,7 +61,7 @@ export default function ShareActionsBar({ inputs, draft, generationMs, model, kn
   }
 
   return (
-    <div className="sticky bottom-0 md:static z-10 -mx-4 md:mx-0 px-4 py-3 md:px-0 md:py-0 bg-bone md:bg-transparent border-t md:border-0 border-[color:var(--line-soft)] no-print">
+    <div data-testid="beatdown-action-bar" className="pt-3 border-t border-[color:var(--line-soft)] no-print">
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="default" onClick={handleSave} disabled={saving} className="flex-1 min-w-[120px]">
           {saving ? 'Saving…' : 'Save'}
