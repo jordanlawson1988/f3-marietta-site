@@ -51,31 +51,35 @@ export async function getBackblastsPaginated(
         eventKind,
     } = options;
 
-    const sql = getSql();
     const offset = (page - 1) * pageSize;
     const kind = eventKind ?? 'backblast';
     const searchPattern = search ? `%${search}%` : null;
 
-    // Slackblast lets a Q hit "New Backblast" twice for the same workout
-    // (e.g. once with the wrong PAX count, then again 20min later with the
-    // corrected list). We end up with two f3_events rows for the same
-    // (channel, AO, date, kind). Filter the older duplicate out at read
-    // time — keep the row with the highest slack_message_ts. Rows where
-    // event_date IS NULL are NOT deduped (different days that lost their
-    // parsed date should still each appear separately).
-    const DEDUP_FILTER = sql.unsafe(`AND id NOT IN (
-        SELECT id FROM (
-            SELECT id, row_number() OVER (
-                PARTITION BY slack_channel_id, ao_display_name, event_date, event_kind
-                ORDER BY slack_message_ts DESC
-            ) AS rn
-            FROM f3_events
-            WHERE event_date IS NOT NULL AND is_deleted = false
-        ) ranked
-        WHERE rn > 1
-    )`);
-
     try {
+        // getSql() throws synchronously when DATABASE_URL is absent (e.g.
+        // env-less CI builds) — it must live inside the try so callers get
+        // the empty-result fallback instead of a failed prerender.
+        const sql = getSql();
+
+        // Slackblast lets a Q hit "New Backblast" twice for the same workout
+        // (e.g. once with the wrong PAX count, then again 20min later with the
+        // corrected list). We end up with two f3_events rows for the same
+        // (channel, AO, date, kind). Filter the older duplicate out at read
+        // time — keep the row with the highest slack_message_ts. Rows where
+        // event_date IS NULL are NOT deduped (different days that lost their
+        // parsed date should still each appear separately).
+        const DEDUP_FILTER = sql.unsafe(`AND id NOT IN (
+            SELECT id FROM (
+                SELECT id, row_number() OVER (
+                    PARTITION BY slack_channel_id, ao_display_name, event_date, event_kind
+                    ORDER BY slack_message_ts DESC
+                ) AS rn
+                FROM f3_events
+                WHERE event_date IS NOT NULL AND is_deleted = false
+            ) ranked
+            WHERE rn > 1
+        )`);
+
         // Use separate queries for each filter combination to stay with tagged templates
         let countResult;
         let rows;
@@ -134,9 +138,8 @@ export async function getBackblastsPaginated(
  * Get list of unique AO names for filter dropdown
  */
 export async function getAOList(): Promise<string[]> {
-    const sql = getSql();
-
     try {
+        const sql = getSql();
         const rows = await sql`SELECT DISTINCT ao_display_name FROM f3_events WHERE is_deleted = false AND ao_display_name IS NOT NULL ORDER BY ao_display_name`;
         return rows.map((r) => r.ao_display_name as string);
     } catch (error) {
