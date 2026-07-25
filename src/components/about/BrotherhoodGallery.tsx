@@ -3,6 +3,7 @@ import { getRecentBackblastPhotosWithMeta } from "@/lib/backblast/getRecentBackb
 import { SectionHead } from "@/components/ui/brand/SectionHead";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
+import Link from "next/link";
 
 const TARGET = 3;
 
@@ -137,12 +138,12 @@ export async function BrotherhoodGallery() {
             <p className="font-display uppercase text-[15px] tracking-[.06em] text-ink/80">
               Every photo: a real beatdown. Every face: a real HIM.
             </p>
-            <a
+            <Link
               href="/backblasts"
               className="font-mono text-[11px] tracking-[.2em] uppercase text-steel hover:text-steel-2 transition-colors inline-flex items-center gap-2"
             >
               See every backblast →
-            </a>
+            </Link>
           </div>
         </ScrollReveal>
       </div>
