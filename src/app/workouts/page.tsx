@@ -12,9 +12,10 @@ export const metadata: Metadata = {
 };
 
 // ISR safety net. Primary refresh path is on-demand: admin workout/region
-// mutations call revalidatePath('/workouts'). This 5-minute interval catches
+// mutations call revalidatePath('/workouts'). This hourly interval catches
 // cases where the revalidation call didn't fire (cold start, deploy timing).
-export const revalidate = 300;
+// Timed regenerations wake the Neon endpoint — keep this interval long.
+export const revalidate = 3600;
 
 export default async function WorkoutsPage() {
   const schedule = await getWorkoutSchedule();

@@ -12,10 +12,12 @@ import { getWeeklyPaxCount } from "@/lib/stats/getWeeklyPaxCount";
 /**
  * ISR safety net. Primary refresh path is on-demand:
  * /api/slack/events calls revalidatePath('/') on every upsert/delete.
- * This short interval catches cases where the webhook didn't fire or
- * the revalidation call failed (e.g., function cold-start timeout).
+ * This interval only catches cases where the webhook didn't fire or the
+ * revalidation call failed (e.g., function cold-start timeout). Kept at
+ * one hour: every timed regeneration is a Neon wake (~5 min of compute
+ * on the free-tier autosuspend), so shorter intervals mostly burn CU-hrs.
  */
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export default async function Home() {
   const weeklyPax = await getWeeklyPaxCount();

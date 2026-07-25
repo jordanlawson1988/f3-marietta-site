@@ -7,7 +7,7 @@
 | Issue | Severity | Notes |
 |-------|----------|-------|
 | `@supabase/supabase-js` in devDependencies | **Low** | Leftover from Supabase-to-Neon migration. Unused in runtime code. Should be removed. |
-| CI workflow references Supabase secrets | **Medium** | `ci.yml` still uses `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. Should be updated to `DATABASE_URL`. |
+| `/stats/*` pages are `force-dynamic` | **Low** | Every crawler hit runs live Neon queries (searchParams-driven filters make plain ISR unsuitable). Candidate: `unstable_cache` on the query layer with a 15-min TTL. Fixed 2026-07-16 for the bigger wake sources (Slack triage, ISR intervals); stats left as follow-up. |
 | README.md references Supabase setup | **Low** | Entire "Backblasts Feature Setup" section references Supabase. Should be rewritten for Neon + Better Auth. |
 | `f3-automation/` legacy directory | **Low** | Standalone automation project consolidated into the admin dashboard. ESLint ignores it. Can be removed entirely. |
 | No unit test framework | **Medium** | Only Playwright E2E tests exist. Pure functions (glossary search, Slack normalization, rate limiter) have no fast-feedback tests. |

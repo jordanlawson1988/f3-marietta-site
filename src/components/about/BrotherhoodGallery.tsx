@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { getRecentBackblastPhotosWithMeta } from "@/lib/backblast/getRecentBackblastPhotos";
 import { SectionHead } from "@/components/ui/brand/SectionHead";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
