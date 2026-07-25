@@ -47,7 +47,7 @@ export async function buildBeatdownContext(inputs: BeatdownInputs): Promise<Beat
     }
   }
 
-  let recentAtAo: { event_date: string | null; q_name: string | null; content_text: string | null }[] =
+  const recentAtAo: { event_date: string | null; q_name: string | null; content_text: string | null }[] =
     primaryRecent.map(r => ({ event_date: r.event_date, q_name: r.q_name, content_text: r.content_text }));
 
   // If no knowledge AND fewer than 5 AO-specific rows, backfill region-wide while skipping any IDs we already have.
