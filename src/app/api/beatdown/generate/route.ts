@@ -6,7 +6,7 @@ import { buildBeatdownContext, loadStaticContext } from '@/lib/beatdown/buildCon
 import { BEATDOWN_SYSTEM_INSTRUCTION } from '@/lib/beatdown/prompts/system';
 import { buildUserPrompt } from '@/lib/beatdown/prompts/user';
 import { parseResponse } from '@/lib/beatdown/parseResponse';
-import { GEMINI_MODEL, generateGeminiContent, isTransientGeminiError } from '@/lib/ai/gemini';
+import { generateGeminiContent, isTransientGeminiError } from '@/lib/ai/gemini';
 import { LOCAL_BEATDOWN_MODEL, buildLocalBeatdownFallback } from '@/lib/beatdown/localFallback';
 import {
   DEFAULT_LENGTH_MIN,
@@ -20,6 +20,8 @@ import {
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+// gemini-3.1-pro-preview with thinking can exceed default function limits.
+export const maxDuration = 60;
 
 const VALID_FOCUS: BeatdownFocus[] = ['full', 'legs', 'core', 'upper', 'cardio'];
 const VALID_EQUIPMENT: BeatdownEquipment[] = ['bodyweight', 'coupon', 'sandbag', 'kettlebell', 'sled'];
@@ -72,20 +74,19 @@ export async function POST(request: NextRequest) {
     exiconSubset: staticCtx.exiconSubset,
     famousBdLibrary: staticCtx.famousBdLibrary,
     selectedFamousBd: staticCtx.selectedFamousBd,
+    aoIntel: ctx.aoIntel,
+    recentExercises: ctx.recentExercises,
   });
 
   try {
     const { response: resp, model } = await generateGeminiContent({
-      model: GEMINI_MODEL,
       contents: userPrompt,
-      config: {
-        systemInstruction: BEATDOWN_SYSTEM_INSTRUCTION,
-        thinkingConfig: { thinkingBudget: 256 },
-        maxOutputTokens: 2400,
-        temperature: 0.7,
-        topP: 0.9,
-        responseMimeType: 'application/json',
-      },
+      systemInstruction: BEATDOWN_SYSTEM_INSTRUCTION,
+      reasoning: 'low',
+      // Long beatdowns need more items; headroom also covers 3.x thinking
+      // tokens so JSON never truncates mid-structure.
+      maxOutputTokens: inputs.length_min >= 75 ? 4096 : 3072,
+      legacy: { temperature: 0.7, topP: 0.9, thinkingBudget: 256 },
     }, {
       logPrefix: `[beatdown:${requestId}]`,
     });

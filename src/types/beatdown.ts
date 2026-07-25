@@ -54,16 +54,25 @@ export interface BeatdownRecord extends BeatdownDraft {
   created_at: string;
 }
 
+/**
+ * Per-AO analysis produced by the knowledge pipeline. The first three
+ * fields are the original contract; the optional fields were added with
+ * the Gemini 3.1 knowledge prompt and may be absent on older rows.
+ */
+export interface AoIntel {
+  top_exercises: string[];
+  common_formats: string[];
+  voice_samples: string[];
+  crowd_pleasers?: string[];
+  recent_trends?: string[];
+}
+
 export interface MariettaBdKnowledge {
   id: number;
   generated_at: string;
   source_event_count: number;
   content: string;
-  per_ao_summary: Record<string, {
-    top_exercises: string[];
-    common_formats: string[];
-    voice_samples: string[];
-  }>;
+  per_ao_summary: Record<string, AoIntel>;
 }
 
 export const FOCUS_OPTIONS: { value: BeatdownFocus; label: string }[] = [
