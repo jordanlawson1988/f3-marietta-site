@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { randomUUID } from "crypto";
 import { lexiconEntries, exiconEntries, GlossaryEntry } from "@/../data/f3Glossary";
 import { searchKnowledgeDocs, getAssistantPersona } from "@/../data/f3Knowledge";
@@ -10,7 +10,9 @@ import { checkRateLimit } from "@/lib/security/rateLimiter";
 export const runtime = "nodejs";
 
 // Gemini model. Flash is fast, cheap, and right-sized for short F3 answers.
-const GEMINI_MODEL = "gemini-2.5-flash";
+// 3.x uses thinkingLevel (thinkingBudget is rejected) and Google recommends
+// leaving temperature/topP at defaults for 3.x models.
+const GEMINI_MODEL = "gemini-3.5-flash";
 
 // Helper to normalize mobile keyboard quirks (smart quotes, special whitespace).
 function normalizeQuery(input: string): string {
@@ -120,10 +122,8 @@ async function callGemini(query: string, queryContext: string | null): Promise<s
         contents: query,
         config: {
             systemInstruction,
-            thinkingConfig: { thinkingBudget: 256 },
+            thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
             maxOutputTokens: 600,
-            temperature: 0.55,
-            topP: 0.9,
         },
     });
 
