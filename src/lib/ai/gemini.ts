@@ -3,11 +3,11 @@ import { GoogleGenAI, ThinkingLevel, type GenerateContentConfig } from '@google/
 /**
  * Primary + fallback chain for beatdown generation and knowledge analysis.
  * gemini-3.1-pro-preview is the strongest reasoning model available
- * (July 2026); gemini-3.5-flash is the GA flash-tier fallback; 2.5-flash is
- * the battle-tested last resort that ran this feature before the upgrade.
+ * (July 2026); gemini-3.5-flash is the GA flash-tier fallback.
+ * Gemini 2.x is retired per Jordan's 3.1+-only policy (2026-07-25).
  */
 export const GEMINI_MODEL = 'gemini-3.1-pro-preview';
-export const GEMINI_FALLBACK_MODELS = ['gemini-3.5-flash', 'gemini-2.5-flash'];
+export const GEMINI_FALLBACK_MODELS = ['gemini-3.5-flash'];
 
 export type GeminiReasoning = 'minimal' | 'low' | 'medium' | 'high';
 
