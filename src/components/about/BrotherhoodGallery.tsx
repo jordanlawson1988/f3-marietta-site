@@ -4,7 +4,6 @@ import { getRecentBackblastPhotosWithMeta } from "@/lib/backblast/getRecentBackb
 import { SectionHead } from "@/components/ui/brand/SectionHead";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
-import Link from "next/link";
 
 const TARGET = 3;
 
