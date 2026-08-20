@@ -20,6 +20,9 @@ jobs:
       - run: npm run test:unit
       - run: npm run build
     env:
+      # Neon dev/branch DB for DB-dependent specs (beatdown-builder etc.);
+      # those specs stay red until this repo secret is set.
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       OPENAI_API_KEY: "sk-placeholder"
       SLACK_BOT_TOKEN: "xoxb-placeholder"
       SLACK_SIGNING_SECRET: "placeholder"
@@ -38,6 +41,9 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test --project=chromium
     env:
+      # Neon dev/branch DB for DB-dependent specs (beatdown-builder etc.);
+      # those specs stay red until this repo secret is set.
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       OPENAI_API_KEY: "sk-placeholder"
       SLACK_BOT_TOKEN: "xoxb-placeholder"
       SLACK_SIGNING_SECRET: "placeholder"
