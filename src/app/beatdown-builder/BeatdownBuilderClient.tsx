@@ -5,6 +5,7 @@ import BeatdownForm from '@/components/beatdown/BeatdownForm';
 import BeatdownDisplay from '@/components/beatdown/BeatdownDisplay';
 import MusterLog from '@/components/beatdown/MusterLog';
 import IntelRail from '@/components/beatdown/IntelRail';
+import { FOCUS_OPTIONS } from '@/types/beatdown';
 import type { BeatdownDraft, BeatdownInputs, BeatdownIntel } from '@/types/beatdown';
 
 interface AoOption {
@@ -147,7 +148,7 @@ export default function BeatdownBuilderClient({ aos, famousBeatdowns }: Props) {
               aoName={inputs.ao_display_name}
               window={intel?.window ?? 0}
               lockedCount={lockedCount}
-              focus={inputs.focus}
+              focusLabel={FOCUS_OPTIONS.find((o) => o.value === inputs.focus)?.label ?? inputs.focus}
             />
           )}
 

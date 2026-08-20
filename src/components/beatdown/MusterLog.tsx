@@ -7,7 +7,8 @@ interface Props {
   /** Backblasts being read for this generation. */
   window: number;
   lockedCount: number;
-  focus: string;
+  /** Display label, not the raw enum value — "Full Body", not "full". */
+  focusLabel: string;
 }
 
 /**
@@ -19,11 +20,11 @@ interface Props {
  * The final stage has no timer: it holds until the parent unmounts this on the
  * API response, so the log can never claim to have finished ahead of the model.
  */
-export default function MusterLog({ aoName, window: readWindow, lockedCount, focus }: Props) {
+export default function MusterLog({ aoName, window: readWindow, lockedCount, focusLabel }: Props) {
   const stages = [
     'Loading region knowledge…',
     aoName ? `Reading the last ${readWindow} backblasts at ${aoName}…` : 'Reading recent backblasts region-wide…',
-    `Scoring the Exicon for ${focus.toUpperCase()}…`,
+    `Scoring the Exicon for ${focusLabel.toUpperCase()}…`,
     lockedCount > 0
       ? `Holding ${lockedCount} repeat ${lockedCount === 1 ? 'lock' : 'locks'}…`
       : 'No repeat locks held…',

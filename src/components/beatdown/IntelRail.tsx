@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import type { BeatdownIntel, IntelConfidence } from '@/types/beatdown';
 
 interface Props {
@@ -184,6 +185,17 @@ export default function IntelRail({ intel, loading, error, releasedTerms, onTogg
             )}
           </section>
         </>
+      )}
+
+      {!loading && !error && intel && (
+        <div className="border-t border-bone/20 px-6 py-4">
+          <Link
+            href="/beatdown-builder/ledger"
+            className="inline-flex min-h-[44px] items-center font-mono text-[10px] uppercase tracking-[.18em] text-bone/60 no-underline hover:text-steel"
+          >
+            Open the full ledger →
+          </Link>
+        </div>
       )}
 
       {loading && (

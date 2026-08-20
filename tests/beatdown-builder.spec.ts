@@ -208,3 +208,36 @@ test.describe('AI Beatdown Builder', () => {
     await expect(page.getByRole('button', { name: /hide the intel/i })).toHaveAttribute('aria-expanded', 'true');
   });
 });
+
+test.describe('The Ledger', () => {
+  test('renders knowledge status, the repeat table, and archive coverage', async ({ page }) => {
+    await page.route('**/api/beatdown/intel*', (route) =>
+      route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(INTEL) }),
+    );
+
+    await page.goto('/beatdown-builder/ledger');
+
+    await expect(page.getByRole('heading', { name: 'The Ledger', level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Knowledge v37/ })).toBeVisible();
+    await expect(page.getByText('Fresh', { exact: true })).toBeVisible();
+    await expect(page.getByRole('table')).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'Merkin', exact: true })).toBeVisible();
+    await expect(page.getByRole('cell', { name: '8 of 10' })).toBeVisible();
+    await expect(page.getByText('Archive coverage')).toBeVisible();
+  });
+
+  test('stale knowledge is reported as blind, not hidden', async ({ page }) => {
+    await page.route('**/api/beatdown/intel*', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ ...INTEL, knowledge_version: 34, knowledge_stale: true }),
+      }),
+    );
+
+    await page.goto('/beatdown-builder/ledger');
+    await expect(page.getByRole('heading', { name: /Knowledge v34/ })).toBeVisible();
+    await expect(page.getByText('Blind', { exact: true })).toBeVisible();
+    await expect(page.getByText(/generation has dropped it entirely/)).toBeVisible();
+  });
+});
