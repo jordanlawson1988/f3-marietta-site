@@ -63,8 +63,8 @@ export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs,
 
   return (
     <section className="mt-8 space-y-4 beatdown-card">
-      <header className="rounded-md border border-border p-4 bg-card">
-        <div className="text-[10px] uppercase tracking-widest text-primary">
+      <header className="rounded-md border border-line-soft p-4 bg-bone-2">
+        <div className="text-[10px] uppercase tracking-widest text-steel">
           F3 Marietta{inputs.ao_display_name ? ` · ${inputs.ao_display_name}` : ''} · {draft.sections.header.length_min} min
         </div>
         <EditableText
@@ -79,12 +79,12 @@ export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs,
           value={draft.sections.header.summary}
           onChange={(value) => setDraft({ ...draft, sections: { ...draft.sections, header: { ...draft.sections.header, summary: value } } })}
           as="p"
-          className="mt-1 text-sm text-muted-foreground"
+          className="mt-1 text-sm text-muted"
           placeholder="One-line summary"
           ariaLabel="Edit beatdown summary"
           multiline
         />
-        <div className="mt-2 text-xs text-muted-foreground no-print">
+        <div className="mt-2 text-xs text-muted no-print">
           {model} · {generationMs}ms{knowledgeVersion ? ` · knowledge v${knowledgeVersion}` : ''}
         </div>
       </header>

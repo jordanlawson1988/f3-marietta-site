@@ -48,7 +48,7 @@ export default function EditableText({
   }
 
   if (editing) {
-    const sharedClass = `w-full rounded-md border border-border bg-card text-foreground px-2 py-1 ${className}`;
+    const sharedClass = `w-full rounded-md border border-line-soft bg-bone-2 text-ink px-2 py-1 ${className}`;
     if (multiline) {
       return (
         <textarea
@@ -88,7 +88,7 @@ export default function EditableText({
   const display = value || placeholder || '';
   return (
     <Tag
-      className={`${className} cursor-text rounded hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--steel)] ${value ? '' : 'text-muted-foreground italic'}`}
+      className={`${className} cursor-text rounded hover:bg-bone-3/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--steel)] ${value ? '' : 'text-muted italic'}`}
       role="button"
       tabIndex={0}
       aria-label={ariaLabel}

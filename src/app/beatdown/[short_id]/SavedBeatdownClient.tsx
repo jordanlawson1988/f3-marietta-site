@@ -25,12 +25,12 @@ export default function SavedBeatdownClient({ row }: { row: Row }) {
         <Link href="/beatdown-builder" className="underline">← Build a new beatdown</Link>
       </div>
       <section className="space-y-4 beatdown-card">
-        <header className="rounded-md border border-border p-4 bg-card">
-          <div className="text-[10px] uppercase tracking-widest text-primary">
+        <header className="rounded-md border border-line-soft p-4 bg-bone-2">
+          <div className="text-[10px] uppercase tracking-widest text-steel">
             F3 Marietta{row.inputs.ao_display_name ? ` · ${row.inputs.ao_display_name}` : ''} · {row.sections.header.length_min} min
           </div>
           <h1 className="mt-1 text-2xl md:text-3xl font-bold">{row.title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{row.sections.header.summary}</p>
+          <p className="mt-1 text-sm text-muted">{row.sections.header.summary}</p>
         </header>
 
         <BeatdownSection
@@ -54,7 +54,7 @@ export default function SavedBeatdownClient({ row }: { row: Row }) {
           knowledgeVersion={null}
         />
 
-        <p className="text-xs text-muted-foreground no-print">
+        <p className="text-xs text-muted no-print">
           Saved {new Date(row.created_at).toLocaleString()} · <Link href={`/beatdown-builder?seed=${row.short_id}`} className="underline">Remix this beatdown</Link>
         </p>
       </section>
