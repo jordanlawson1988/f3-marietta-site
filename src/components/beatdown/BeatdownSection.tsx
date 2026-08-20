@@ -30,7 +30,7 @@ export default function BeatdownSection({
   if (sectionKey === 'cot') {
     const cot = section as BeatdownDraft['sections']['cot'];
     return (
-      <div className="rounded-md border border-border p-4 bg-card">
+      <div className="rounded-md border border-line-soft p-4 bg-bone-2">
         <SectionHeader label={label} regenerating={regenerating} onRegenerate={onRegenerate} />
         <ul className="mt-2 space-y-1 list-disc list-inside text-base">
           {cot.talking_points.map((p, i) => (
@@ -54,7 +54,7 @@ export default function BeatdownSection({
                 <button
                   type="button"
                   onClick={() => onChangeCotTalkingPoints(cot.talking_points.filter((_, idx) => idx !== i))}
-                  className="text-xs px-2 py-1 rounded bg-muted hover:bg-red-500/20 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity no-print"
+                  className="text-xs px-2 py-1 rounded bg-bone-3 hover:bg-red-500/20 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity no-print"
                   aria-label={`Remove talking point ${i + 1}`}
                 >
                   Remove
@@ -67,7 +67,7 @@ export default function BeatdownSection({
           <button
             type="button"
             onClick={() => onChangeCotTalkingPoints([...cot.talking_points, 'New talking point'])}
-            className="mt-2 text-sm text-muted-foreground underline-offset-2 hover:underline no-print"
+            className="mt-2 text-sm text-muted underline-offset-2 hover:underline no-print"
           >
             + Add talking point
           </button>
@@ -78,13 +78,13 @@ export default function BeatdownSection({
               value={cot.notes}
               onChange={onChangeCotNotes}
               as="p"
-              className="text-sm text-muted-foreground"
+              className="text-sm text-muted"
               placeholder="Add closing notes (optional)"
               ariaLabel="Edit COT notes"
               multiline
             />
           ) : (
-            cot.notes && <p className="text-sm text-muted-foreground">{cot.notes}</p>
+            cot.notes && <p className="text-sm text-muted">{cot.notes}</p>
           )}
         </div>
       </div>
@@ -95,20 +95,20 @@ export default function BeatdownSection({
   const formatNote = sectionKey === 'thang' ? draft.sections.thang.format_note : '';
 
   return (
-    <div className="rounded-md border border-border p-4 bg-card">
+    <div className="rounded-md border border-line-soft p-4 bg-bone-2">
       <SectionHeader label={label} regenerating={regenerating} onRegenerate={onRegenerate} />
       {sectionKey === 'thang' && onChangeFormatNote ? (
         <EditableText
           value={formatNote}
           onChange={onChangeFormatNote}
           as="p"
-          className="mt-1 italic text-sm text-muted-foreground"
+          className="mt-1 italic text-sm text-muted"
           placeholder="Format note (optional)"
           ariaLabel="Edit format note"
           multiline
         />
       ) : (
-        formatNote && <p className="mt-1 italic text-sm text-muted-foreground">{formatNote}</p>
+        formatNote && <p className="mt-1 italic text-sm text-muted">{formatNote}</p>
       )}
       <div className="mt-2">
         {items.map((it, i) => (
@@ -127,7 +127,7 @@ export default function BeatdownSection({
       <button
         type="button"
         onClick={onAddItem}
-        className="mt-3 text-sm text-muted-foreground underline-offset-2 hover:underline no-print"
+        className="mt-3 text-sm text-muted underline-offset-2 hover:underline no-print"
       >
         + Add an exercise
       </button>
@@ -138,12 +138,12 @@ export default function BeatdownSection({
 function SectionHeader({ label, regenerating, onRegenerate }: { label: string; regenerating: boolean; onRegenerate: () => void }) {
   return (
     <div className="flex items-center justify-between">
-      <h3 className="text-xs uppercase tracking-widest font-semibold text-primary">{label}</h3>
+      <h3 className="text-xs uppercase tracking-widest font-semibold text-steel">{label}</h3>
       <button
         type="button"
         onClick={onRegenerate}
         disabled={regenerating}
-        className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-50 no-print"
+        className="text-xs text-muted hover:text-ink disabled:opacity-50 no-print"
       >
         {regenerating ? 'Regenerating…' : '↻ Regenerate'}
       </button>

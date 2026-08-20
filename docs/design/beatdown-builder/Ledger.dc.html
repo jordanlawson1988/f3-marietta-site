@@ -1,0 +1,366 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=DM+Serif+Display:ital@1&display=swap">
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; color: #0c0c0c; }
+    a { color: #2f6e89; } a:hover { color: #22476a; }
+    * { box-sizing: border-box; }
+    .osw { font-family: Oswald, sans-serif; text-transform: uppercase; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, monospace; text-transform: uppercase; }
+    .chamfer { clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+    .pill { font-family: "JetBrains Mono", monospace; text-transform: uppercase; font-size: 10px; letter-spacing: .18em;
+            border: 1px solid; padding: 3px 7px; display: inline-block; }
+    .tab { font-family: Oswald, sans-serif; text-transform: uppercase; font-size: 13px; font-weight: 600; letter-spacing: .06em;
+           border: 0; border-bottom: 2px solid transparent; background: none; color: #6b655a; padding: 12px 2px; min-height: 44px;
+           cursor: pointer; margin-right: 26px; }
+    .tab[data-on="true"] { color: #0c0c0c; border-bottom-color: #2f6e89; }
+    .trow { display: grid; grid-template-columns: 1fr 96px 92px 1fr 104px; align-items: center; gap: 14px;
+            padding: 12px 0; border-bottom: 1px solid rgba(12,12,12,.09); }
+    .toggle { font-family: "JetBrains Mono", monospace; text-transform: uppercase; font-size: 10px; letter-spacing: .16em;
+              border: 1px solid; background: none; padding: 7px 10px; min-height: 40px; cursor: pointer; width: 100%; }
+    .srow { display: grid; grid-template-columns: 66px 84px 1fr; gap: 12px; padding: 9px 0; border-bottom: 1px solid rgba(12,12,12,.08); }
+  </style>
+</helmet>
+
+<div style="width: 1100px; min-height: 1240px; background: #f1ece1; padding-bottom: 48px">
+
+  <!-- header -->
+  <div style="padding: 40px 44px 0">
+    <span class="mono" style="display: inline-flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; color: #2f6e89">
+      <span style="height: 1px; width: 28px; background: #2f6e89"></span>&sect; What the builder knows
+    </span>
+    <h1 class="osw" style="margin: 20px 0 0; font-weight: 700; font-size: 68px; line-height: .9; letter-spacing: -.01em">
+      The <span style="font-family: 'DM Serif Display', Georgia, serif; font-style: italic; text-transform: none; letter-spacing: normal; color: #2f6e89">Ledger</span>
+    </h1>
+    <p style="margin: 18px 0 0; max-width: 640px; font-size: 17px; line-height: 1.6; color: #6b655a">
+      Every term the region has used recently, how often, and how long ago. This is what the builder
+      reads before it writes a single line &mdash; and what you can overrule.
+    </p>
+  </div>
+
+  <!-- knowledge status -->
+  <div style="margin: 32px 44px 0; border: 1.5px solid {{ k.border }}; background: {{ k.bg }}; color: {{ k.fg }}; padding: 24px 28px">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 24px">
+      <div>
+        <div style="display: flex; align-items: center; gap: 12px">
+          <span class="osw" style="font-size: 22px; font-weight: 700; letter-spacing: .02em">Knowledge {{ k.version }}</span>
+          <span class="pill" style="color: {{ k.chipColor }}; border-color: {{ k.chipColor }}">{{ k.chipLabel }}</span>
+        </div>
+        <p style="margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: {{ k.dim }}; max-width: 560px">{{ k.message }}</p>
+      </div>
+      <div style="display: flex; gap: 34px; flex: 0 0 auto">
+        <sc-for list="{{ k.stats }}" as="s" hint-placeholder-count="4">
+          <div>
+            <div class="osw" style="font-size: 32px; font-weight: 700; line-height: 1; color: {{ k.fg }}">{{ s.value }}</div>
+            <div class="mono" style="margin-top: 6px; font-size: 9px; letter-spacing: .18em; color: {{ k.dim }}">{{ s.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="margin-top: 20px; height: 4px; background: {{ k.track }}">
+      <div style="height: 4px; width: {{ k.freshPct }}; background: {{ k.chipColor }}"></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 8px">
+      <span class="mono" style="font-size: 9px; letter-spacing: .16em; color: {{ k.dim }}">Built {{ k.builtAt }}</span>
+      <span class="mono" style="font-size: 9px; letter-spacing: .16em; color: {{ k.dim }}">Goes blind at 14 days &middot; {{ k.expiresIn }}</span>
+    </div>
+  </div>
+
+  <!-- AO tabs -->
+  <div style="margin: 34px 44px 0; border-bottom: 1px solid rgba(12,12,12,.12); display: flex; align-items: center; flex-wrap: wrap">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5">
+      <button type="button" class="tab" data-on="{{ t.on }}" onClick="{{ t.pick }}">{{ t.label }} <span class="mono" style="font-size: 9px; letter-spacing: .14em; opacity: .6">{{ t.count }}</span></button>
+    </sc-for>
+  </div>
+
+  <!-- body -->
+  <div style="margin: 26px 44px 0; display: grid; grid-template-columns: 1fr 350px; gap: 30px; align-items: start">
+
+    <!-- LEDGER TABLE -->
+    <div>
+      <div style="display: flex; align-items: baseline; justify-content: space-between">
+        <h2 class="osw" style="margin: 0; font-size: 20px; font-weight: 700; letter-spacing: .02em">Repeat Ledger</h2>
+        <span class="mono" style="font-size: 10px; letter-spacing: .16em; color: #6b655a">{{ lockedCount }} locked &middot; {{ releasedCount }} released</span>
+      </div>
+      <p style="margin: 10px 0 18px; font-size: 14px; line-height: 1.55; color: #6b655a; max-width: 540px">
+        Exicon terms matched against the last {{ current.window }} backblasts at {{ current.name }}. Locked terms are
+        withheld from the next draft. Release one when you actually want it.
+      </p>
+
+      <div class="trow" style="border-bottom: 1.5px solid #0c0c0c; padding-bottom: 9px">
+        <span class="mono" style="font-size: 9px; letter-spacing: .18em; color: #6b655a">Exicon term</span>
+        <span class="mono" style="font-size: 9px; letter-spacing: .18em; color: #6b655a">Used in</span>
+        <span class="mono" style="font-size: 9px; letter-spacing: .18em; color: #6b655a">Last seen</span>
+        <span class="mono" style="font-size: 9px; letter-spacing: .18em; color: #6b655a">Frequency</span>
+        <span class="mono" style="font-size: 9px; letter-spacing: .18em; color: #6b655a; text-align: right">State</span>
+      </div>
+
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+        <div class="trow">
+          <span style="font-size: 15px; font-weight: 500; color: {{ r.termColor }}">{{ r.term }}</span>
+          <span class="mono" style="font-size: 11px; letter-spacing: .1em; color: #6b655a">{{ r.used }}</span>
+          <span class="mono" style="font-size: 11px; letter-spacing: .1em; color: #6b655a">{{ r.last }}</span>
+          <span style="height: 6px; background: rgba(12,12,12,.1); display: block">
+            <span style="display: block; height: 6px; width: {{ r.pct }}; background: {{ r.barColor }}"></span>
+          </span>
+          <button type="button" class="toggle" onClick="{{ r.toggle }}" style="color: {{ r.stateColor }}; border-color: {{ r.stateColor }}">{{ r.state }}</button>
+        </div>
+      </sc-for>
+
+      <p class="mono" style="margin: 20px 0 0; font-size: 9px; letter-spacing: .14em; line-height: 1.9; color: #6b655a">
+        // Matching is word-bounded and plural-tolerant &mdash; &ldquo;Merkins&rdquo; counts as &ldquo;Merkin&rdquo;<br>
+        // Count is beatdowns that used the term, not raw mentions<br>
+        // Top 20 terms only &middot; terms under 3 characters are skipped
+      </p>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+      <!-- voice -->
+      <div style="border: 1.5px solid #0c0c0c; background: #e7e0d1; padding: 22px 24px">
+        <p class="mono" style="margin: 0 0 12px; font-size: 10px; letter-spacing: .2em; color: #2f6e89">// How this AO writes</p>
+        <sc-for list="{{ current.voice }}" as="v" hint-placeholder-count="2">
+          <p style="margin: 0 0 14px; font-family: 'DM Serif Display', Georgia, serif; font-style: italic; font-size: 17px; line-height: 1.45; color: #0c0c0c">&ldquo;{{ v.text }}&rdquo;</p>
+        </sc-for>
+        <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b655a">Pulled verbatim from backblasts so the draft sounds like this AO, not like a chatbot.</p>
+      </div>
+
+      <!-- coverage -->
+      <div style="margin-top: 18px; border: 1.5px solid rgba(12,12,12,.16); background: #f1ece1; padding: 22px 24px">
+        <p class="mono" style="margin: 0 0 14px; font-size: 10px; letter-spacing: .2em; color: #2f6e89">// Archive coverage</p>
+        <sc-for list="{{ coverage }}" as="c" hint-placeholder-count="5">
+          <div style="margin-bottom: 13px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline">
+              <span style="font-size: 14px; color: {{ c.nameColor }}">{{ c.name }}</span>
+              <span class="mono" style="font-size: 10px; letter-spacing: .12em; color: #6b655a">{{ c.count }}</span>
+            </div>
+            <div style="margin-top: 5px; height: 4px; background: rgba(12,12,12,.1)">
+              <div style="height: 4px; width: {{ c.pct }}; background: {{ c.color }}"></div>
+            </div>
+          </div>
+        </sc-for>
+        <p style="margin: 14px 0 0; font-size: 13px; line-height: 1.5; color: #6b655a">
+          Under 5 backblasts an AO gets no Intel block of its own and leans on the region-wide knowledge document. CSAUP is there now.
+        </p>
+      </div>
+
+      <!-- sources -->
+      <div style="margin-top: 18px; border: 1.5px solid rgba(12,12,12,.16); background: #f1ece1; padding: 22px 24px">
+        <p class="mono" style="margin: 0 0 6px; font-size: 10px; letter-spacing: .2em; color: #2f6e89">// Read for this AO</p>
+        <p style="margin: 0 0 12px; font-size: 13px; color: #6b655a">The exact backblasts behind the ledger above.</p>
+        <sc-for list="{{ current.sources }}" as="s" hint-placeholder-count="6">
+          <div class="srow">
+            <span class="mono" style="font-size: 10px; letter-spacing: .1em; color: #6b655a">{{ s.date }}</span>
+            <span class="mono" style="font-size: 10px; letter-spacing: .1em; color: #2f6e89">{{ s.q }}</span>
+            <span style="font-size: 13px; line-height: 1.4">{{ s.title }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- footer mechanism note -->
+  <div style="margin: 34px 44px 0; border-top: 1px solid rgba(12,12,12,.12); padding-top: 18px">
+    <p class="mono" style="margin: 0; font-size: 9px; letter-spacing: .14em; line-height: 2; color: #6b655a">
+      // Source &middot; f3_events where event_kind = backblast and is_deleted = false, newest first<br>
+      // Knowledge rebuilt by the daily reconcile cron at 07:00 UTC whenever the backblast count changes<br>
+      // Rows older than 30 days are pruned &middot; max 500 source events per build
+    </p>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{
+  "knowledgeState": {"editor": "enum", "options": ["fresh", "stale"], "default": "fresh", "section": "States"},
+  "$preview": {"width": 1100, "height": 1240}
+}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { ao: 'battlefield', released: {} };
+  }
+
+  data() {
+    return {
+      battlefield: {
+        name: 'The Battlefield', count: 41, window: 10,
+        voice: ['Mumblechatter was heavy until the third rung. Then it got quiet.', 'YHC took the six on the last lap. Nobody left behind.'],
+        ledger: [
+          { term: 'Mosey', used: 10, last: 'Aug 15' }, { term: 'Merkin', used: 8, last: 'Aug 15' },
+          { term: 'Squat', used: 7, last: 'Aug 15' }, { term: 'Big Boy Sit-up', used: 6, last: 'Aug 13' },
+          { term: 'Burpee', used: 5, last: 'Aug 15' }, { term: 'Bear Crawl', used: 5, last: 'Aug 11' },
+          { term: 'Mountain Climber', used: 4, last: 'Aug 8' }, { term: 'LBC', used: 3, last: 'Aug 13' },
+          { term: 'American Hammer', used: 3, last: 'Aug 6' }, { term: 'Freddie Mercury', used: 2, last: 'Aug 6' },
+        ],
+        sources: [
+          { date: 'Aug 15', q: 'Hammer', title: '11s on the back hill, coupon carry to close' },
+          { date: 'Aug 13', q: 'Stonewall', title: 'Four Corners, ascending reps' },
+          { date: 'Aug 11', q: 'Radar', title: 'Bear crawl suicides and a long Mary' },
+          { date: 'Aug 8', q: 'Gump', title: 'DORA 1-2-3 with partner runs' },
+          { date: 'Aug 6', q: 'Hammer', title: 'Route 66 up the hill' },
+          { date: 'Aug 4', q: 'Bulldog', title: 'Coupon Thursday — heavy from the whistle' },
+        ],
+      },
+      'last-stand': {
+        name: 'The Last Stand', count: 36, window: 10,
+        voice: ['Tight lot, no place to hide. That is the whole point.', 'Ended with Mary. Ended on time.'],
+        ledger: [
+          { term: 'Mosey', used: 10, last: 'Aug 18' }, { term: 'Squat', used: 7, last: 'Aug 18' },
+          { term: 'Merkin', used: 6, last: 'Aug 18' }, { term: 'Carolina Dry Dock', used: 5, last: 'Aug 14' },
+          { term: 'Peter Parker', used: 4, last: 'Aug 18' }, { term: 'Al Gore', used: 4, last: 'Aug 11' },
+          { term: 'Box Cutter', used: 3, last: 'Aug 14' }, { term: 'Diamond Merkin', used: 3, last: 'Aug 7' },
+          { term: 'Heels to Heaven', used: 2, last: 'Aug 11' }, { term: 'Crab Walk', used: 2, last: 'Aug 4' },
+        ],
+        sources: [
+          { date: 'Aug 18', q: 'Gump', title: 'Jack Webb and a Cindy block' },
+          { date: 'Aug 14', q: 'Bulldog', title: 'Dry docks until the shoulders quit' },
+          { date: 'Aug 11', q: 'Radar', title: 'Al Gore holds between every round' },
+          { date: 'Aug 7', q: 'Stonewall', title: 'Diamond merkin ladder' },
+          { date: 'Aug 4', q: 'Hammer', title: 'Crab walk relay across the lot' },
+        ],
+      },
+      'black-ops': {
+        name: 'Black Ops', count: 22, window: 10,
+        voice: ['Coupon in hand before the disclaimer finished.', 'Nobody talks much here. There is not the air for it.'],
+        ledger: [
+          { term: 'Burpee', used: 7, last: 'Aug 17' }, { term: 'Ranger Merkin', used: 5, last: 'Aug 17' },
+          { term: 'Al Gore', used: 5, last: 'Aug 10' }, { term: 'Blockee', used: 4, last: 'Aug 12' },
+          { term: 'Overhead Press', used: 4, last: 'Aug 12' }, { term: 'Bear Crawl', used: 3, last: 'Aug 3' },
+          { term: 'Copperhead Squat', used: 2, last: 'Aug 12' }, { term: 'Nolan Ryan', used: 2, last: 'Aug 10' },
+          { term: 'Pickle Pounder', used: 2, last: 'Aug 3' }, { term: 'Duck Walk', used: 2, last: 'Jul 27' },
+        ],
+        sources: [
+          { date: 'Aug 17', q: 'Bulldog', title: 'Wheel of Misery, four rounds' },
+          { date: 'Aug 12', q: 'Hammer', title: 'Blockees and overhead press ladder' },
+          { date: 'Aug 10', q: 'Radar', title: 'Al Gore holds, Nolan Ryan finish' },
+          { date: 'Aug 3', q: 'Stonewall', title: 'Bear crawl and pickle pounders' },
+          { date: 'Jul 27', q: 'Gump', title: 'Duck walk the long edge' },
+        ],
+      },
+      csaup: {
+        name: 'CSAUP', count: 4, window: 4,
+        voice: ['Three hours. Nobody quit. That is the backblast.'],
+        ledger: [
+          { term: 'Mosey', used: 4, last: 'Aug 2' }, { term: 'Merkin', used: 3, last: 'Aug 2' },
+          { term: 'Squat', used: 3, last: 'Aug 2' }, { term: 'Burpee', used: 2, last: 'Aug 2' },
+          { term: 'Bataan Death March', used: 2, last: 'Aug 2' }, { term: 'Bear Crawl', used: 1, last: 'Jun 14' },
+        ],
+        sources: [
+          { date: 'Aug 2', q: 'Hammer', title: 'Bataan Death March, 1.5 miles' },
+          { date: 'Jun 14', q: 'Bulldog', title: 'Murph, partitioned' },
+          { date: 'Mar 22', q: 'Radar', title: 'Lap pyramid at the park' },
+          { date: 'Jan 18', q: 'Stonewall', title: 'New Year convergence, three hours' },
+        ],
+      },
+      none: {
+        name: 'Region-wide', count: 124, window: 20,
+        voice: ['Rain the whole hour. Twenty-two men posted anyway.', 'Two FNGs. Both said they would be back Thursday.'],
+        ledger: [
+          { term: 'Mosey', used: 19, last: 'Aug 18' }, { term: 'Merkin', used: 16, last: 'Aug 18' },
+          { term: 'Squat', used: 14, last: 'Aug 18' }, { term: 'Burpee', used: 12, last: 'Aug 17' },
+          { term: 'Big Boy Sit-up', used: 11, last: 'Aug 15' }, { term: 'Bear Crawl', used: 9, last: 'Aug 17' },
+          { term: 'Mountain Climber', used: 7, last: 'Aug 14' }, { term: 'Al Gore', used: 6, last: 'Aug 11' },
+          { term: 'Carolina Dry Dock', used: 5, last: 'Aug 14' }, { term: 'Freddie Mercury', used: 4, last: 'Aug 6' },
+        ],
+        sources: [
+          { date: 'Aug 18', q: 'Gump', title: 'The Last Stand — Jack Webb and a Cindy block' },
+          { date: 'Aug 17', q: 'Bulldog', title: 'Black Ops — Wheel of Misery' },
+          { date: 'Aug 15', q: 'Hammer', title: 'The Battlefield — 11s on the back hill' },
+          { date: 'Aug 14', q: 'Bulldog', title: 'The Last Stand — dry docks' },
+          { date: 'Aug 13', q: 'Stonewall', title: 'The Battlefield — Four Corners' },
+          { date: 'Aug 11', q: 'Radar', title: 'The Battlefield — bear crawl suicides' },
+        ],
+      },
+    };
+  }
+
+  order() { return ['battlefield', 'last-stand', 'black-ops', 'csaup', 'none']; }
+
+  toggle(term) {
+    const r = Object.assign({}, this.state.released);
+    if (r[term]) delete r[term]; else r[term] = true;
+    this.setState({ released: r });
+  }
+
+  renderVals() {
+    const st = this.state;
+    const all = this.data();
+    const cur = all[st.ao] || all.none;
+    const stale = (this.props.knowledgeState ?? 'fresh') === 'stale';
+
+    const k = stale
+      ? {
+          version: 'v34', bg: '#f1ece1', fg: '#0c0c0c', border: '#c9a24a', dim: '#6b655a',
+          track: 'rgba(12,12,12,.1)', chipColor: '#b84a1a', chipLabel: 'Blind',
+          message: 'Knowledge is 16 days old — past the 14-day tolerance, so generation has dropped it entirely. Drafts are running on the raw backblast window with no AO Intel. Check the reconcile cron.',
+          builtAt: 'Aug 3 · 07:02 UTC', expiresIn: 'expired 2 days ago', freshPct: '100%',
+          stats: [
+            { value: '16d', label: 'Age' }, { value: '0', label: 'AO Intel blocks' },
+            { value: '118', label: 'Source backblasts' }, { value: '3', label: 'Failed rebuilds' },
+          ],
+        }
+      : {
+          version: 'v37', bg: '#0c0c0c', fg: '#f1ece1', border: '#0c0c0c', dim: 'rgba(241,236,225,.6)',
+          track: 'rgba(241,236,225,.14)', chipColor: '#2f6e89', chipLabel: 'Fresh',
+          message: 'Rebuilt this morning by the reconcile cron because six new backblasts landed since the last run. Every AO below has a current intel block.',
+          builtAt: 'Today · 07:02 UTC', expiresIn: '13 days left', freshPct: '7%',
+          stats: [
+            { value: '124', label: 'Source backblasts' }, { value: '5', label: 'AO Intel blocks' },
+            { value: '46s', label: 'Build time' }, { value: '<1d', label: 'Age' },
+          ],
+        };
+
+    const maxUsed = cur.ledger.reduce((m, l) => Math.max(m, l.used), 1);
+    const rows = cur.ledger.map((l) => {
+      const rel = !!st.released[l.term];
+      return {
+        term: l.term,
+        used: l.used + ' of ' + cur.window,
+        last: l.last,
+        pct: Math.round((l.used / maxUsed) * 100) + '%',
+        barColor: rel ? 'rgba(12,12,12,.22)' : '#b84a1a',
+        termColor: rel ? '#6b655a' : '#0c0c0c',
+        state: rel ? 'Released' : 'Locked',
+        stateColor: rel ? '#6b655a' : '#b84a1a',
+        toggle: () => this.toggle(l.term),
+      };
+    });
+
+    const released = cur.ledger.filter((l) => st.released[l.term]).length;
+    // scale coverage bars to the largest AO so the comparison is legible
+    const maxCount = this.order().filter((id) => id !== 'none').reduce((m, id) => Math.max(m, all[id].count), 1);
+
+    return {
+      k,
+      tabs: this.order().map((id) => ({
+        label: all[id].name, count: all[id].count, on: st.ao === id ? 'true' : 'false',
+        pick: () => this.setState({ ao: id, released: {} }),
+      })),
+      current: {
+        name: cur.name, window: cur.window,
+        voice: cur.voice.map((t) => ({ text: t })),
+        sources: cur.sources,
+      },
+      rows,
+      lockedCount: cur.ledger.length - released,
+      releasedCount: released,
+      coverage: this.order().filter((id) => id !== 'none').map((id) => ({
+        name: all[id].name,
+        count: all[id].count + ' backblasts',
+        pct: Math.round((all[id].count / maxCount) * 100) + '%',
+        color: all[id].count < 5 ? '#c9a24a' : '#2f6e89',
+        nameColor: all[id].count < 5 ? '#b84a1a' : '#0c0c0c',
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "title": "Builder — desktop", "x": 0, "y": 0, "w": 1440, "h": 1560 },
+    { "file": "Mobile.dc.html", "title": "Builder — phone", "x": 1530, "y": 0, "w": 390, "h": 844 },
+    { "file": "Ledger.dc.html", "title": "The Ledger", "x": 2010, "y": 0, "w": 1100, "h": 1240 }
+  ],
+  "annotations": [
+    {
+      "id": "concept",
+      "x": 0,
+      "y": -250,
+      "w": 560,
+      "text": "THE Q'S BRIEF\n\nThe re-do turns the builder into a two-panel workbench. Left is what you want. Right is what the region already knows — and it is live: pick an AO and the rail fills with that AO's signature, formats, crowd-pleasers and the repeat ledger.\n\nThe ledger is steerable, not just informational. Tap a locked term to release it into the draft.\n\nEverything is clickable. Pick an AO, set the brief, hit Generate."
+    },
+    {
+      "id": "wait-note",
+      "x": 1530,
+      "y": -250,
+      "w": 440,
+      "text": "PHONE IS THE REAL SURFACE\n\nQs build these at 21:00 the night before, on a phone. Intel collapses to a drawer, secondary controls hide behind one disclosure, and the action bar is opaque with a hard rule — not a translucent sticky bar.\n\nThe generation wait (~18s) becomes a muster log instead of a spinner: every line is a real stage of buildBeatdownContext."
+    },
+    {
+      "id": "ledger-note",
+      "x": 2010,
+      "y": -250,
+      "w": 520,
+      "text": "PROOF IT IS LEARNING\n\nThis is the audit surface behind the rail. Knowledge version and freshness, per-AO archive coverage, the verbatim voice samples, and the exact backblasts that were read.\n\nFlip the States tweak to 'stale' to see the honest failure case: past 14 days the knowledge row is dropped and generation goes blind. Today that happens silently."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

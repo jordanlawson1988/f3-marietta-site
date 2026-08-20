@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getSql } from '@/lib/db';
 import { validateAdminToken } from '@/lib/admin/auth';
 
@@ -25,6 +26,8 @@ export async function PUT(
     if (data.length === 0) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
+    // Beatdown Builder's AO dropdown is ISR-cached; refresh it on changes.
+    revalidatePath('/beatdown-builder');
     return NextResponse.json({ channel: data[0] });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Database error';
@@ -47,6 +50,7 @@ export async function DELETE(
     if (deleted.length === 0) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
+    revalidatePath('/beatdown-builder');
     return NextResponse.json({ ok: true });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Database error';

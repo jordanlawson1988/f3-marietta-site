@@ -1,8 +1,12 @@
 import { getSql } from '@/lib/db';
-import { getGemini, GEMINI_MODEL } from '@/lib/ai/gemini';
+import { generateGeminiContent } from '@/lib/ai/gemini';
 import { KNOWLEDGE_SYSTEM_INSTRUCTION, buildKnowledgeUserPrompt } from '@/lib/beatdown/prompts/marietta-knowledge';
 
-const MAX_TOKENS = 4000;
+// Thinking output is small relative to the doc; generous budget prevents
+// truncated JSON, which is unrecoverable for this pipeline.
+const MAX_TOKENS = 8192;
+// Bound prompt growth as the archive scales; newest events carry the signal.
+const MAX_SOURCE_EVENTS = 500;
 
 export interface BuildKnowledgeResult {
   status: 'built' | 'skipped' | 'failed';
@@ -10,6 +14,7 @@ export interface BuildKnowledgeResult {
   knowledge_id?: number;
   source_event_count?: number;
   generation_ms?: number;
+  model?: string;
 }
 
 export async function buildBeatdownKnowledge(opts: { force?: boolean } = {}): Promise<BuildKnowledgeResult> {
@@ -23,6 +28,7 @@ export async function buildBeatdownKnowledge(opts: { force?: boolean } = {}): Pr
       AND is_deleted = false
       AND content_text IS NOT NULL
     ORDER BY event_date DESC NULLS LAST, created_at DESC
+    LIMIT ${MAX_SOURCE_EVENTS}
   ` as { event_date: string | null; q_name: string | null; content_text: string | null; ao_display_name: string | null }[];
 
   if (events.length === 0) return { status: 'skipped', reason: 'no_backblasts' };
@@ -50,20 +56,19 @@ export async function buildBeatdownKnowledge(opts: { force?: boolean } = {}): Pr
   const userPrompt = buildKnowledgeUserPrompt(grouped);
 
   let parsed: { content: string; per_ao_summary: Record<string, unknown> };
+  let model: string;
   try {
-    const gemini = getGemini();
-    const resp = await gemini.models.generateContent({
-      model: GEMINI_MODEL,
+    const result = await generateGeminiContent({
       contents: userPrompt,
-      config: {
-        systemInstruction: KNOWLEDGE_SYSTEM_INSTRUCTION,
-        thinkingConfig: { thinkingBudget: 0 },
-        maxOutputTokens: MAX_TOKENS,
-        temperature: 0.3,
-        responseMimeType: 'application/json',
-      },
+      systemInstruction: KNOWLEDGE_SYSTEM_INSTRUCTION,
+      reasoning: 'high',
+      maxOutputTokens: MAX_TOKENS,
+      legacy: { temperature: 0.3, thinkingBudget: 0 },
+    }, {
+      logPrefix: '[buildKnowledge]',
     });
-    const text = (resp.text || '').trim();
+    model = result.model;
+    const text = (result.response.text || '').trim();
     if (!text) throw new Error('Empty response from Gemini');
     parsed = JSON.parse(text);
   } catch (err) {
@@ -75,7 +80,7 @@ export async function buildBeatdownKnowledge(opts: { force?: boolean } = {}): Pr
 
   const inserted = await sql`
     INSERT INTO marietta_bd_knowledge (source_event_count, content, per_ao_summary, generation_model, generation_ms)
-    VALUES (${events.length}, ${parsed.content}, ${JSON.stringify(parsed.per_ao_summary || {})}, ${GEMINI_MODEL}, ${generation_ms})
+    VALUES (${events.length}, ${parsed.content}, ${JSON.stringify(parsed.per_ao_summary || {})}, ${model}, ${generation_ms})
     RETURNING id
   ` as { id: number }[];
 
@@ -86,5 +91,6 @@ export async function buildBeatdownKnowledge(opts: { force?: boolean } = {}): Pr
     knowledge_id: inserted[0].id,
     source_event_count: events.length,
     generation_ms,
+    model,
   };
 }

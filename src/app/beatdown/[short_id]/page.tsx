@@ -16,8 +16,17 @@ interface Row {
 
 export async function generateMetadata({ params }: { params: Promise<{ short_id: string }> }): Promise<Metadata> {
   const { short_id } = await params;
-  const sql = getSql();
-  const rows = await sql`SELECT title, inputs FROM beatdowns WHERE short_id = ${short_id} LIMIT 1` as { title: string; inputs: BeatdownInputs }[];
+
+  let rows: { title: string; inputs: BeatdownInputs }[] = [];
+  try {
+    const sql = getSql();
+    rows = (await sql`
+      SELECT title, inputs FROM beatdowns WHERE short_id = ${short_id} LIMIT 1
+    `) as { title: string; inputs: BeatdownInputs }[];
+  } catch (error) {
+    console.error('[beatdown:saved] metadata lookup failed:', error);
+  }
+
   if (rows.length === 0) return { title: 'Beatdown not found' };
   return {
     title: `${rows[0].title} · F3 Marietta Beatdown`,
@@ -28,13 +37,24 @@ export async function generateMetadata({ params }: { params: Promise<{ short_id:
 export default async function SavedBeatdownPage({ params }: { params: Promise<{ short_id: string }> }) {
   const { short_id } = await params;
   if (!/^[a-z0-9]{8}$/.test(short_id)) notFound();
-  const sql = getSql();
-  const rows = await sql`
-    SELECT short_id, title, inputs, sections, generation_model, generation_ms, created_at
-    FROM beatdowns
-    WHERE short_id = ${short_id}
-    LIMIT 1
-  ` as Row[];
+
+  // Graceful-degradation contract shared by the page data loaders: a database
+  // failure renders not-found rather than a 500. A shared beatdown link is
+  // handed around Slack, so a Neon blip should show "not found", not a crash.
+  // notFound() throws a control-flow signal, so it stays outside the try.
+  let rows: Row[] = [];
+  try {
+    const sql = getSql();
+    rows = (await sql`
+      SELECT short_id, title, inputs, sections, generation_model, generation_ms, created_at
+      FROM beatdowns
+      WHERE short_id = ${short_id}
+      LIMIT 1
+    `) as Row[];
+  } catch (error) {
+    console.error('[beatdown:saved] lookup failed:', error);
+  }
+
   if (rows.length === 0) notFound();
   return <SavedBeatdownClient row={rows[0]} />;
 }
