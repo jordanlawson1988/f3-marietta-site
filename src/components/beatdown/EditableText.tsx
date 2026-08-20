@@ -86,18 +86,32 @@ export default function EditableText({
 
   const Tag = as;
   const display = value || placeholder || '';
+  // The trigger is a real <button> nested inside the tag rather than
+  // role="button" on the tag itself. Putting the role on an <h2> replaces its
+  // heading role outright, which quietly drops the beatdown title out of the
+  // document outline for anyone navigating by headings.
   return (
-    <Tag
-      className={`${className} cursor-text rounded hover:bg-bone-3/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--steel)] ${value ? '' : 'text-muted italic'}`}
-      role="button"
-      tabIndex={0}
-      aria-label={ariaLabel}
-      onClick={() => setEditing(true)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setEditing(true); }
-      }}
-    >
-      {display}
+    <Tag className={`${className} ${value ? '' : 'text-muted italic'}`}>
+      {/* Named by its own content, not by an aria-label: a label here also
+          becomes the accessible name of the wrapping <h2>, which would leave
+          the beatdown title announced as "Edit beatdown title" instead of the
+          title itself. The hint rides on title= for sighted hover. */}
+      <button
+        type="button"
+        title={ariaLabel}
+        onClick={() => setEditing(true)}
+        style={{
+          font: 'inherit',
+          color: 'inherit',
+          letterSpacing: 'inherit',
+          textTransform: 'inherit',
+          textAlign: 'inherit',
+          lineHeight: 'inherit',
+        }}
+        className="w-full cursor-text bg-transparent p-0 text-left hover:bg-bone-3/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-steel"
+      >
+        {display}
+      </button>
     </Tag>
   );
 }

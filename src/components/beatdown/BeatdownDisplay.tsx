@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import type { BeatdownDraft, BeatdownExerciseItem, BeatdownInputs } from '@/types/beatdown';
+import type { BeatdownDraft, BeatdownExerciseItem, BeatdownInputs, BeatdownIntel } from '@/types/beatdown';
 import BeatdownSection from './BeatdownSection';
 import ExerciseSwapModal from './ExerciseSwapModal';
 import ShareActionsBar from './ShareActionsBar';
 import EditableText from './EditableText';
+import ProvenanceStrip from './ProvenanceStrip';
 
 interface Props {
   inputs: BeatdownInputs;
@@ -14,9 +15,12 @@ interface Props {
   generationMs: number;
   model: string;
   knowledgeVersion: number | null;
+  intel: BeatdownIntel | null;
+  locksHonored: number | null;
+  onStartOver: () => void;
 }
 
-export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs, model, knowledgeVersion }: Props) {
+export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs, model, knowledgeVersion, intel, locksHonored, onStartOver }: Props) {
   const [regen, setRegen] = useState<'warmup' | 'thang' | 'cot' | null>(null);
   const [swap, setSwap] = useState<{ section: 'warmup' | 'thang'; index: number } | null>(null);
 
@@ -62,16 +66,25 @@ export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs,
   }
 
   return (
-    <section className="mt-8 space-y-4 beatdown-card">
-      <header className="rounded-md border border-line-soft p-4 bg-bone-2">
-        <div className="text-[10px] uppercase tracking-widest text-steel">
-          F3 Marietta{inputs.ao_display_name ? ` · ${inputs.ao_display_name}` : ''} · {draft.sections.header.length_min} min
+    <section className="beatdown-card mt-2 space-y-4">
+      <header className="border-[1.5px] border-ink bg-ink px-5 py-6 text-bone md:px-8">
+        <div className="flex items-center justify-between gap-3">
+          <div className="font-mono text-[10px] uppercase tracking-[.2em] text-steel">
+            F3 Marietta{inputs.ao_display_name ? ` · ${inputs.ao_display_name}` : ''} · {draft.sections.header.length_min} min
+          </div>
+          <button
+            type="button"
+            onClick={onStartOver}
+            className="min-h-[44px] px-2 font-mono text-[10px] uppercase tracking-[.18em] text-bone/60 hover:text-steel no-print"
+          >
+            Start over
+          </button>
         </div>
         <EditableText
           value={draft.title}
           onChange={(value) => setDraft({ ...draft, title: value, sections: { ...draft.sections, header: { ...draft.sections.header, title: value } } })}
           as="h2"
-          className="mt-1 text-2xl md:text-3xl font-bold"
+          className="mt-3 font-display text-[32px] md:text-[42px] font-bold uppercase leading-[.94] tracking-[-.01em] text-bone"
           placeholder="Beatdown title"
           ariaLabel="Edit beatdown title"
         />
@@ -79,15 +92,20 @@ export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs,
           value={draft.sections.header.summary}
           onChange={(value) => setDraft({ ...draft, sections: { ...draft.sections, header: { ...draft.sections.header, summary: value } } })}
           as="p"
-          className="mt-1 text-sm text-muted"
+          className="mt-2 text-[15px] leading-relaxed text-bone/75"
           placeholder="One-line summary"
           ariaLabel="Edit beatdown summary"
           multiline
         />
-        <div className="mt-2 text-xs text-muted no-print">
-          {model} · {generationMs}ms{knowledgeVersion ? ` · knowledge v${knowledgeVersion}` : ''}
-        </div>
       </header>
+
+      <ProvenanceStrip
+        model={model}
+        generationMs={generationMs}
+        intel={intel}
+        knowledgeVersion={knowledgeVersion}
+        locksHonored={locksHonored}
+      />
 
       <BeatdownSection
         label="Warm-up" sectionKey="warmup" draft={draft} inputs={inputs} showCoaching={showCoaching}

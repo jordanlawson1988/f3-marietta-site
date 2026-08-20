@@ -1,31 +1,80 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { fixtureDraft } from './fixtures/beatdown';
 
+const INTEL = {
+  ao_display_name: 'The Battlefield',
+  confidence: 'strong',
+  window: 10,
+  on_file: 41,
+  knowledge_version: 37,
+  knowledge_generated_at: '2026-08-20T07:02:00.000Z',
+  source_event_count: 124,
+  knowledge_stale: false,
+  ao_intel: {
+    top_exercises: ['Merkin', 'Squat'],
+    common_formats: ['11s on the back hill'],
+    voice_samples: ['The gloom delivered.'],
+    crowd_pleasers: ['Route 66'],
+    recent_trends: ['Coupon work up since June'],
+  },
+  ledger: [
+    { term: 'Merkin', used: 8, window: 10, last_used: '2026-08-15' },
+    { term: 'Squat', used: 7, window: 10, last_used: '2026-08-15' },
+  ],
+  sources: [{ event_date: '2026-08-15', q_name: 'Hammer', title: '11s on the back hill' }],
+};
+
+const GENERATED = {
+  title: fixtureDraft.title,
+  sections: fixtureDraft.sections,
+  generation_ms: 1234,
+  model: 'gemini-3.1-pro-preview',
+  knowledge_version: 37,
+  intel: INTEL,
+  locks_honored: 2,
+};
+
+async function mockIntel(page: Page) {
+  await page.route('**/api/beatdown/intel*', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(INTEL) }),
+  );
+}
+
+async function mockGenerate(page: Page) {
+  await page.route('**/api/beatdown/generate', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(GENERATED) }),
+  );
+}
+
 test.describe('AI Beatdown Builder', () => {
-  test('renders the form and disables Generate without a real AO', async ({ page }) => {
+  test('renders the brief and the intel rail', async ({ page }) => {
+    await mockIntel(page);
     await page.goto('/beatdown-builder');
-    await expect(page.getByRole('heading', { name: 'AI Beatdown Builder' })).toBeVisible();
-    await expect(page.getByLabel('AO')).toBeVisible();
+
+    await expect(page.getByRole('heading', { name: 'Build a beatdown.', level: 1 })).toBeVisible();
+    await expect(page.getByRole('group', { name: 'AO' })).toBeVisible();
+    await expect(page.getByRole('complementary', { name: 'Archive intel' })).toBeVisible();
     await expect(page.getByRole('button', { name: /generate beatdown/i })).toBeVisible();
   });
 
   test('picker selections stick when clicked', async ({ page }) => {
+    await mockIntel(page);
     await page.goto('/beatdown-builder');
 
-    await page.getByRole('button', { name: 'Legs' }).click();
-    await expect(page.getByRole('button', { name: 'Legs' })).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByRole('button', { name: 'Full Body' })).toHaveAttribute('aria-pressed', 'false');
+    await page.getByRole('button', { name: 'Legs', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Legs', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: 'Full Body', exact: true })).toHaveAttribute('aria-pressed', 'false');
 
-    await page.getByRole('button', { name: 'Q-school' }).click();
-    await expect(page.getByRole('button', { name: 'Q-school' })).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByRole('button', { name: '—' })).toHaveAttribute('aria-pressed', 'false');
+    await page.getByRole('button', { name: 'Q-school', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Q-school', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByRole('button', { name: 'None', exact: true })).toHaveAttribute('aria-pressed', 'false');
 
-    await page.getByRole('button', { name: 'Coupon' }).click();
-    await expect(page.getByRole('button', { name: 'Coupon' })).toHaveAttribute('aria-pressed', 'true');
-    await page.getByRole('button', { name: 'Bodyweight' }).click();
-    await expect(page.getByRole('button', { name: 'Bodyweight' })).toHaveAttribute('aria-pressed', 'false');
+    await page.getByRole('button', { name: 'Coupon', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Coupon', exact: true })).toHaveAttribute('aria-pressed', 'true');
+    await page.getByRole('button', { name: 'Bodyweight', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Bodyweight', exact: true })).toHaveAttribute('aria-pressed', 'false');
 
-    const famousSelect = page.getByLabel('Inspired by (optional)');
+    const famousSelect = page.getByLabel('Inspired by');
     await famousSelect.selectOption('dora-1-2-3');
     await expect(famousSelect).toHaveValue('dora-1-2-3');
 
@@ -33,29 +82,72 @@ test.describe('AI Beatdown Builder', () => {
     await expect(page.getByLabel(/Q's Notes/)).toHaveValue('Keep the six together.');
   });
 
-  test('renders generated beatdown when API returns a draft', async ({ page }) => {
-    await page.route('**/api/beatdown/generate', route => route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        title: fixtureDraft.title,
-        sections: fixtureDraft.sections,
-        generation_ms: 1234,
-        model: 'gemini-2.5-flash',
-        knowledge_version: null,
-      }),
-    }));
+  test('the repeat ledger shows what ran recently and how often', async ({ page }) => {
+    await mockIntel(page);
+    await page.goto('/beatdown-builder');
+
+    const rail = page.getByRole('complementary', { name: 'Archive intel' });
+    await expect(rail.getByText('Strong history')).toBeVisible();
+    await expect(rail.getByText('8/10')).toBeVisible();
+    await expect(rail.getByRole('button', { name: /Merkin/ })).toHaveAttribute('aria-pressed', 'true');
+    await expect(rail.getByText('2 locked', { exact: true })).toBeVisible();
+  });
+
+  test('releasing a locked term reaches the generate request', async ({ page }) => {
+    await mockIntel(page);
+
+    let sentReleased: string[] | undefined;
+    await page.route('**/api/beatdown/generate', async (route) => {
+      sentReleased = route.request().postDataJSON()?.released_terms;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(GENERATED),
+      });
+    });
 
     await page.goto('/beatdown-builder');
-    const aoSelect = page.getByLabel('AO');
-    const firstOption = await aoSelect.locator('option').first().getAttribute('value');
-    if (firstOption) await aoSelect.selectOption(firstOption);
+    const rail = page.getByRole('complementary', { name: 'Archive intel' });
+
+    await rail.getByRole('button', { name: /Merkin/ }).click();
+    await expect(rail.getByRole('button', { name: /Merkin/ })).toHaveAttribute('aria-pressed', 'false');
+    await expect(rail.getByText('1 locked', { exact: true })).toBeVisible();
+
+    await page.getByRole('button', { name: /generate beatdown/i }).click();
+    await expect(page.getByRole('heading', { name: fixtureDraft.title, level: 2 })).toBeVisible();
+
+    expect(sentReleased).toEqual(['Merkin']);
+  });
+
+  test('renders the generated beatdown with its provenance', async ({ page }) => {
+    await mockIntel(page);
+    await mockGenerate(page);
+
+    await page.goto('/beatdown-builder');
     await page.getByRole('button', { name: /generate beatdown/i }).click();
 
     await expect(page.getByRole('heading', { name: fixtureDraft.title, level: 2 })).toBeVisible();
     await expect(page.getByText('SSH')).toBeVisible();
-    await expect(page.getByText('11s on the back hill')).toBeVisible();
+    await expect(page.getByText('11s on the back hill').first()).toBeVisible();
+    await expect(page.getByText('gemini-3.1-pro-preview')).toBeVisible();
+    await expect(page.getByText('v37')).toBeVisible();
     await expect(page.getByRole('button', { name: /copy as slackblast/i })).toBeVisible();
+  });
+
+  test('a dead intel endpoint still lets the Q generate', async ({ page }) => {
+    await page.route('**/api/beatdown/intel*', (route) =>
+      route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'unavailable', message: 'Archive intel is temporarily unavailable.' }),
+      }),
+    );
+    await mockGenerate(page);
+
+    await page.goto('/beatdown-builder');
+    await expect(page.getByText(/Archive intel is temporarily unavailable/)).toBeVisible();
+    await page.getByRole('button', { name: /generate beatdown/i }).click();
+    await expect(page.getByRole('heading', { name: fixtureDraft.title, level: 2 })).toBeVisible();
   });
 
   test('saved view renders by short_id', async ({ page }) => {
@@ -67,33 +159,21 @@ test.describe('AI Beatdown Builder', () => {
   // background) renders a stale, ghosted duplicate of the content behind it when the
   // soft keyboard opens during inline edits — the "overlapping text" mobile bug.
   // The action bar must therefore have NO backdrop-filter and a fully opaque background.
-  test('mobile action bar has no backdrop-filter and an opaque background (inline-edit ghosting regression)', async ({ page }) => {
+  test('mobile action bar has no backdrop-filter and an opaque background (inline-edit ghosting regression)', async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 390, height: 844 }); // iPhone 12 logical viewport
-
-    await page.route('**/api/beatdown/generate', route => route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        title: fixtureDraft.title,
-        sections: fixtureDraft.sections,
-        generation_ms: 1234,
-        model: 'gemini-2.5-flash',
-        knowledge_version: null,
-      }),
-    }));
+    await mockIntel(page);
+    await mockGenerate(page);
 
     await page.goto('/beatdown-builder');
-    const aoSelect = page.getByLabel('AO');
-    const firstOption = await aoSelect.locator('option').first().getAttribute('value');
-    if (firstOption) await aoSelect.selectOption(firstOption);
     await page.getByRole('button', { name: /generate beatdown/i }).click();
 
     const copyBtn = page.getByRole('button', { name: /copy as slackblast/i });
     await expect(copyBtn).toBeVisible();
 
-    // The action bar is the sticky container wrapping Save / Copy / Print.
     const actionBar = copyBtn.locator(
-      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " sticky ")][1]'
+      'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " sticky ")][1]',
     );
     await expect(actionBar).toHaveCount(1);
 
@@ -115,5 +195,16 @@ test.describe('AI Beatdown Builder', () => {
       return parts.length === 4 ? parseFloat(parts[3]) : 1;
     })();
     expect(alpha).toBe(1);
+  });
+
+  test('the intel rail collapses on a phone so the brief is reachable', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await mockIntel(page);
+    await page.goto('/beatdown-builder');
+
+    const toggle = page.getByRole('button', { name: /10 read · 2 locked · show/i });
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await toggle.click();
+    await expect(page.getByRole('button', { name: /hide the intel/i })).toHaveAttribute('aria-expanded', 'true');
   });
 });

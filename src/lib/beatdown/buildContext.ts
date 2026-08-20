@@ -59,6 +59,10 @@ export async function buildBeatdownContext(inputs: ContextInputs): Promise<Beatd
     { id: number; content: string; per_ao_summary: unknown; generated_at: string; source_event_count: number }[]
   >;
 
+  // With no AO the region IS the scope, so read the region-wide window
+  // directly. Previously this only happened as a fallback when the knowledge
+  // row was missing, which meant the prompt's "Recently used across F3
+  // Marietta" avoid-list never populated in normal operation.
   const primaryRecentPromise = inputs.ao_display_name
     ? (sql`
         SELECT id, event_date, q_name, title, content_text
@@ -71,9 +75,16 @@ export async function buildBeatdownContext(inputs: ContextInputs): Promise<Beatd
       ` as unknown as Promise<
         { id: string; event_date: string | null; q_name: string | null; title: string | null; content_text: string | null }[]
       >)
-    : Promise.resolve(
-        [] as { id: string; event_date: string | null; q_name: string | null; title: string | null; content_text: string | null }[],
-      );
+    : (sql`
+        SELECT id, event_date, q_name, title, content_text
+        FROM f3_events
+        WHERE event_kind = 'backblast'
+          AND is_deleted = false
+        ORDER BY event_date DESC NULLS LAST, created_at DESC
+        LIMIT 20
+      ` as unknown as Promise<
+        { id: string; event_date: string | null; q_name: string | null; title: string | null; content_text: string | null }[]
+      >);
 
   // Archive depth for the selected AO. Bundled into the same Promise.all so
   // the whole context still costs one Neon wake — compute hygiene matters
@@ -131,8 +142,9 @@ export async function buildBeatdownContext(inputs: ContextInputs): Promise<Beatd
     content_text: r.content_text,
   }));
 
-  // If no knowledge AND fewer than 5 AO-specific rows, backfill region-wide while skipping any IDs we already have.
-  if (!knowledgeContent && primaryRecent.length < 5) {
+  // For a thin AO with no knowledge doc to lean on, top the window up
+  // region-wide, skipping any IDs already present.
+  if (inputs.ao_display_name && !knowledgeContent && primaryRecent.length < 5) {
     const seenIds = new Set(primaryRecent.map((r) => r.id));
     const fallback = (await sql`
       SELECT id, event_date, q_name, title, content_text

@@ -31,14 +31,15 @@ export function extractRecentExercises(
     .map((e) => ({ date: normalizeDate(e.event_date), text: e.content_text }));
   if (texts.length === 0 || exicon.length === 0) return [];
 
-  const stats: RecentExerciseStat[] = [];
-  const seen = new Set<string>();
+  // Keyed by canonical form so singular/plural Exicon entries for the same
+  // movement fold together. termPattern() already matches both, so leaving
+  // them separate double-counts one movement in the ledger and in the
+  // avoid-repeat list the model reads.
+  const byCanonical = new Map<string, RecentExerciseStat>();
 
   for (const { term } of exicon) {
     if (!term || term.length < minTermLength) continue;
-    const key = term.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
+    const key = canonicalKey(term);
 
     const pattern = termPattern(term);
     let count = 0;
@@ -48,8 +49,23 @@ export function extractRecentExercises(
       count++;
       if (date && (!lastUsed || date > lastUsed)) lastUsed = date;
     }
-    if (count > 0) stats.push({ term, count, lastUsed });
+    if (count === 0) continue;
+
+    const existing = byCanonical.get(key);
+    if (!existing) {
+      byCanonical.set(key, { term, count, lastUsed });
+      continue;
+    }
+    // Same movement under another spelling: keep the shorter (singular)
+    // label, the higher count, and the most recent sighting.
+    byCanonical.set(key, {
+      term: term.length < existing.term.length ? term : existing.term,
+      count: Math.max(count, existing.count),
+      lastUsed: laterOf(lastUsed, existing.lastUsed),
+    });
   }
+
+  const stats: RecentExerciseStat[] = [...byCanonical.values()];
 
   stats.sort(
     (a, b) =>
@@ -75,4 +91,21 @@ function normalizeDate(d: string | Date | null): string | null {
   if (!d) return null;
   if (d instanceof Date) return d.toISOString().slice(0, 10);
   return d.slice(0, 10);
+}
+
+/**
+ * Fold a term to the movement it names. Strips one trailing "s" only — which
+ * is exactly the set of duplicates the Exicon actually carries (LBC/LBCs,
+ * Mountain Climber/Mountain Climbers, Rosalita/Rosalitas...). Stripping "es"
+ * as well would break Blockee/Blockees, which differ by a single "s".
+ */
+function canonicalKey(term: string): string {
+  const lower = term.toLowerCase();
+  return lower.endsWith('s') ? lower.slice(0, -1) : lower;
+}
+
+function laterOf(a: string | null, b: string | null): string | null {
+  if (!a) return b;
+  if (!b) return a;
+  return a > b ? a : b;
 }

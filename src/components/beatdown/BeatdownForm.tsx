@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
 import {
   FOCUS_OPTIONS,
   THEME_OPTIONS,
@@ -31,13 +30,25 @@ interface Props {
   aos: AoOption[];
   famousBeatdowns: FamousOption[];
   disabled: boolean;
-  onSubmit: (inputs: BeatdownInputs) => void;
+  /** AO lives in the parent so the intel rail and the brief stay in step. */
+  aoId: string;
+  onAoChange: (aoId: string) => void;
+  /** Repeat locks currently held, shown under the generate button. */
+  lockedCount: number;
+  onSubmit: (inputs: Omit<BeatdownInputs, 'released_terms'>) => void;
 }
 
 const Q_NOTES_MAX_LENGTH = 1000;
 
-export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit }: Props) {
-  const [aoId, setAoId] = useState<string>('');
+export default function BeatdownForm({
+  aos,
+  famousBeatdowns,
+  disabled,
+  aoId,
+  onAoChange,
+  lockedCount,
+  onSubmit,
+}: Props) {
   const [focus, setFocus] = useState<BeatdownFocus>('full');
   const [theme, setTheme] = useState<BeatdownTheme>(null);
   const [equipment, setEquipment] = useState<BeatdownEquipment[]>(['bodyweight']);
@@ -61,6 +72,10 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
     return lengthChoice;
   }
 
+  const lengthMin = resolveLength();
+  const warmup = Math.max(3, Math.round(lengthMin * 0.11));
+  const cot = Math.max(3, Math.round(lengthMin * 0.1));
+
   function submit(e: React.FormEvent) {
     e.preventDefault();
     const ao = aoId ? aos.find((a) => a.id === aoId) : null;
@@ -72,39 +87,38 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
       equipment: equipment.length > 0 ? equipment : ['bodyweight'],
       famous_bd: famousBd || null,
       q_notes: qNotes.trim().slice(0, Q_NOTES_MAX_LENGTH),
-      length_min: resolveLength(),
+      length_min: lengthMin,
     });
   }
 
   return (
-    <form
-      onSubmit={submit}
-      className="space-y-6 rounded-lg border border-[var(--line)] bg-[var(--bone-2)] p-4 shadow-sm md:p-6"
-    >
-      <div>
-        <label htmlFor="beatdown-ao" className="block text-sm font-medium mb-2">
-          AO <span className="text-[var(--muted)] font-normal">(optional)</span>
-        </label>
-        <select
-          id="beatdown-ao"
-          value={aoId}
-          onChange={(e) => setAoId(e.target.value)}
-          className={fieldClass}
-        >
-          <option value="">— No specific AO —</option>
-          {aos.map((ao) => (
-            <option key={ao.id} value={ao.id}>
-              {ao.ao_display_name}
-            </option>
-          ))}
-        </select>
-        <p className="mt-1 text-xs text-[var(--muted)]">
-          Pick an AO to ground the beatdown in its terrain and recent history. Leave blank for a CSAUP or generic build.
-        </p>
+    <form onSubmit={submit} className="border-[1.5px] border-ink bg-bone-2 p-5 md:p-8">
+      <div className="flex items-baseline justify-between border-b-[1.5px] border-ink pb-3">
+        <h2 className="font-display font-bold uppercase tracking-[.02em] text-[22px]">The Brief</h2>
+        <span className="font-mono text-[10px] uppercase tracking-[.18em] text-muted">
+          Step 01 · What you want
+        </span>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">Length</label>
+      <Field label="AO">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="AO">
+          {aos.map((ao) => (
+            <Chip
+              key={ao.id}
+              selected={aoId === ao.id}
+              onClick={() => onAoChange(ao.id)}
+              label={ao.ao_display_name}
+            />
+          ))}
+          <Chip selected={aoId === ''} onClick={() => onAoChange('')} label="No specific AO" />
+        </div>
+        <Hint>
+          Pick an AO to ground the beatdown in its terrain and recent history. Leave it off for a
+          CSAUP or a portable build.
+        </Hint>
+      </Field>
+
+      <Field label="Length">
         <div className="flex flex-wrap gap-2" role="group" aria-label="Length">
           {LENGTH_PRESETS.map((mins) => (
             <Chip
@@ -133,36 +147,31 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
               className={`${fieldClass} w-32`}
               aria-label="Custom length in minutes"
             />
-            <span className="text-sm text-[var(--muted)]">minutes ({MIN_LENGTH_MIN}–{MAX_LENGTH_MIN})</span>
+            <span className="text-sm text-muted">
+              minutes ({MIN_LENGTH_MIN}–{MAX_LENGTH_MIN})
+            </span>
           </div>
         )}
-      </div>
+        <Hint>
+          Budget · {warmup} min warm-up / {lengthMin - warmup - cot} min thang / {cot} min COT
+        </Hint>
+      </Field>
 
-      <ChipGroup
-        label="Focus"
-        value={focus}
-        options={FOCUS_OPTIONS}
-        onChange={(v) => setFocus(v as BeatdownFocus)}
-      />
-
-      <div>
-        <label className="block text-sm font-medium mb-2">Theme / Occasion</label>
-        <div className="flex flex-wrap gap-2" aria-label="Theme / Occasion">
-          <Chip selected={theme === null} onClick={() => setTheme(null)} label="—" />
-          {THEME_OPTIONS.map((o) => (
+      <Field label="Focus">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Focus">
+          {FOCUS_OPTIONS.map((o) => (
             <Chip
               key={o.value}
-              selected={theme === o.value}
-              onClick={() => setTheme(o.value)}
+              selected={focus === o.value}
+              onClick={() => setFocus(o.value)}
               label={o.label}
             />
           ))}
         </div>
-      </div>
+      </Field>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">Equipment (multi)</label>
-        <div className="flex flex-wrap gap-2" aria-label="Equipment">
+      <Field label="Equipment" note="multi">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Equipment">
           {EQUIPMENT_OPTIONS.map((o) => (
             <Chip
               key={o.value}
@@ -172,12 +181,23 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
             />
           ))}
         </div>
-      </div>
+      </Field>
 
-      <div>
-        <label htmlFor="beatdown-famous" className="block text-sm font-medium mb-2">
-          Inspired by (optional)
-        </label>
+      <Field label="Theme / Occasion">
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Theme / Occasion">
+          <Chip selected={theme === null} onClick={() => setTheme(null)} label="None" />
+          {THEME_OPTIONS.map((o) => (
+            <Chip
+              key={o.value}
+              selected={theme === o.value}
+              onClick={() => setTheme(o.value)}
+              label={o.label}
+            />
+          ))}
+        </div>
+      </Field>
+
+      <Field label="Inspired by" htmlFor="beatdown-famous">
         <select
           id="beatdown-famous"
           value={famousBd}
@@ -204,64 +224,78 @@ export default function BeatdownForm({ aos, famousBeatdowns, disabled, onSubmit 
               ))}
           </optgroup>
         </select>
-      </div>
+      </Field>
 
-      <div>
-        <label htmlFor="beatdown-q-notes" className="block text-sm font-medium mb-2">
-          Q&apos;s Notes (optional, max 1,000 chars)
-        </label>
+      <Field label="Q's Notes" htmlFor="beatdown-q-notes">
         <textarea
           id="beatdown-q-notes"
           value={qNotes}
           onChange={(e) => setQNotes(e.target.value.slice(0, Q_NOTES_MAX_LENGTH))}
-          placeholder='e.g., "Honoring fallen brother today", "celebrating Hammer&apos;s 100th post"'
+          placeholder="Honoring a fallen brother · Hammer's 100th post · two FNGs expected"
           maxLength={Q_NOTES_MAX_LENGTH}
-          rows={4}
+          rows={3}
           className={fieldClass}
         />
-        <div className="mt-1 text-xs text-[var(--muted)]">{qNotes.length}/1,000</div>
-      </div>
+        <div className="mt-1.5 flex justify-between">
+          <span className="font-mono text-[10px] uppercase tracking-[.16em] text-muted">
+            Passed to the model verbatim
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-[.16em] text-muted">
+            {qNotes.length}/1,000
+          </span>
+        </div>
+      </Field>
 
-      <Button
+      <button
         type="submit"
         disabled={disabled}
-        className="w-full bg-[var(--ink)] text-[var(--bone)] hover:bg-[var(--steel-2)]"
+        className="mt-7 flex w-full items-center justify-center gap-3 clip-chamfer border-[1.5px] border-ink bg-ink px-7 py-4 font-display text-[15px] font-semibold uppercase tracking-[.1em] text-bone transition-colors hover:bg-steel hover:border-steel disabled:opacity-50"
       >
         {disabled ? 'Generating…' : 'Generate Beatdown'}
-      </Button>
+        {!disabled && <span aria-hidden="true">→</span>}
+      </button>
+      <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-[.16em] text-muted">
+        {lockedCount} repeat {lockedCount === 1 ? 'lock' : 'locks'} active · gemini-3.1-pro-preview
+      </p>
     </form>
   );
 }
 
 const fieldClass =
-  'w-full rounded-md border border-[var(--line)] bg-[var(--bone)] px-3 py-2 text-base text-[var(--ink)] shadow-sm focus:border-[var(--steel)] focus:outline-none focus:ring-2 focus:ring-[rgba(47,110,137,0.25)]';
+  'w-full border-[1.5px] border-line-soft bg-bone px-3 py-2.5 text-base text-ink outline-none focus:border-steel';
 
-function ChipGroup<T extends string>({
+function Field({
   label,
-  value,
-  options,
-  onChange,
+  note,
+  htmlFor,
+  children,
 }: {
   label: string;
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (v: T) => void;
+  note?: string;
+  htmlFor?: string;
+  children: React.ReactNode;
 }) {
+  const Heading = htmlFor ? 'label' : 'div';
   return (
-    <fieldset>
-      <legend className="block text-sm font-medium mb-2">{label}</legend>
-      <div className="flex flex-wrap gap-2" role="group" aria-label={label}>
-        {options.map((o) => (
-          <Chip
-            key={o.value}
-            selected={value === o.value}
-            onClick={() => onChange(o.value)}
-            label={o.label}
-          />
-        ))}
-      </div>
-    </fieldset>
+    <div className="mt-6">
+      <Heading
+        {...(htmlFor ? { htmlFor } : {})}
+        className="mb-2.5 block font-display text-[13px] font-semibold uppercase tracking-[.06em]"
+      >
+        {label}
+        {note && (
+          <span className="ml-2 font-mono text-[10px] font-normal tracking-[.16em] text-muted">
+            · {note}
+          </span>
+        )}
+      </Heading>
+      {children}
+    </div>
   );
+}
+
+function Hint({ children }: { children: React.ReactNode }) {
+  return <p className="mt-2 font-mono text-[10px] uppercase tracking-[.16em] leading-relaxed text-muted">{children}</p>;
 }
 
 function Chip({
@@ -280,10 +314,10 @@ function Chip({
       data-selected={selected ? 'true' : 'false'}
       onClick={onClick}
       className={
-        'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--steel)] ' +
+        'inline-flex min-h-[44px] items-center border-[1.5px] px-3.5 font-display text-[13px] font-semibold uppercase tracking-[.06em] transition-colors ' +
         (selected
-          ? 'border-[var(--ink)] bg-[var(--ink)] text-[var(--bone)] shadow-sm'
-          : 'border-[var(--line)] bg-[var(--bone)] text-[var(--ink)] hover:border-[var(--steel)] hover:bg-[var(--bone-3)]')
+          ? 'border-ink bg-ink text-bone'
+          : 'border-line-soft bg-bone text-ink hover:border-steel')
       }
     >
       {label}

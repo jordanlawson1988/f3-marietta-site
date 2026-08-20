@@ -66,3 +66,51 @@ test("empty inputs return empty list", () => {
   assert.deepEqual(extractRecentExercises([], EXICON), []);
   assert.deepEqual(extractRecentExercises([ev("2026-07-14", "chatter")], []), []);
 });
+
+test("singular and plural Exicon entries collapse into one ledger row", () => {
+  // Matching is already plural-tolerant, so "Mountain Climber" and
+  // "Mountain Climbers" both count the same backblasts. Left alone they
+  // produce two identical rows in the repeat ledger and two identical lines
+  // in the avoid-repeat list the model reads.
+  const events = [
+    { event_date: "2026-08-15", content_text: "We did Mountain Climbers until the sun came up." },
+    { event_date: "2026-08-13", content_text: "More Mountain Climbers." },
+  ];
+  const stats = extractRecentExercises(events, [
+    { term: "Mountain Climber" },
+    { term: "Mountain Climbers" },
+  ]);
+  assert.equal(stats.length, 1);
+  assert.equal(stats[0].count, 2);
+});
+
+test("the singular form is kept as the canonical term", () => {
+  const events = [{ event_date: "2026-08-15", content_text: "LBCs and Ranger Merkins." }];
+  const stats = extractRecentExercises(events, [
+    { term: "LBCs" },
+    { term: "LBC" },
+    { term: "Ranger Merkins" },
+    { term: "Ranger Merkin" },
+  ]);
+  assert.deepEqual(stats.map((s) => s.term).sort(), ["LBC", "Ranger Merkin"]);
+});
+
+test("collapsing keeps the most recent last-used date across variants", () => {
+  const events = [
+    { event_date: "2026-08-15", content_text: "Rosalitas." },
+    { event_date: "2026-07-01", content_text: "Rosalita." },
+  ];
+  const stats = extractRecentExercises(events, [{ term: "Rosalita" }, { term: "Rosalitas" }]);
+  assert.equal(stats.length, 1);
+  assert.equal(stats[0].lastUsed, "2026-08-15");
+});
+
+test("distinct movements are not collapsed by the plural rule", () => {
+  const events = [{ event_date: "2026-08-15", content_text: "Merkins and Squats and Burpees." }];
+  const stats = extractRecentExercises(events, [
+    { term: "Merkin" },
+    { term: "Squat" },
+    { term: "Burpee" },
+  ]);
+  assert.equal(stats.length, 3);
+});
