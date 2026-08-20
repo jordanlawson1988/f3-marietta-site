@@ -247,8 +247,8 @@ export function Navbar() {
   return (
     <>
       <header
-        className="sticky top-0 z-40 w-full border-b border-[color:var(--line-soft)] backdrop-blur-md"
-        style={{ background: "rgba(241,236,225,.92)" }}
+        className="sticky top-0 z-40 w-full border-b border-[color:var(--line-soft)]"
+        style={{ background: "var(--bone)" }}
       >
         <div className="max-w-[1320px] mx-auto flex items-center justify-between gap-6 px-7 py-3.5">
           {/* Logo */}

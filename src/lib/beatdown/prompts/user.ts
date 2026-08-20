@@ -1,7 +1,8 @@
 import type { GlossaryEntry } from '@/../data/f3Glossary';
-import type { BeatdownInputs } from '@/types/beatdown';
+import type { AoIntel, BeatdownInputs } from '@/types/beatdown';
 import type { AoBeatdownContext } from '@/lib/beatdown/aoContext';
 import type { FamousBeatdown } from '@/lib/beatdown/loadFamousBeatdowns';
+import type { RecentExerciseStat } from '@/lib/beatdown/recentExercises';
 
 export interface UserPromptArgs {
   inputs: BeatdownInputs;
@@ -11,6 +12,10 @@ export interface UserPromptArgs {
   exiconSubset: GlossaryEntry[];
   famousBdLibrary: FamousBeatdown[];
   selectedFamousBd: FamousBeatdown | null;
+  /** Per-AO analysis from the knowledge pipeline (marietta_bd_knowledge.per_ao_summary). */
+  aoIntel: AoIntel | null;
+  /** Deterministic exicon-term frequency over the recent backblasts. */
+  recentExercises: RecentExerciseStat[];
 }
 
 export function buildUserPrompt(args: UserPromptArgs): string {
@@ -19,6 +24,19 @@ export function buildUserPrompt(args: UserPromptArgs): string {
   if (args.knowledgeContent) {
     lines.push('[PINNED — F3 Marietta Knowledge]');
     lines.push(args.knowledgeContent);
+    lines.push('');
+  }
+
+  if (args.aoIntel && args.inputs.ao_display_name) {
+    lines.push(`[PINNED — AO Intel: ${args.inputs.ao_display_name} (AI analysis of the backblast archive)]`);
+    pushList(lines, 'Top exercises historically', args.aoIntel.top_exercises);
+    pushList(lines, 'Common formats', args.aoIntel.common_formats);
+    pushList(lines, 'Crowd pleasers', args.aoIntel.crowd_pleasers ?? []);
+    pushList(lines, 'Recent trends', args.aoIntel.recent_trends ?? []);
+    if (args.aoIntel.voice_samples.length > 0) {
+      lines.push('Voice samples (match this tone):');
+      for (const v of args.aoIntel.voice_samples) lines.push(`- "${v}"`);
+    }
     lines.push('');
   }
 
@@ -55,6 +73,38 @@ export function buildUserPrompt(args: UserPromptArgs): string {
       const excerpt = (r.content_text || '').slice(0, 400);
       lines.push(`(${date}, Q: ${q}) ${excerpt}`);
     }
+    lines.push('');
+  }
+
+  // The Q can release terms from the ledger in the builder's intel rail. A
+  // released term must not just vanish from the avoid list — the model has to
+  // be told the omission was deliberate, or it infers the term is simply
+  // unremarkable and skips it anyway.
+  const releasedSet = new Set(
+    (args.inputs.released_terms ?? []).map((t) => t.trim().toLowerCase()).filter(Boolean),
+  );
+  const keptExercises = args.recentExercises.filter((s) => !releasedSet.has(s.term.toLowerCase()));
+  const releasedExercises = args.recentExercises.filter((s) => releasedSet.has(s.term.toLowerCase()));
+
+  if (keptExercises.length > 0) {
+    const scopeLabel = args.inputs.ao_display_name
+      ? `Recently used at ${args.inputs.ao_display_name}`
+      : 'Recently used across F3 Marietta';
+    const n = args.recentAtAo.length || 'several';
+    lines.push(`[DYNAMIC — ${scopeLabel} (last ${n} backblasts) — AVOID over-repeating these]`);
+    for (const s of keptExercises) {
+      lines.push(`- ${s.term} (${s.count} of the last ${n}${s.lastUsed ? `, last on ${s.lastUsed}` : ''})`);
+    }
+    lines.push('Rotate in different movements and formats. Warmup staples (SSH, mosey, stretches) are exempt.');
+    lines.push('');
+  }
+
+  if (releasedExercises.length > 0) {
+    lines.push('[DYNAMIC — Repeat locks released by the Q]');
+    lines.push(
+      `Q has explicitly allowed: ${releasedExercises.map((s) => s.term).join(', ')}. ` +
+        'These ran recently, but the Q wants them today — use them freely and do not treat them as over-repeated.',
+    );
     lines.push('');
   }
 

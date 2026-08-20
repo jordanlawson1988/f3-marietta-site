@@ -7,6 +7,10 @@ import { reconcileEnabledChannels } from '@/lib/slack/reconcileChannels';
 
 // Vercel Cron configuration - runs at 2 AM EST daily
 export const dynamic = 'force-dynamic';
+// Reconcile also rebuilds beatdown knowledge (gemini-3.1-pro, high
+// thinking) when new backblasts landed — the knowledge call alone runs
+// ~45-50s, plus per-channel Slack history fetches before it.
+export const maxDuration = 120;
 
 /**
  * GET /api/slack/reconcile

@@ -14,9 +14,11 @@ export const metadata: Metadata = {
   description: "F3 Marietta history, mission, leadership, and the men in the gloom.",
 };
 
-// Both photo galleries pull recent backblasts from the DB. ISR keeps the
-// page fast while still surfacing newly-posted PAX photos within 5 minutes.
-export const revalidate = 300;
+// Both photo galleries pull recent backblasts from the DB. Fresh photos
+// arrive on-demand: /api/slack/events revalidates /about on every upsert.
+// The hourly interval is only a safety net — timed regenerations wake the
+// Neon endpoint, so short intervals burn compute without adding freshness.
+export const revalidate = 3600;
 
 const TIMELINE = [
   { date: "JUN 2024", title: "Battlefield Launch", body: "The Battlefield stands up at Marietta High School. First muster, 6 PAX." },

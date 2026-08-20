@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { BeatdownExerciseItem } from '@/types/beatdown';
+import SourceTag from './SourceTag';
 
 interface Props {
   item: BeatdownExerciseItem;
@@ -40,7 +41,7 @@ export default function ExerciseRow({ item, onChange, onRemove, onSwap, showCoac
             if (e.key === 'Enter') { e.preventDefault(); setEditing(null); }
             if (e.key === 'Escape') { e.preventDefault(); setEditing(null); }
           }}
-          className="rounded-md border border-border bg-card text-foreground px-2 py-1 text-base"
+          className="rounded-md border border-line-soft bg-bone-2 text-ink px-2 py-1 text-base"
           aria-label="Exercise name"
         />
         <input
@@ -52,7 +53,7 @@ export default function ExerciseRow({ item, onChange, onRemove, onSwap, showCoac
             if (e.key === 'Escape') { e.preventDefault(); setEditing(null); }
           }}
           placeholder="x 25 IC"
-          className="rounded-md border border-border bg-card text-foreground px-2 py-1 text-sm"
+          className="rounded-md border border-line-soft bg-bone-2 text-ink px-2 py-1 text-sm"
           aria-label="Reps / quantity"
         />
       </div>
@@ -60,7 +61,7 @@ export default function ExerciseRow({ item, onChange, onRemove, onSwap, showCoac
   }
 
   return (
-    <div className="group flex items-start gap-2 py-1.5 border-b border-border last:border-b-0">
+    <div className="group flex items-start gap-2 py-1.5 border-b border-line-soft last:border-b-0">
       <div className="flex-1 flex flex-wrap items-baseline gap-x-1">
         <button
           type="button"
@@ -72,17 +73,18 @@ export default function ExerciseRow({ item, onChange, onRemove, onSwap, showCoac
         <button
           type="button"
           onClick={() => setEditing('reps')}
-          className="text-left text-muted-foreground hover:underline underline-offset-2"
+          className="text-left text-muted hover:underline underline-offset-2"
         >
           {item.reps || <span className="italic">add reps</span>}
         </button>
+        <SourceTag source={item.source} />
         {showCoaching && item.note && (
-          <div className="basis-full text-xs text-muted-foreground italic mt-0.5">{item.note}</div>
+          <div className="basis-full text-xs text-muted italic mt-0.5">{item.note}</div>
         )}
       </div>
       <div className="flex gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity no-print">
-        <button type="button" onClick={onSwap} className="text-xs px-2 py-1 rounded bg-muted hover:bg-muted/70">Swap</button>
-        <button type="button" onClick={onRemove} className="text-xs px-2 py-1 rounded bg-muted hover:bg-red-500/20">Remove</button>
+        <button type="button" onClick={onSwap} className="text-xs px-2 py-1 rounded bg-bone-3 hover:bg-bone-3/70">Swap</button>
+        <button type="button" onClick={onRemove} className="text-xs px-2 py-1 rounded bg-bone-3 hover:bg-red-500/20">Remove</button>
       </div>
     </div>
   );

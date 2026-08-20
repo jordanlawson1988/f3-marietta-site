@@ -8,6 +8,7 @@ on:
 jobs:
   lint-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,10 +17,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: npm run test:unit
       - run: npm run build
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      # Read-only here: `npm run build` prerenders the ISR pages, which query
+      # the database. The page loaders all degrade to empty on failure, so this
+      # job passes without the secret — it just prerenders emptier pages.
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       OPENAI_API_KEY: "sk-placeholder"
       SLACK_BOT_TOKEN: "xoxb-placeholder"
       SLACK_SIGNING_SECRET: "placeholder"
@@ -27,6 +31,7 @@ jobs:
   e2e:
     needs: lint-build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,8 +42,20 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test --project=chromium
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      # Points at the Neon "ci" branch of the f3-marietta project
+      # (br-still-union-adh752gy) — a copy-on-write fork of production, NOT
+      # production itself. That distinction is load-bearing: this job WRITES.
+      # multiAdmin.e2e creates real accounts through /admin/signup on every
+      # run, and this Neon instance is shared with f3-automation.
+      #
+      # The branch accumulates those signups run over run. Reset it from parent
+      # in the Neon console when it drifts far enough to matter.
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
       OPENAI_API_KEY: "sk-placeholder"
       SLACK_BOT_TOKEN: "xoxb-placeholder"
       SLACK_SIGNING_SECRET: "placeholder"
+      # ADMIN_EMAIL / ADMIN_PASSWORD are deliberately NOT set. Without them the
+      # admin specs call test.skip() — which keeps the destructive one out of
+      # CI entirely: admin-ao-channels adds an AO channel and then deletes it,
+      # and AO channels drive Slack backblast ingestion. Set them only against
+      # a throwaway branch, never against anything production forks from.

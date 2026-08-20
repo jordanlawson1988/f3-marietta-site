@@ -116,6 +116,8 @@ test.describe('A11y redesign', () => {
         '/glossary',
         '/community',
         '/what-to-expect',
+        '/beatdown-builder',
+        '/beatdown-builder/ledger',
     ];
 
     for (const path of pages) {

@@ -5,12 +5,14 @@ import { buildBeatdownContext, loadStaticContext } from '@/lib/beatdown/buildCon
 import { BEATDOWN_SYSTEM_INSTRUCTION } from '@/lib/beatdown/prompts/system';
 import { buildRegeneratePrompt } from '@/lib/beatdown/prompts/regenerate';
 import { stripCodeFences } from '@/lib/beatdown/parseResponse';
-import { GEMINI_MODEL, generateGeminiContent, isTransientGeminiError } from '@/lib/ai/gemini';
+import { generateGeminiContent, isTransientGeminiError } from '@/lib/ai/gemini';
 import { LOCAL_BEATDOWN_MODEL, buildLocalSectionFallback } from '@/lib/beatdown/localFallback';
 import type { BeatdownDraft, BeatdownInputs, BeatdownSections } from '@/types/beatdown';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+// gemini-3.1-pro-preview with thinking can exceed default function limits.
+export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   const rateLimited = checkRateLimit(request, { maxRequests: 20, windowMs: 60_000 });
@@ -49,22 +51,19 @@ export async function POST(request: NextRequest) {
         exiconSubset: staticCtx.exiconSubset,
         famousBdLibrary: staticCtx.famousBdLibrary,
         selectedFamousBd: staticCtx.selectedFamousBd,
+        aoIntel: ctx.aoIntel,
+        recentExercises: ctx.recentExercises,
       },
       body.current,
       body.section
     );
 
     const { response: resp, model } = await generateGeminiContent({
-      model: GEMINI_MODEL,
       contents: prompt,
-      config: {
-        systemInstruction: BEATDOWN_SYSTEM_INSTRUCTION,
-        thinkingConfig: { thinkingBudget: 256 },
-        maxOutputTokens: 1200,
-        temperature: 0.8,
-        topP: 0.9,
-        responseMimeType: 'application/json',
-      },
+      systemInstruction: BEATDOWN_SYSTEM_INSTRUCTION,
+      reasoning: 'low',
+      maxOutputTokens: 1536,
+      legacy: { temperature: 0.8, topP: 0.9, thinkingBudget: 256 },
     }, {
       logPrefix: `[beatdown:regen:${requestId}]`,
     });
