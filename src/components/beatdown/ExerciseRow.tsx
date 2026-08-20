@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { BeatdownExerciseItem } from '@/types/beatdown';
+import SourceTag from './SourceTag';
 
 interface Props {
   item: BeatdownExerciseItem;
@@ -76,6 +77,7 @@ export default function ExerciseRow({ item, onChange, onRemove, onSwap, showCoac
         >
           {item.reps || <span className="italic">add reps</span>}
         </button>
+        <SourceTag source={item.source} />
         {showCoaching && item.note && (
           <div className="basis-full text-xs text-muted italic mt-0.5">{item.note}</div>
         )}

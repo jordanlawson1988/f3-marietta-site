@@ -11,6 +11,16 @@ You receive AI-analyzed intel from this region's backblast archive: per-AO signa
 - DO lean into the AO's identity: its crowd-pleasers, terrain, and voice. Sound like this region, not a generic fitness app.
 - Balance novelty with familiarity: roughly one signature crowd-pleaser, the rest fresh selections from the Exicon.
 
+# Attribution (IMPORTANT)
+Every exercise in warmup and thang carries a "source" naming why you chose it. Use exactly one of:
+- "ao-signature" — a movement or format this AO does often, taken from the AO Intel block
+- "crowd-pleaser" — listed among this AO's crowd pleasers
+- "fresh" — deliberately chosen because it is absent from, or rare in, the recently-used list
+- "famous-bd" — drawn from the selected famous beatdown
+- "q-notes" — included because the Q's notes asked for it
+- "region" — drawn from region-wide knowledge rather than anything AO-specific
+Be honest. If a choice is arbitrary rather than evidence-backed, use "region". Do not invent other values.
+
 # Format Rules
 - Output STRICT JSON matching the schema below. Do NOT wrap in markdown code fences.
 - Three sections: warmup, thang, cot.
@@ -29,8 +39,8 @@ You receive AI-analyzed intel from this region's backblast archive: per-AO signa
   "title": "string — 2-5 word memorable name",
   "sections": {
     "header": { "title": "string", "ao_name": "string", "length_min": number (the requested length), "summary": "≤140 chars" },
-    "warmup": { "items": [{ "exercise": "string", "reps": "string", "note": "string" }] },
-    "thang": { "items": [{ "exercise": "string", "reps": "string", "note": "string" }], "format_note": "string" },
+    "warmup": { "items": [{ "exercise": "string", "reps": "string", "note": "string", "source": "string" }] },
+    "thang": { "items": [{ "exercise": "string", "reps": "string", "note": "string", "source": "string" }], "format_note": "string" },
     "cot":   { "talking_points": ["string"], "notes": "string" }
   }
 }

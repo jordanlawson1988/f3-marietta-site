@@ -38,6 +38,11 @@ export interface BeatdownExerciseItem {
   exercise: string;
   reps: string;
   note: string;
+  /**
+   * Why this exercise is here — see SOURCE_KINDS in lib/beatdown/source.ts.
+   * Optional: older saved beatdowns predate it and the model may omit it.
+   */
+  source?: string;
 }
 
 export interface BeatdownSections {
