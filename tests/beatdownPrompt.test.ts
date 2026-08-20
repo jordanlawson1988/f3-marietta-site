@@ -88,3 +88,56 @@ test("existing prompt blocks are preserved", () => {
   assert.match(prompt, /\[Q INPUTS\]/);
   assert.match(prompt, /Length: 60 minutes/);
 });
+
+test("released terms are dropped from the avoid-repeat list", () => {
+  const prompt = buildUserPrompt(
+    baseArgs({
+      inputs: { ...INPUTS, released_terms: ["Merkin"] },
+      recentExercises: [
+        { term: "Merkin", count: 8, lastUsed: "2026-08-15" },
+        { term: "Squat", count: 7, lastUsed: "2026-08-15" },
+      ],
+    })
+  );
+  assert.doesNotMatch(prompt, /- Merkin \(8 of the last/);
+  assert.match(prompt, /- Squat \(7 of the last/);
+});
+
+test("released terms are named so the model reads the omission as deliberate", () => {
+  const prompt = buildUserPrompt(
+    baseArgs({
+      inputs: { ...INPUTS, released_terms: ["Merkin"] },
+      recentExercises: [{ term: "Merkin", count: 8, lastUsed: "2026-08-15" }],
+    })
+  );
+  assert.match(prompt, /Q has explicitly allowed: Merkin/);
+});
+
+test("release matching ignores case", () => {
+  const prompt = buildUserPrompt(
+    baseArgs({
+      inputs: { ...INPUTS, released_terms: ["  mErKiN  "] },
+      recentExercises: [{ term: "Merkin", count: 8, lastUsed: "2026-08-15" }],
+    })
+  );
+  assert.doesNotMatch(prompt, /- Merkin \(8 of the last/);
+});
+
+test("an empty release list leaves the avoid-repeat block untouched", () => {
+  const prompt = buildUserPrompt(
+    baseArgs({ recentExercises: [{ term: "Merkin", count: 8, lastUsed: "2026-08-15" }] })
+  );
+  assert.match(prompt, /- Merkin \(8 of the last/);
+  assert.doesNotMatch(prompt, /explicitly allowed/);
+});
+
+test("releasing every term drops the avoid-repeat block but still states the release", () => {
+  const prompt = buildUserPrompt(
+    baseArgs({
+      inputs: { ...INPUTS, released_terms: ["Merkin"] },
+      recentExercises: [{ term: "Merkin", count: 8, lastUsed: "2026-08-15" }],
+    })
+  );
+  assert.doesNotMatch(prompt, /AVOID over-repeating/);
+  assert.match(prompt, /Q has explicitly allowed: Merkin/);
+});

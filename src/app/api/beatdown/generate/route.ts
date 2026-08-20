@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import { getSql } from '@/lib/db';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 import { buildBeatdownContext, loadStaticContext } from '@/lib/beatdown/buildContext';
+import { shapeIntel } from '@/lib/beatdown/intel';
 import { BEATDOWN_SYSTEM_INSTRUCTION } from '@/lib/beatdown/prompts/system';
 import { buildUserPrompt } from '@/lib/beatdown/prompts/user';
 import { parseResponse } from '@/lib/beatdown/parseResponse';
@@ -66,6 +67,20 @@ export async function POST(request: NextRequest) {
   const ctx = await buildBeatdownContext(inputs);
   const staticCtx = loadStaticContext(inputs);
 
+  // The provenance strip renders server truth, not a client recomputation of
+  // what it thinks it sent.
+  const intel = shapeIntel({
+    aoDisplayName: inputs.ao_display_name,
+    onFile: ctx.onFile,
+    knowledge: ctx.knowledge,
+    knowledgeStale: ctx.knowledgeStale,
+    aoIntel: ctx.aoIntel,
+    recentExercises: ctx.recentExercises,
+    recent: ctx.recentAtAo.map((r) => ({ event_date: r.event_date, q_name: r.q_name, title: r.title })),
+  });
+  const releasedSet = new Set((inputs.released_terms ?? []).map((t) => t.trim().toLowerCase()));
+  const locksHonored = ctx.recentExercises.filter((s) => !releasedSet.has(s.term.toLowerCase())).length;
+
   const userPrompt = buildUserPrompt({
     inputs,
     aoContext: staticCtx.aoContext,
@@ -102,6 +117,8 @@ export async function POST(request: NextRequest) {
       generation_ms,
       model,
       knowledge_version: ctx.knowledgeVersion,
+      intel,
+      locks_honored: locksHonored,
     });
   } catch (err) {
     console.error(`[beatdown:${requestId}] generate error`, err);
@@ -115,6 +132,8 @@ export async function POST(request: NextRequest) {
         generation_ms,
         model: LOCAL_BEATDOWN_MODEL,
         knowledge_version: ctx.knowledgeVersion,
+        intel,
+        locks_honored: locksHonored,
         fallback_reason: 'ai_model_busy',
       });
     }
@@ -165,10 +184,20 @@ async function validateInputs(raw: unknown, requestId: string): Promise<Beatdown
   let q_notes = typeof r.q_notes === 'string' ? r.q_notes : '';
   if (q_notes.length > 1000) q_notes = q_notes.slice(0, 1000);
 
+  // Terms the Q unlocked in the intel rail. Bounded so a hostile client
+  // cannot inflate the prompt through this field.
+  const released_terms = Array.isArray(r.released_terms)
+    ? r.released_terms
+        .filter((t): t is string => typeof t === 'string')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0 && t.length <= 60)
+        .slice(0, 40)
+    : [];
+
   let length_min = DEFAULT_LENGTH_MIN;
   if (typeof r.length_min === 'number' && Number.isFinite(r.length_min)) {
     length_min = Math.min(MAX_LENGTH_MIN, Math.max(MIN_LENGTH_MIN, Math.round(r.length_min)));
   }
 
-  return { ao_id, ao_display_name, focus, theme, equipment, famous_bd, q_notes, length_min };
+  return { ao_id, ao_display_name, focus, theme, equipment, famous_bd, q_notes, length_min, released_terms };
 }

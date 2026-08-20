@@ -76,16 +76,35 @@ export function buildUserPrompt(args: UserPromptArgs): string {
     lines.push('');
   }
 
-  if (args.recentExercises.length > 0) {
+  // The Q can release terms from the ledger in the builder's intel rail. A
+  // released term must not just vanish from the avoid list — the model has to
+  // be told the omission was deliberate, or it infers the term is simply
+  // unremarkable and skips it anyway.
+  const releasedSet = new Set(
+    (args.inputs.released_terms ?? []).map((t) => t.trim().toLowerCase()).filter(Boolean),
+  );
+  const keptExercises = args.recentExercises.filter((s) => !releasedSet.has(s.term.toLowerCase()));
+  const releasedExercises = args.recentExercises.filter((s) => releasedSet.has(s.term.toLowerCase()));
+
+  if (keptExercises.length > 0) {
     const scopeLabel = args.inputs.ao_display_name
       ? `Recently used at ${args.inputs.ao_display_name}`
       : 'Recently used across F3 Marietta';
     const n = args.recentAtAo.length || 'several';
     lines.push(`[DYNAMIC — ${scopeLabel} (last ${n} backblasts) — AVOID over-repeating these]`);
-    for (const s of args.recentExercises) {
+    for (const s of keptExercises) {
       lines.push(`- ${s.term} (${s.count} of the last ${n}${s.lastUsed ? `, last on ${s.lastUsed}` : ''})`);
     }
     lines.push('Rotate in different movements and formats. Warmup staples (SSH, mosey, stretches) are exempt.');
+    lines.push('');
+  }
+
+  if (releasedExercises.length > 0) {
+    lines.push('[DYNAMIC — Repeat locks released by the Q]');
+    lines.push(
+      `Q has explicitly allowed: ${releasedExercises.map((s) => s.term).join(', ')}. ` +
+        'These ran recently, but the Q wants them today — use them freely and do not treat them as over-repeated.',
+    );
     lines.push('');
   }
 

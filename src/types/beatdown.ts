@@ -21,6 +21,12 @@ export interface BeatdownInputs {
   famous_bd: string | null;
   q_notes: string;
   length_min: number;
+  /**
+   * Exicon terms the Q has deliberately unlocked from the avoid-repeat
+   * ledger. Optional because the regenerate route forwards client JSON
+   * verbatim — treat absence as "nothing released".
+   */
+  released_terms?: string[];
 }
 
 export const LENGTH_PRESETS: number[] = [30, 45, 60];
