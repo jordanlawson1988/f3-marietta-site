@@ -101,9 +101,9 @@ test("beatdown surface spends no colour token that @theme never mints", () => {
   );
 });
 
-test("the soft line tokens the app already spends are minted in @theme", () => {
+test("every derived brand token the components spend is minted in @theme", () => {
   const minted = themeColorNames();
-  for (const name of ["line-soft", "line-softer"]) {
+  for (const name of ["line-soft", "line-softer", "steel-light", "rust-light"]) {
     assert.ok(
       minted.has(name),
       `--color-${name} is missing from @theme, so every border-${name} in the app silently no-ops`,

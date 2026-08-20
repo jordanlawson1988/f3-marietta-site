@@ -13,9 +13,11 @@ interface Props {
 }
 
 const CONFIDENCE: Record<IntelConfidence, { label: string; className: string }> = {
-  strong: { label: 'Strong history', className: 'text-steel border-steel/50' },
+  strong: { label: 'Strong history', className: 'text-steel-light border-steel/50' },
   thin: { label: 'Thin history', className: 'text-brass border-brass/50' },
-  region: { label: 'Region-wide', className: 'text-olive border-olive/50' },
+  // Olive reads at 2.73:1 on ink — and region-wide is the neutral case
+  // anyway, so it takes neutral bone rather than an accent.
+  region: { label: 'Region-wide', className: 'text-bone/80 border-bone/40' },
 };
 
 /**
@@ -45,7 +47,7 @@ export default function IntelRail({ intel, loading, error, releasedTerms, onTogg
             </span>
           )}
         </div>
-        <p className="mt-2 font-mono text-[10px] uppercase tracking-[.16em] text-bone/55">
+        <p className="mt-2 font-mono text-[10px] uppercase tracking-[.16em] text-bone/70">
           {loading ? 'Reading the archive…' : scopeLine(intel)}
         </p>
         {intel?.knowledge_stale && (
@@ -58,19 +60,22 @@ export default function IntelRail({ intel, loading, error, releasedTerms, onTogg
           type="button"
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
-          className="mt-3 min-h-[44px] w-full border border-bone/25 font-mono text-[10px] uppercase tracking-[.18em] text-bone/70 hover:border-steel hover:text-steel lg:hidden"
+          className="mt-3 min-h-[44px] w-full border border-bone/25 font-mono text-[10px] uppercase tracking-[.18em] text-bone/70 hover:border-steel hover:text-steel-light lg:hidden"
         >
           {expanded ? 'Hide the intel' : summaryLine(intel, releasedTerms)}
         </button>
       </header>
 
-      <div className={`${expanded ? 'block' : 'hidden'} lg:block`}>
+      {/* Outside the collapse: on a phone the drawer starts shut, and a Q who
+          cannot see why the rail is empty has no way to know the archive is
+          down rather than simply quiet. */}
       {error && (
         <p className="px-6 py-5 text-[14px] leading-relaxed text-bone/70">
           {error} You can still generate — the draft just won&apos;t be steered by the archive.
         </p>
       )}
 
+      <div className={`${expanded ? 'block' : 'hidden'} lg:block`}>
       {!error && !loading && intel && (
         <>
           {intel.ao_intel ? (
@@ -81,7 +86,7 @@ export default function IntelRail({ intel, loading, error, releasedTerms, onTogg
               <TagBlock label="Recent trends" items={intel.ao_intel.recent_trends ?? []} />
               {intel.ao_intel.voice_samples.length > 0 && (
                 <div className="mt-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel">
+                  <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel-light">
                     {'// How this AO writes'}
                   </p>
                   {intel.ao_intel.voice_samples.slice(0, 2).map((v) => (
@@ -93,7 +98,7 @@ export default function IntelRail({ intel, loading, error, releasedTerms, onTogg
               )}
             </section>
           ) : (
-            <p className="border-b border-bone/20 px-6 py-5 text-[14px] leading-relaxed text-bone/65">
+            <p className="border-b border-bone/20 px-6 py-5 text-[14px] leading-relaxed text-bone/75">
               {intel.ao_display_name
                 ? `No intel block for ${intel.ao_display_name} yet — the archive analysis found too little to summarize. Formats and voice come from the region-wide document.`
                 : 'No AO selected, so the draft gets no terrain, landmarks, or local voice. Pick one and this fills in.'}
@@ -102,21 +107,21 @@ export default function IntelRail({ intel, loading, error, releasedTerms, onTogg
 
           <section className="px-6 py-5">
             <div className="flex items-baseline justify-between">
-              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel">
+              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel-light">
                 {'// Repeat ledger'}
               </p>
-              <span className="font-mono text-[10px] uppercase tracking-[.14em] text-bone/55">
+              <span className="font-mono text-[10px] uppercase tracking-[.14em] text-bone/70">
                 {intel.ledger.length - countReleased(intel, released)} locked
               </span>
             </div>
 
             {intel.ledger.length === 0 ? (
-              <p className="mt-3 text-[14px] leading-relaxed text-bone/65">
+              <p className="mt-3 text-[14px] leading-relaxed text-bone/75">
                 Nothing to hold back — no Exicon terms matched the backblasts read.
               </p>
             ) : (
               <>
-                <p className="mt-2 mb-3 text-[13px] leading-snug text-bone/60">
+                <p className="mt-2 mb-3 text-[13px] leading-snug text-bone/70">
                   Matched against the last {intel.window} backblast{intel.window === 1 ? '' : 's'}.
                   Locked terms are withheld from the draft — tap one to release it.
                 </p>
@@ -131,15 +136,15 @@ export default function IntelRail({ intel, loading, error, releasedTerms, onTogg
                           aria-pressed={!isReleased}
                           className="grid w-full min-h-[44px] grid-cols-[1fr_auto_auto] items-center gap-3 border-b border-bone/10 text-left transition-colors hover:bg-bone/[.05]"
                         >
-                          <span className={`text-[14px] ${isReleased ? 'text-bone/50 line-through' : 'text-bone'}`}>
+                          <span className={`text-[14px] ${isReleased ? 'text-bone/70 line-through' : 'text-bone'}`}>
                             {row.term}
                           </span>
-                          <span className="font-mono text-[11px] tracking-[.1em] text-bone/50">
+                          <span className="font-mono text-[11px] tracking-[.1em] text-bone/70">
                             {row.used}/{row.window}
                           </span>
                           <span
                             className={`inline-flex items-center border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[.16em] ${
-                              isReleased ? 'text-bone/50 border-bone/30' : 'text-rust border-rust/50'
+                              isReleased ? 'text-bone/70 border-bone/30' : 'text-rust-light border-rust-light/50'
                             }`}
                           >
                             {isReleased ? 'Allowed' : 'Locked'}
@@ -158,7 +163,7 @@ export default function IntelRail({ intel, loading, error, releasedTerms, onTogg
                   type="button"
                   onClick={() => setShowSources((v) => !v)}
                   aria-expanded={showSources}
-                  className="min-h-[44px] w-full text-left font-mono text-[10px] uppercase tracking-[.18em] text-bone/60 hover:text-steel"
+                  className="min-h-[44px] w-full text-left font-mono text-[10px] uppercase tracking-[.18em] text-bone/70 hover:text-steel-light"
                 >
                   {showSources ? '− Hide' : '+ Show'} the {intel.sources.length} backblast
                   {intel.sources.length === 1 ? '' : 's'} it read
@@ -170,12 +175,12 @@ export default function IntelRail({ intel, loading, error, releasedTerms, onTogg
                         key={`${s.event_date ?? 'x'}-${i}`}
                         className="grid grid-cols-[72px_1fr] gap-3 border-b border-bone/10 py-2"
                       >
-                        <span className="font-mono text-[10px] tracking-[.1em] text-bone/50">
+                        <span className="font-mono text-[10px] tracking-[.1em] text-bone/70">
                           {formatDate(s.event_date)}
                         </span>
                         <span className="text-[13px] leading-snug text-bone/80">
                           {s.title || 'Untitled backblast'}
-                          {s.q_name && <span className="text-steel"> · {s.q_name}</span>}
+                          {s.q_name && <span className="text-steel-light"> · {s.q_name}</span>}
                         </span>
                       </li>
                     ))}
@@ -191,7 +196,7 @@ export default function IntelRail({ intel, loading, error, releasedTerms, onTogg
         <div className="border-t border-bone/20 px-6 py-4">
           <Link
             href="/beatdown-builder/ledger"
-            className="inline-flex min-h-[44px] items-center font-mono text-[10px] uppercase tracking-[.18em] text-bone/60 no-underline hover:text-steel"
+            className="inline-flex min-h-[44px] items-center font-mono text-[10px] uppercase tracking-[.18em] text-bone/70 no-underline hover:text-steel-light"
           >
             Open the full ledger →
           </Link>
@@ -238,7 +243,7 @@ function TagBlock({ label, items }: { label: string; items: string[] }) {
   if (items.length === 0) return null;
   return (
     <div className="mb-4 last:mb-0">
-      <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel">{`// ${label}`}</p>
+      <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel-light">{`// ${label}`}</p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         {items.map((item) => (
           <span key={item} className="border border-bone/25 px-2 py-1 text-[12px] leading-snug text-bone/85">

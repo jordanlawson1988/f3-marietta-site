@@ -55,7 +55,7 @@ export default function MusterLog({ aoName, window: readWindow, lockedCount, foc
     >
       <div className="flex items-baseline justify-between border-b border-bone/20 pb-3">
         <h2 className="font-display font-bold uppercase tracking-[.02em] text-[22px] text-bone">Muster Log</h2>
-        <span className="font-mono text-[10px] uppercase tracking-[.18em] text-bone/55">
+        <span className="font-mono text-[10px] uppercase tracking-[.18em] text-bone/70">
           {elapsed}s elapsed
         </span>
       </div>
@@ -73,7 +73,7 @@ export default function MusterLog({ aoName, window: readWindow, lockedCount, foc
                 aria-hidden="true"
                 className={`mt-[7px] inline-block h-2 w-2 shrink-0 ${current ? 'bg-rust' : 'bg-steel'}`}
               />
-              <span className={`font-mono text-[13px] leading-relaxed ${current ? 'text-bone' : 'text-bone/65'}`}>
+              <span className={`font-mono text-[13px] leading-relaxed ${current ? 'text-bone' : 'text-bone/75'}`}>
                 {line}
               </span>
             </li>

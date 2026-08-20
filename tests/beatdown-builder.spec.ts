@@ -40,6 +40,14 @@ async function mockIntel(page: Page) {
   );
 }
 
+/** Below lg the rail is a shut drawer; open it when the toggle is present. */
+async function openRail(page: Page) {
+  const toggle = page.getByRole('button', { name: /· show$/i });
+  // The toggle only appears once intel lands, so wait rather than sampling.
+  await toggle.waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
+  if (await toggle.isVisible().catch(() => false)) await toggle.click();
+}
+
 async function mockGenerate(page: Page) {
   await page.route('**/api/beatdown/generate', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(GENERATED) }),
@@ -86,6 +94,7 @@ test.describe('AI Beatdown Builder', () => {
     await mockIntel(page);
     await page.goto('/beatdown-builder');
 
+    await openRail(page);
     const rail = page.getByRole('complementary', { name: 'Archive intel' });
     await expect(rail.getByText('Strong history')).toBeVisible();
     await expect(rail.getByText('8/10')).toBeVisible();
@@ -107,6 +116,7 @@ test.describe('AI Beatdown Builder', () => {
     });
 
     await page.goto('/beatdown-builder');
+    await openRail(page);
     const rail = page.getByRole('complementary', { name: 'Archive intel' });
 
     await rail.getByRole('button', { name: /Merkin/ }).click();

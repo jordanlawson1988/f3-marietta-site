@@ -15,10 +15,19 @@
   /* Accents */
   --steel: #2f6e89;
   --steel-2: #22476a;
-  --rust: #b84a1a;
+  /* Darkened from #b84a1a: the original fell to 3.96:1 on --bone-2, under
+     the WCAG AA 4.5:1 floor for small text. Now 4.53 on bone-2, 5.05 on bone. */
+  --rust: #a94418;
   --olive: #5a5a2e;
   --brass: #c9a24a;
-  --muted: #6b655a;
+  /* Accents on ink surfaces have to run lighter, not darker: --steel and
+     --rust land at 3.46 and 3.76 against --ink, both under the AA floor for
+     small text. These are the on-dark counterparts (5.50 and 5.15). */
+  --steel-light: #4a90b0;
+  --rust-light: #d4611f;
+  /* Darkened from #6b655a for the same reason: 4.40 on --bone-2 was just
+     under the AA floor. Now 4.53. Visually indistinguishable. */
+  --muted: #696358;
 }
 
 @theme inline {
@@ -33,6 +42,8 @@
   --color-rust: var(--rust);
   --color-olive: var(--olive);
   --color-brass: var(--brass);
+  --color-steel-light: var(--steel-light);
+  --color-rust-light: var(--rust-light);
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-line-soft: var(--line-soft);

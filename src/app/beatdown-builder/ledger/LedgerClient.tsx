@@ -44,7 +44,7 @@ export default function LedgerClient({ aos }: { aos: AoCoverage[] }) {
   return (
     <main className="mx-auto max-w-[1320px] px-5 py-10 sm:px-7 md:py-14">
       <header className="mb-9">
-        <span className="inline-flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[.2em] text-steel">
+        <span className="inline-flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[.2em] text-steel-2">
           <span aria-hidden="true" className="h-px w-7 bg-steel" />§ What the builder knows
         </span>
         <h1 className="mt-5 font-display text-[clamp(40px,7vw,72px)] font-bold uppercase leading-[.9] tracking-[-.01em]">
@@ -77,7 +77,7 @@ export default function LedgerClient({ aos }: { aos: AoCoverage[] }) {
               </h2>
               <span
                 className={`inline-flex items-center border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[.18em] ${
-                  stale ? 'border-rust/50 text-rust' : 'border-steel/50 text-steel'
+                  stale ? 'border-rust-light/50 text-rust-light' : 'border-steel-light/50 text-steel-light'
                 }`}
               >
                 {intel?.knowledge_version === null || intel === null
@@ -88,7 +88,7 @@ export default function LedgerClient({ aos }: { aos: AoCoverage[] }) {
               </span>
             </div>
             <p
-              className={`mt-3 max-w-xl text-[15px] leading-relaxed ${stale ? 'text-muted' : 'text-bone/70'}`}
+              className={`mt-3 max-w-xl text-[15px] leading-relaxed ${stale ? 'text-muted' : 'text-bone/80'}`}
             >
               {intel === null
                 ? 'Loading the archive analysis…'
@@ -132,7 +132,7 @@ export default function LedgerClient({ aos }: { aos: AoCoverage[] }) {
             >
               {t.ao_display_name}
               {t.id && (
-                <span className="ml-2 font-mono text-[10px] tracking-[.14em] opacity-60">
+                <span className="ml-2 font-mono text-[10px] tracking-[.14em] text-muted">
                   {t.backblasts}
                 </span>
               )}
@@ -210,7 +210,7 @@ export default function LedgerClient({ aos }: { aos: AoCoverage[] }) {
         {/* right column */}
         <div>
           <section className="border-[1.5px] border-line-soft bg-bone-2 px-6 py-5">
-            <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel">
+            <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel-2">
               {'// Archive coverage'}
             </p>
             <ul className="mt-4">
@@ -244,7 +244,7 @@ export default function LedgerClient({ aos }: { aos: AoCoverage[] }) {
 
           {intel?.ao_intel && intel.ao_intel.voice_samples.length > 0 && (
             <section className="mt-5 border-[1.5px] border-ink bg-bone px-6 py-5">
-              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel">
+              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel-2">
                 {'// How this AO writes'}
               </p>
               {intel.ao_intel.voice_samples.slice(0, 3).map((v) => (
@@ -260,7 +260,7 @@ export default function LedgerClient({ aos }: { aos: AoCoverage[] }) {
 
           {intel && intel.sources.length > 0 && (
             <section className="mt-5 border-[1.5px] border-line-soft bg-bone px-6 py-5">
-              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel">
+              <p className="font-mono text-[10px] uppercase tracking-[.2em] text-steel-2">
                 {'// Read for this AO'}
               </p>
               <ul className="mt-3">
@@ -274,7 +274,7 @@ export default function LedgerClient({ aos }: { aos: AoCoverage[] }) {
                     </span>
                     <span className="text-[13px] leading-snug">
                       {s.title || 'Untitled backblast'}
-                      {s.q_name && <span className="text-steel"> · {s.q_name}</span>}
+                      {s.q_name && <span className="text-steel-2"> · {s.q_name}</span>}
                     </span>
                   </li>
                 ))}
@@ -291,7 +291,7 @@ function Stat({ label, value, muted }: { label: string; value: string; muted: bo
   return (
     <div>
       <dd className="font-display text-[30px] font-bold leading-none">{value}</dd>
-      <dt className={`mt-2 font-mono text-[9px] uppercase tracking-[.18em] ${muted ? 'text-muted' : 'text-bone/60'}`}>
+      <dt className={`mt-2 font-mono text-[9px] uppercase tracking-[.18em] ${muted ? 'text-muted' : 'text-bone/75'}`}>
         {label}
       </dt>
     </div>

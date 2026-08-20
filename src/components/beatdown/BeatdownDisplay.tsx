@@ -69,13 +69,13 @@ export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs,
     <section className="beatdown-card mt-2 space-y-4">
       <header className="border-[1.5px] border-ink bg-ink px-5 py-6 text-bone md:px-8">
         <div className="flex items-center justify-between gap-3">
-          <div className="font-mono text-[10px] uppercase tracking-[.2em] text-steel">
+          <div className="font-mono text-[10px] uppercase tracking-[.2em] text-steel-light">
             F3 Marietta{inputs.ao_display_name ? ` · ${inputs.ao_display_name}` : ''} · {draft.sections.header.length_min} min
           </div>
           <button
             type="button"
             onClick={onStartOver}
-            className="min-h-[44px] px-2 font-mono text-[10px] uppercase tracking-[.18em] text-bone/60 hover:text-steel no-print"
+            className="min-h-[44px] px-2 font-mono text-[10px] uppercase tracking-[.18em] text-bone/70 hover:text-steel no-print"
           >
             Start over
           </button>
@@ -92,7 +92,7 @@ export default function BeatdownDisplay({ inputs, draft, setDraft, generationMs,
           value={draft.sections.header.summary}
           onChange={(value) => setDraft({ ...draft, sections: { ...draft.sections, header: { ...draft.sections.header, summary: value } } })}
           as="p"
-          className="mt-2 text-[15px] leading-relaxed text-bone/75"
+          className="mt-2 text-[15px] leading-relaxed text-bone/80"
           placeholder="One-line summary"
           ariaLabel="Edit beatdown summary"
           multiline
