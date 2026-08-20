@@ -99,3 +99,50 @@ export const EQUIPMENT_OPTIONS: { value: BeatdownEquipment; label: string }[] = 
   { value: 'kettlebell', label: 'Kettlebell' },
   { value: 'sled', label: 'Sled' },
 ];
+
+// ---------------------------------------------------------------------------
+// Intel — what the builder learned from the backblast archive, shaped for the
+// client. v2 read all of this and showed the Q none of it; v3 puts it on the
+// page and lets him overrule it.
+// ---------------------------------------------------------------------------
+
+/**
+ * How much the archive actually supports a draft for this AO.
+ * - `strong` — enough events on file AND a per-AO intel block to draw on
+ * - `thin`   — too few events, or no intel block, so the region doc carries it
+ * - `region` — no AO selected at all; there is no terrain or local voice
+ */
+export type IntelConfidence = 'strong' | 'thin' | 'region';
+
+/** One row of the repeat ledger: an Exicon term and how recently it ran. */
+export interface LedgerEntry {
+  term: string;
+  /** Backblasts in the window that used the term (not raw mentions). */
+  used: number;
+  /** Backblasts actually read — the denominator for `used`. */
+  window: number;
+  /** ISO date (YYYY-MM-DD) of the most recent backblast using it. */
+  last_used: string | null;
+}
+
+/** A backblast the ledger was built from, for the Q to audit. */
+export interface IntelSource {
+  event_date: string | null;
+  q_name: string | null;
+  title: string | null;
+}
+
+export interface BeatdownIntel {
+  ao_display_name: string | null;
+  confidence: IntelConfidence;
+  /** Backblasts read for this request. */
+  window: number;
+  /** Backblasts on file for this AO across the whole archive. */
+  on_file: number;
+  knowledge_version: number | null;
+  knowledge_generated_at: string | null;
+  source_event_count: number | null;
+  ao_intel: AoIntel | null;
+  ledger: LedgerEntry[];
+  sources: IntelSource[];
+}
