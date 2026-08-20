@@ -142,6 +142,12 @@ export interface BeatdownIntel {
   knowledge_version: number | null;
   knowledge_generated_at: string | null;
   source_event_count: number | null;
+  /**
+   * True when a knowledge row exists but is past KNOWLEDGE_STALE_DAYS, so
+   * generation has dropped it and is running on the raw backblast window.
+   * Absent knowledge is not stale — it is absent.
+   */
+  knowledge_stale: boolean;
   ao_intel: AoIntel | null;
   ledger: LedgerEntry[];
   sources: IntelSource[];

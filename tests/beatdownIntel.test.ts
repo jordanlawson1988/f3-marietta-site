@@ -144,3 +144,46 @@ test("an empty archive yields an empty ledger rather than a crash", () => {
   assert.deepEqual(intel.sources, []);
   assert.equal(intel.confidence, "thin");
 });
+
+test("a stale knowledge row is reported, not hidden", () => {
+  // buildContext drops knowledge past KNOWLEDGE_STALE_DAYS, so generation runs
+  // blind. The Q should be told that, not shown a version number that is not
+  // actually feeding the draft.
+  const intel = shapeIntel({
+    aoDisplayName: "The Battlefield",
+    onFile: 41,
+    knowledge: { id: 34, generated_at: "2026-08-04T07:02:00.000Z", source_event_count: 118 },
+    knowledgeStale: true,
+    aoIntel: AO_INTEL,
+    recentExercises: [],
+    recent: recentRows(10),
+  });
+  assert.equal(intel.knowledge_version, 34);
+  assert.equal(intel.knowledge_stale, true);
+});
+
+test("fresh knowledge is not flagged stale", () => {
+  const intel = shapeIntel({
+    aoDisplayName: "The Battlefield",
+    onFile: 41,
+    knowledge: KNOWLEDGE,
+    knowledgeStale: false,
+    aoIntel: AO_INTEL,
+    recentExercises: [],
+    recent: recentRows(10),
+  });
+  assert.equal(intel.knowledge_stale, false);
+});
+
+test("no knowledge row at all is not stale, it is absent", () => {
+  const intel = shapeIntel({
+    aoDisplayName: "The Battlefield",
+    onFile: 41,
+    knowledge: null,
+    aoIntel: AO_INTEL,
+    recentExercises: [],
+    recent: recentRows(10),
+  });
+  assert.equal(intel.knowledge_version, null);
+  assert.equal(intel.knowledge_stale, false);
+});

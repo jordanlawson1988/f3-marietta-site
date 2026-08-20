@@ -18,7 +18,10 @@ export interface ShapeIntelArgs {
   aoDisplayName: string | null;
   /** Backblasts on file for this AO across the whole archive. */
   onFile: number;
+  /** Latest knowledge row, whether or not generation is still using it. */
   knowledge: { id: number; generated_at: string; source_event_count: number } | null;
+  /** True when that row is past the staleness window and has been dropped. */
+  knowledgeStale?: boolean;
   aoIntel: AoIntel | null;
   recentExercises: RecentExerciseStat[];
   recent: IntelSource[];
@@ -47,6 +50,7 @@ export function shapeIntel(args: ShapeIntelArgs): BeatdownIntel {
     knowledge_version: args.knowledge?.id ?? null,
     knowledge_generated_at: args.knowledge?.generated_at ?? null,
     source_event_count: args.knowledge?.source_event_count ?? null,
+    knowledge_stale: Boolean(args.knowledge) && args.knowledgeStale === true,
     ao_intel: args.aoIntel,
     ledger,
     sources: args.recent,
