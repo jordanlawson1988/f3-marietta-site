@@ -1,0 +1,997 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=DM+Serif+Display:ital@0;1&display=swap">
+  <style>
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; color: #0c0c0c; }
+    a { color: #2f6e89; text-decoration: underline; text-underline-offset: 2px; }
+    a:hover { color: #22476a; }
+    * { box-sizing: border-box; }
+    .osw { font-family: Oswald, sans-serif; text-transform: uppercase; }
+    .mono { font-family: "JetBrains Mono", ui-monospace, monospace; text-transform: uppercase; }
+    .chamfer { clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+    .chip { font-family: Oswald, sans-serif; text-transform: uppercase; letter-spacing: .06em; font-size: 13px; font-weight: 600;
+            border-width: 1.5px; border-style: solid; padding: 9px 14px; min-height: 44px; display: inline-flex;
+            align-items: center; cursor: pointer; transition: all .15s ease; background: #f1ece1; color: #0c0c0c; border-color: rgba(12,12,12,.12); }
+    .chip:hover { border-color: #2f6e89; }
+    .chip[data-on="true"] { background: #0c0c0c; color: #f1ece1; border-color: #0c0c0c; }
+    .lrow { display: grid; grid-template-columns: 1fr 62px 64px 78px; align-items: center; gap: 10px;
+            padding: 9px 0; border-bottom: 1px solid rgba(241,236,225,.10); cursor: pointer; }
+    .lrow:hover { background: rgba(241,236,225,.045); }
+    .pill { font-family: "JetBrains Mono", monospace; text-transform: uppercase; font-size: 10px; letter-spacing: .18em;
+            border: 1px solid; padding: 3px 7px; display: inline-block; }
+    .field { width: 100%; font-family: Inter, sans-serif; font-size: 15px; color: #0c0c0c; background: #f1ece1;
+             border: 1.5px solid rgba(12,12,12,.12); padding: 12px 13px; outline: none; }
+    .field:focus { border-color: #2f6e89; }
+    .exrow { display: flex; align-items: flex-start; gap: 14px; padding: 13px 0; border-bottom: 1px solid rgba(12,12,12,.09); }
+    .ghostbtn { font-family: "JetBrains Mono", monospace; text-transform: uppercase; font-size: 10px; letter-spacing: .18em;
+                background: none; border: 1px solid rgba(12,12,12,.18); color: #6b655a; padding: 0 14px; min-height: 36px;
+                display: inline-flex; align-items: center; cursor: pointer; }
+    .ghostbtn:hover { border-color: #2f6e89; color: #2f6e89; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 1560px; background: #f1ece1; padding-bottom: 56px; position: relative; overflow: hidden">
+
+  <!-- ================= METER STRIP ================= -->
+  <div style="max-width: 1320px; margin: 0 auto; padding: 0 28px">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(12,12,12,.12); border-bottom: 1px solid rgba(12,12,12,.12); padding: 14px 0">
+      <span class="mono" style="font-size: 11px; letter-spacing: .15em; color: #6b655a">Marietta Region &middot; F3 Nation</span>
+      <div style="display: flex; align-items: center; gap: 2px" aria-hidden="true">
+        <sc-for list="{{ ticks }}" as="t" hint-placeholder-count="32">
+          <span style="width: 2px; height: {{ t.h }}; background: {{ t.c }}"></span>
+        </sc-for>
+      </div>
+      <span class="mono" style="font-size: 11px; letter-spacing: .15em; color: #6b655a">{{ knowledgeStamp }}</span>
+    </div>
+  </div>
+
+  <!-- ================= PAGE HEAD ================= -->
+  <div style="max-width: 1320px; margin: 0 auto; padding: 46px 28px 34px">
+    <span class="mono" style="display: inline-flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .2em; color: #2f6e89">
+      <span style="height: 1px; width: 28px; background: #2f6e89"></span>&sect; For the Q
+    </span>
+    <h1 class="osw" style="margin: 22px 0 0; font-weight: 700; font-size: 88px; line-height: .86; letter-spacing: -.01em; color: #0c0c0c">
+      Build a beatdown<span style="color: #2f6e89">.</span>
+    </h1>
+    <p style="margin: 22px 0 0; max-width: 680px; font-size: 18px; line-height: 1.55; color: #6b655a">
+      Every draft is written against what this region has actually done &mdash; the last
+      <span style="color: #0c0c0c; font-weight: 500">{{ intel.windowLabel }}</span> at your AO, the Exicon, and the
+      famous BD library. You can see exactly what it read, and overrule it.
+    </p>
+  </div>
+
+  <!-- ================= WORKBENCH ================= -->
+  <div style="max-width: 1320px; margin: 0 auto; padding: 0 28px; display: grid; grid-template-columns: 1fr 452px; gap: 28px; align-items: start">
+
+    <!-- ---------- LEFT COLUMN ---------- -->
+    <div>
+
+      <!-- STATE: BRIEF -->
+      <sc-if value="{{ isBrief }}" hint-placeholder-val="{{ true }}">
+      <div style="border: 1.5px solid #0c0c0c; background: #e7e0d1; padding: 32px 34px 34px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1.5px solid #0c0c0c; padding-bottom: 14px">
+          <h2 class="osw" style="margin: 0; font-weight: 700; font-size: 26px; letter-spacing: .02em">The Brief</h2>
+          <span class="mono" style="font-size: 10px; letter-spacing: .18em; color: #6b655a">Step 01 &middot; What you want</span>
+        </div>
+
+        <!-- AO -->
+        <div style="margin-top: 26px">
+          <div class="osw" style="font-size: 13px; font-weight: 600; letter-spacing: .06em; margin-bottom: 10px">AO</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{ aoOptions }}" as="o" hint-placeholder-count="5">
+              <button type="button" class="chip" data-on="{{ o.on }}" aria-pressed="{{ o.on }}" onClick="{{ o.pick }}">{{ o.name }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- LENGTH -->
+        <div style="margin-top: 24px">
+          <div class="osw" style="font-size: 13px; font-weight: 600; letter-spacing: .06em; margin-bottom: 10px">Length</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{ lengthOptions }}" as="o" hint-placeholder-count="4">
+              <button type="button" class="chip" data-on="{{ o.on }}" aria-pressed="{{ o.on }}" onClick="{{ o.pick }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+          <div class="mono" style="margin-top: 9px; font-size: 10px; letter-spacing: .16em; color: #6b655a">
+            Budget &middot; {{ budget.warmup }} warm-up / {{ budget.thang }} thang / {{ budget.cot }} COT
+          </div>
+        </div>
+
+        <!-- FOCUS -->
+        <div style="margin-top: 24px">
+          <div class="osw" style="font-size: 13px; font-weight: 600; letter-spacing: .06em; margin-bottom: 10px">Focus</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{ focusOptions }}" as="o" hint-placeholder-count="5">
+              <button type="button" class="chip" data-on="{{ o.on }}" aria-pressed="{{ o.on }}" onClick="{{ o.pick }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- EQUIPMENT -->
+        <div style="margin-top: 24px">
+          <div class="osw" style="font-size: 13px; font-weight: 600; letter-spacing: .06em; margin-bottom: 10px">
+            Equipment <span class="mono" style="font-size: 10px; letter-spacing: .16em; color: #6b655a; font-weight: 400">&middot; multi</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{ equipOptions }}" as="o" hint-placeholder-count="5">
+              <button type="button" class="chip" data-on="{{ o.on }}" aria-pressed="{{ o.on }}" onClick="{{ o.pick }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- THEME -->
+        <div style="margin-top: 24px">
+          <div class="osw" style="font-size: 13px; font-weight: 600; letter-spacing: .06em; margin-bottom: 10px">Theme / Occasion</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px">
+            <sc-for list="{{ themeOptions }}" as="o" hint-placeholder-count="7">
+              <button type="button" class="chip" data-on="{{ o.on }}" aria-pressed="{{ o.on }}" onClick="{{ o.pick }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- INSPIRED BY -->
+        <div style="margin-top: 24px">
+          <label for="famous" class="osw" style="display: block; font-size: 13px; font-weight: 600; letter-spacing: .06em; margin-bottom: 10px">Inspired by</label>
+          <select id="famous" class="field" value="{{ famous }}" onChange="{{ onFamous }}">
+            <sc-for list="{{ famousOptions }}" as="f" hint-placeholder-count="6">
+              <option value="{{ f.slug }}">{{ f.label }}</option>
+            </sc-for>
+          </select>
+        </div>
+
+        <!-- Q NOTES -->
+        <div style="margin-top: 24px">
+          <label for="qnotes" class="osw" style="display: block; font-size: 13px; font-weight: 600; letter-spacing: .06em; margin-bottom: 10px">Q&rsquo;s Notes</label>
+          <textarea id="qnotes" class="field" rows="3" placeholder="Honoring a fallen brother &middot; Hammer&rsquo;s 100th post &middot; two FNGs expected" value="{{ notes }}" onChange="{{ onNotes }}"></textarea>
+          <div style="display: flex; justify-content: space-between; margin-top: 7px">
+            <span class="mono" style="font-size: 10px; letter-spacing: .16em; color: #6b655a">Passed through verbatim to the model</span>
+            <span class="mono" style="font-size: 10px; letter-spacing: .16em; color: #6b655a">{{ notesCount }}/1,000</span>
+          </div>
+        </div>
+
+        <!-- GENERATE -->
+        <button type="button" class="osw chamfer" onClick="{{ onGenerate }}"
+                style="margin-top: 30px; width: 100%; border: 1.5px solid #0c0c0c; background: #0c0c0c; color: #f1ece1;
+                       font-weight: 600; letter-spacing: .1em; font-size: 15px; padding: 18px 28px; cursor: pointer;
+                       display: inline-flex; align-items: center; justify-content: center; gap: 12px">
+          Generate Beatdown
+          <span aria-hidden="true">&rarr;</span>
+        </button>
+        <div class="mono" style="margin-top: 12px; text-align: center; font-size: 10px; letter-spacing: .16em; color: #6b655a">
+          {{ lockedCount }} repeat locks active &middot; gemini-3.1-pro-preview &middot; ~18s
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- STATE: GENERATING -->
+      <sc-if value="{{ isGenerating }}" hint-placeholder-val="{{ false }}">
+      <div style="border: 1.5px solid #0c0c0c; background: #0c0c0c; color: #f1ece1; padding: 32px 34px 34px; min-height: 780px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid rgba(241,236,225,.18); padding-bottom: 14px">
+          <h2 class="osw" style="margin: 0; font-weight: 700; font-size: 26px; letter-spacing: .02em; color: #f1ece1">Muster Log</h2>
+          <span class="mono" style="font-size: 10px; letter-spacing: .18em; color: rgba(241,236,225,.55)">Step 02 &middot; What it is reading</span>
+        </div>
+
+        <div style="margin-top: 22px; height: 3px; background: rgba(241,236,225,.14)">
+          <div style="height: 3px; background: #2f6e89; width: {{ progressPct }}; transition: width .4s linear"></div>
+        </div>
+
+        <div style="margin-top: 26px">
+          <sc-for list="{{ logRows }}" as="r" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: 72px 18px 1fr; gap: 14px; align-items: start; padding: 9px 0">
+              <span class="mono" style="font-size: 11px; letter-spacing: .12em; color: rgba(241,236,225,.4)">{{ r.time }}</span>
+              <span style="width: 8px; height: 8px; margin-top: 6px; background: {{ r.dot }}; display: inline-block"></span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.5; color: {{ r.fg }}">{{ r.text }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top: 34px; border-top: 1px solid rgba(241,236,225,.18); padding-top: 22px">
+          <p class="mono" style="margin: 0; font-size: 10px; letter-spacing: .18em; color: rgba(241,236,225,.45)">// While you wait</p>
+          <p style="margin: 12px 0 0; font-size: 15px; line-height: 1.6; color: rgba(241,236,225,.72); max-width: 520px">
+            {{ waitCopy }}
+          </p>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- STATE: DRAFT -->
+      <sc-if value="{{ isDraft }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <!-- draft header -->
+        <div style="border: 1.5px solid #0c0c0c; background: #0c0c0c; color: #f1ece1; padding: 28px 32px">
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <span class="mono" style="font-size: 10px; letter-spacing: .2em; color: #2f6e89">{{ draft.stamp }}</span>
+            <span class="mono" style="font-size: 10px; letter-spacing: .18em; color: rgba(241,236,225,.5)">Step 03 &middot; Yours to edit</span>
+          </div>
+          <h2 class="osw" style="margin: 14px 0 0; font-weight: 700; font-size: 46px; line-height: .92; letter-spacing: -.01em; color: #f1ece1">{{ draft.title }}</h2>
+          <p style="margin: 12px 0 0; font-size: 16px; line-height: 1.55; color: rgba(241,236,225,.75); max-width: 620px">{{ draft.summary }}</p>
+        </div>
+
+        <!-- provenance strip -->
+        <div style="border-left: 1.5px solid #0c0c0c; border-right: 1.5px solid #0c0c0c; border-bottom: 1.5px solid #0c0c0c; background: #e7e0d1; padding: 12px 32px; display: flex; flex-wrap: wrap; gap: 18px; align-items: center">
+          <sc-for list="{{ draft.provenance }}" as="p" hint-placeholder-count="4">
+            <span class="mono" style="font-size: 10px; letter-spacing: .16em; color: #6b655a">{{ p.label }} <span style="color: #0c0c0c">{{ p.value }}</span></span>
+          </sc-for>
+        </div>
+
+        <!-- WARM-UP -->
+        <div style="margin-top: 16px; border: 1.5px solid rgba(12,12,12,.14); background: #e7e0d1; padding: 24px 32px 20px">
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <h3 class="osw" style="margin: 0; font-size: 15px; font-weight: 700; letter-spacing: .14em; color: #2f6e89">Warm-up &middot; {{ budget.warmup }}</h3>
+            <button type="button" class="ghostbtn" onClick="{{ onRegenWarmup }}">{{ warmupBtn }}</button>
+          </div>
+          <div style="margin-top: 10px">
+            <sc-for list="{{ draft.warmup }}" as="it" hint-placeholder-count="4">
+              <div class="exrow">
+                <div style="flex: 1">
+                  <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap">
+                    <span style="font-weight: 600; font-size: 16px">{{ it.ex }}</span>
+                    <span style="color: #6b655a; font-size: 15px">{{ it.reps }}</span>
+                    <sc-if value="{{ it.showTag }}" hint-placeholder-val="{{ true }}">
+                      <span class="pill" style="color: {{ it.tagColor }}; border-color: {{ it.tagColor }}">{{ it.tagLabel }}</span>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ it.hasNote }}" hint-placeholder-val="{{ true }}">
+                    <div style="margin-top: 4px; font-size: 14px; font-style: italic; color: #6b655a">{{ it.note }}</div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- THE THANG -->
+        <div style="margin-top: 16px; border: 1.5px solid rgba(12,12,12,.14); background: #e7e0d1; padding: 24px 32px 20px">
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <h3 class="osw" style="margin: 0; font-size: 15px; font-weight: 700; letter-spacing: .14em; color: #2f6e89">The Thang &middot; {{ budget.thang }}</h3>
+            <button type="button" class="ghostbtn" onClick="{{ onRegenThang }}">{{ thangBtn }}</button>
+          </div>
+          <p style="margin: 10px 0 0; font-style: italic; font-size: 15px; color: #6b655a">{{ draft.thangNote }}</p>
+          <div style="margin-top: 10px">
+            <sc-for list="{{ draft.thang }}" as="it" hint-placeholder-count="5">
+              <div class="exrow">
+                <div style="flex: 1">
+                  <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap">
+                    <span style="font-weight: 600; font-size: 16px">{{ it.ex }}</span>
+                    <span style="color: #6b655a; font-size: 15px">{{ it.reps }}</span>
+                    <sc-if value="{{ it.showTag }}" hint-placeholder-val="{{ true }}">
+                      <span class="pill" style="color: {{ it.tagColor }}; border-color: {{ it.tagColor }}">{{ it.tagLabel }}</span>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ it.hasNote }}" hint-placeholder-val="{{ true }}">
+                    <div style="margin-top: 4px; font-size: 14px; font-style: italic; color: #6b655a">{{ it.note }}</div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- COT -->
+        <div style="margin-top: 16px; border: 1.5px solid rgba(12,12,12,.14); background: #e7e0d1; padding: 24px 32px 22px">
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <h3 class="osw" style="margin: 0; font-size: 15px; font-weight: 700; letter-spacing: .14em; color: #2f6e89">COT &middot; {{ budget.cot }}</h3>
+            <button type="button" class="ghostbtn" onClick="{{ onRegenCot }}">{{ cotBtn }}</button>
+          </div>
+          <div style="margin-top: 12px">
+            <sc-for list="{{ draft.cot }}" as="c" hint-placeholder-count="3">
+              <div style="display: flex; gap: 12px; padding: 7px 0">
+                <span style="color: #2f6e89; font-weight: 600">&mdash;</span>
+                <span style="font-size: 16px; line-height: 1.55">{{ c.text }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin: 14px 0 0; font-size: 15px; color: #6b655a; font-style: italic">{{ draft.cotNote }}</p>
+        </div>
+
+        <!-- ACTIONS -->
+        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap">
+          <button type="button" class="osw chamfer" onClick="{{ onCopy }}"
+                  style="flex: 1; min-width: 200px; border: 1.5px solid #0c0c0c; background: #0c0c0c; color: #f1ece1; font-weight: 600; letter-spacing: .1em; font-size: 14px; padding: 15px 22px; cursor: pointer">{{ copyLabel }}</button>
+          <button type="button" class="osw chamfer" onClick="{{ onSave }}"
+                  style="flex: 1; min-width: 150px; border: 1.5px solid #0c0c0c; background: #f1ece1; color: #0c0c0c; font-weight: 600; letter-spacing: .1em; font-size: 14px; padding: 15px 22px; cursor: pointer">Save &amp; Share</button>
+          <button type="button" class="osw chamfer" onClick="{{ onRestart }}"
+                  style="min-width: 130px; border: 1.5px solid rgba(12,12,12,.25); background: transparent; color: #6b655a; font-weight: 600; letter-spacing: .1em; font-size: 14px; padding: 15px 22px; cursor: pointer">Start Over</button>
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+
+    <!-- ---------- RIGHT RAIL : THE INTEL ---------- -->
+    <div style="position: sticky; top: 24px; border: 1.5px solid {{ rail.line }}; background: {{ rail.bg }}; color: {{ rail.fg }}">
+
+      <div style="padding: 26px 26px 20px; border-bottom: 1px solid {{ rail.hair }}">
+        <div style="display: flex; align-items: center; justify-content: space-between">
+          <h2 class="osw" style="margin: 0; font-weight: 700; font-size: 22px; letter-spacing: .02em; color: {{ rail.fg }}">The Intel</h2>
+          <span class="pill" style="color: {{ intel.confColor }}; border-color: {{ intel.confColor }}">{{ intel.confLabel }}</span>
+        </div>
+        <p class="mono" style="margin: 10px 0 0; font-size: 10px; letter-spacing: .16em; color: {{ rail.dim }}">{{ intel.scope }}</p>
+        <p style="margin: 12px 0 0; font-size: 14px; line-height: 1.55; color: {{ rail.dim }}">{{ intel.note }}</p>
+      </div>
+
+      <!-- SIGNATURE -->
+      <div style="padding: 22px 26px 20px; border-bottom: 1px solid {{ rail.hair }}">
+        <p class="mono" style="margin: 0 0 14px; font-size: 10px; letter-spacing: .2em; color: {{ rail.accent }}">// AO Signature</p>
+        <sc-for list="{{ intel.signature }}" as="s" hint-placeholder-count="5">
+          <div style="margin-bottom: 11px">
+            <div style="display: flex; justify-content: space-between; align-items: baseline">
+              <span style="font-size: 14px; font-weight: 500; color: {{ rail.fg }}">{{ s.term }}</span>
+              <span class="mono" style="font-size: 10px; letter-spacing: .14em; color: {{ rail.dim }}">{{ s.share }}</span>
+            </div>
+            <div style="margin-top: 5px; height: 4px; background: {{ rail.track }}">
+              <div style="height: 4px; background: {{ rail.accent }}; width: {{ s.pct }}"></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- FORMATS + PLEASERS + TRENDS -->
+      <div style="padding: 22px 26px 20px; border-bottom: 1px solid {{ rail.hair }}">
+        <sc-for list="{{ intel.blocks }}" as="b" hint-placeholder-count="3">
+          <div style="margin-bottom: 18px">
+            <p class="mono" style="margin: 0 0 9px; font-size: 10px; letter-spacing: .2em; color: {{ rail.accent }}">// {{ b.label }}</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{ b.items }}" as="i" hint-placeholder-count="3">
+                <span class="pill" style="color: {{ rail.fg }}; border-color: {{ rail.hair2 }}; letter-spacing: .1em; text-transform: none; font-size: 11px">{{ i.text }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- REPEAT LEDGER -->
+      <div style="padding: 22px 26px 24px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between">
+          <p class="mono" style="margin: 0; font-size: 10px; letter-spacing: .2em; color: {{ rail.accent }}">// Repeat Ledger</p>
+          <span class="mono" style="font-size: 10px; letter-spacing: .14em; color: {{ rail.dim }}">{{ lockedCount }} locked</span>
+        </div>
+        <p style="margin: 10px 0 14px; font-size: 13px; line-height: 1.5; color: {{ rail.dim }}">
+          Matched against the last {{ intel.windowLabel }}. Locked terms are excluded from the draft &mdash; tap one to release it.
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 62px 64px 78px; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid {{ rail.hair2 }}">
+          <span class="mono" style="font-size: 9px; letter-spacing: .18em; color: {{ rail.dim }}">Term</span>
+          <span class="mono" style="font-size: 9px; letter-spacing: .18em; color: {{ rail.dim }}">Used</span>
+          <span class="mono" style="font-size: 9px; letter-spacing: .18em; color: {{ rail.dim }}">Last</span>
+          <span class="mono" style="font-size: 9px; letter-spacing: .18em; color: {{ rail.dim }}; text-align: right">State</span>
+        </div>
+        <sc-for list="{{ ledgerRows }}" as="r" hint-placeholder-count="8">
+          <div class="lrow" role="button" tabindex="0" onClick="{{ r.toggle }}">
+            <span style="font-size: 14px; color: {{ r.termColor }}">{{ r.term }}</span>
+            <span class="mono" style="font-size: 11px; letter-spacing: .1em; color: {{ rail.dim }}">{{ r.used }}</span>
+            <span class="mono" style="font-size: 11px; letter-spacing: .1em; color: {{ rail.dim }}">{{ r.last }}</span>
+            <span style="text-align: right"><span class="pill" style="color: {{ r.stateColor }}; border-color: {{ r.stateColor }}">{{ r.state }}</span></span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{
+  "showReceipts": {"editor": "boolean", "default": true, "section": "Design levers"},
+  "railTone": {"editor": "enum", "options": ["ink", "bone"], "default": "ink", "section": "Design levers"},
+  "$preview": {"width": 1440, "height": 1560}
+}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      step: 'brief',
+      ao: 'battlefield',
+      length: 45,
+      focus: 'full',
+      theme: null,
+      equipment: ['bodyweight'],
+      famous: '',
+      notes: '',
+      released: {},
+      logIndex: 0,
+      thangVariant: 0,
+      warmupVariant: 0,
+      cotVariant: 0,
+      regen: null,
+      copied: false,
+    };
+  }
+
+  componentWillUnmount() {
+    if (this._t) clearTimeout(this._t);
+    if (this._c) clearTimeout(this._c);
+    if (this._r) clearTimeout(this._r);
+  }
+
+  // ---------- static reference data (real AOs, real Exicon terms) ----------
+  aos() {
+    return [
+      { id: 'battlefield', name: 'The Battlefield' },
+      { id: 'last-stand', name: 'The Last Stand' },
+      { id: 'black-ops', name: 'Black Ops' },
+      { id: 'csaup', name: 'CSAUP' },
+      { id: 'none', name: 'No specific AO' },
+    ];
+  }
+
+  intelData() {
+    return {
+      battlefield: {
+        scope: 'The Battlefield · last 10 backblasts · 41 on file',
+        note: 'Hill-forward AO. The back hill shows up in most drafts; coupon work has climbed sharply since June.',
+        conf: 'strong', window: 10,
+        signature: [
+          { term: 'Merkin', n: 8 }, { term: 'Squat', n: 7 }, { term: 'Big Boy Sit-up', n: 6 },
+          { term: 'Bear Crawl', n: 5 }, { term: 'Mosey', n: 10 },
+        ],
+        blocks: [
+          { label: 'Common formats', items: ['11s on the back hill', 'Four Corners', 'DORA'] },
+          { label: 'Crowd pleasers', items: ['Route 66', "Jacob's Ladder"] },
+          { label: 'Recent trends', items: ['Coupon work up since June', 'Partner formats in 6 of last 10'] },
+        ],
+        ledger: [
+          { term: 'Mosey', used: 10, last: 'Aug 15' }, { term: 'Merkin', used: 8, last: 'Aug 15' },
+          { term: 'Squat', used: 7, last: 'Aug 15' }, { term: 'Big Boy Sit-up', used: 6, last: 'Aug 13' },
+          { term: 'Burpee', used: 5, last: 'Aug 15' }, { term: 'Bear Crawl', used: 5, last: 'Aug 11' },
+          { term: 'Mountain Climber', used: 4, last: 'Aug 8' }, { term: 'LBC', used: 3, last: 'Aug 13' },
+          { term: 'American Hammer', used: 3, last: 'Aug 6' }, { term: 'Freddie Mercury', used: 2, last: 'Aug 6' },
+        ],
+      },
+      'last-stand': {
+        scope: 'The Last Stand · last 10 backblasts · 36 on file',
+        note: 'Flat lot, tight footprint. Short warm-ups and a Mary finish are the house pattern here.',
+        conf: 'strong', window: 10,
+        signature: [
+          { term: 'Mosey', n: 10 }, { term: 'Squat', n: 7 }, { term: 'Merkin', n: 6 },
+          { term: 'Carolina Dry Dock', n: 5 }, { term: 'Peter Parker', n: 4 },
+        ],
+        blocks: [
+          { label: 'Common formats', items: ['Jack Webb', 'Catch Me If You Can', 'Escalator'] },
+          { label: 'Crowd pleasers', items: ['Jack Webb', 'Cindy'] },
+          { label: 'Recent trends', items: ['Warm-ups under 5 min', 'Mary to close in 8 of last 10'] },
+        ],
+        ledger: [
+          { term: 'Mosey', used: 10, last: 'Aug 18' }, { term: 'Squat', used: 7, last: 'Aug 18' },
+          { term: 'Merkin', used: 6, last: 'Aug 18' }, { term: 'Carolina Dry Dock', used: 5, last: 'Aug 14' },
+          { term: 'Peter Parker', used: 4, last: 'Aug 18' }, { term: 'Al Gore', used: 4, last: 'Aug 11' },
+          { term: 'Box Cutter', used: 3, last: 'Aug 14' }, { term: 'Diamond Merkin', used: 3, last: 'Aug 7' },
+          { term: 'Heels to Heaven', used: 2, last: 'Aug 11' }, { term: 'Crab Walk', used: 2, last: 'Aug 4' },
+        ],
+      },
+      'black-ops': {
+        scope: 'Black Ops · last 10 backblasts · 22 on file',
+        note: 'Coupon-heavy and unforgiving. Burpees appear in 7 of the last 10 — the ledger will fight you on that.',
+        conf: 'strong', window: 10,
+        signature: [
+          { term: 'Burpee', n: 7 }, { term: 'Ranger Merkin', n: 5 }, { term: 'Al Gore', n: 5 },
+          { term: 'Blockee', n: 4 }, { term: 'Overhead Press', n: 4 },
+        ],
+        blocks: [
+          { label: 'Common formats', items: ['Escalator', 'Catch Me If You Can', 'Wheel of Misery'] },
+          { label: 'Crowd pleasers', items: ['Wheel of Misery'] },
+          { label: 'Recent trends', items: ['Coupon in 7 of last 10', 'Ruck legs added since July'] },
+        ],
+        ledger: [
+          { term: 'Burpee', used: 7, last: 'Aug 17' }, { term: 'Ranger Merkin', used: 5, last: 'Aug 17' },
+          { term: 'Al Gore', used: 5, last: 'Aug 10' }, { term: 'Blockee', used: 4, last: 'Aug 12' },
+          { term: 'Overhead Press', used: 4, last: 'Aug 12' }, { term: 'Bear Crawl', used: 3, last: 'Aug 3' },
+          { term: 'Copperhead Squat', used: 2, last: 'Aug 12' }, { term: 'Nolan Ryan', used: 2, last: 'Aug 10' },
+          { term: 'Pickle Pounder', used: 2, last: 'Aug 3' }, { term: 'Duck Walk', used: 2, last: 'Jul 27' },
+        ],
+      },
+      csaup: {
+        scope: 'CSAUP · 4 backblasts on file · no AO Intel block',
+        note: 'Only 4 backblasts on file — too thin for an AO Intel block, so formats and voice come from the region-wide knowledge document. Treat the signature below as weak evidence.',
+        conf: 'thin', window: 4,
+        signature: [
+          { term: 'Mosey', n: 4 }, { term: 'Merkin', n: 3 }, { term: 'Squat', n: 3 }, { term: 'Burpee', n: 2 },
+        ],
+        blocks: [
+          { label: 'Common formats', items: ['Bataan Death March', 'Murph', 'Lap Pyramid'] },
+          { label: 'Crowd pleasers', items: ['Murph'] },
+          { label: 'Recent trends', items: ['90+ min formats', '4 events in 12 months'] },
+        ],
+        ledger: [
+          { term: 'Mosey', used: 4, last: 'Aug 2' }, { term: 'Merkin', used: 3, last: 'Aug 2' },
+          { term: 'Squat', used: 3, last: 'Aug 2' }, { term: 'Burpee', used: 2, last: 'Aug 2' },
+          { term: 'Bataan Death March', used: 2, last: 'Aug 2' }, { term: 'Bear Crawl', used: 1, last: 'Jun 14' },
+        ],
+      },
+      none: {
+        scope: 'Region-wide · last 20 backblasts · 124 on file',
+        note: 'No AO selected. Generation uses the region-wide window with no terrain, landmarks, or per-AO voice.',
+        conf: 'region', window: 20,
+        signature: [
+          { term: 'Mosey', n: 19 }, { term: 'Merkin', n: 16 }, { term: 'Squat', n: 14 },
+          { term: 'Burpee', n: 12 }, { term: 'Big Boy Sit-up', n: 11 },
+        ],
+        blocks: [
+          { label: 'Common formats', items: ['DORA', '11s', 'Four Corners'] },
+          { label: 'Crowd pleasers', items: ['Route 66', 'Jack Webb'] },
+          { label: 'Recent trends', items: ['Coupon use rising region-wide'] },
+        ],
+        ledger: [
+          { term: 'Mosey', used: 19, last: 'Aug 18' }, { term: 'Merkin', used: 16, last: 'Aug 18' },
+          { term: 'Squat', used: 14, last: 'Aug 18' }, { term: 'Burpee', used: 12, last: 'Aug 17' },
+          { term: 'Big Boy Sit-up', used: 11, last: 'Aug 15' }, { term: 'Bear Crawl', used: 9, last: 'Aug 17' },
+          { term: 'Mountain Climber', used: 7, last: 'Aug 14' }, { term: 'Al Gore', used: 6, last: 'Aug 11' },
+        ],
+      },
+    };
+  }
+
+  drafts() {
+    const S = '#2f6e89', R = '#b84a1a', B = '#c9a24a', O = '#5a5a2e';
+    return {
+      battlefield: {
+        title: 'Hill Tax',
+        summary: 'Everything is paid for on the back hill. Two ladders, one partner carry, and a Mary you will feel on Thursday.',
+        warmup: [
+          { ex: 'Mosey', reps: 'lap of the lower lot', tag: 'AO signature', color: S, note: '' },
+          { ex: 'Imperial Walker', reps: 'x 15 IC', tag: 'Fresh · 7 wks out', color: R, note: '' },
+          { ex: 'Copperhead Squat', reps: 'x 15 IC', tag: '', color: '', note: 'Slow the descent — three-count down.' },
+          { ex: 'Peter Parker', reps: 'x 12 IC', tag: '', color: '', note: '' },
+        ],
+        thangNote: '11s on the back hill, then a partner carry across the lot. Mosey between every round.',
+        thang: [
+          { ex: '11s — Ranger Merkin at the top / Copperhead Squat at the bottom', reps: '10/1 down to 1/10', tag: 'AO format', color: S, note: 'The back hill is the ladder. Mosey down, mosey up.' },
+          { ex: 'Nolan Ryan', reps: 'x 10 each side', tag: 'Fresh · 9 wks out', color: R, note: '' },
+          { ex: 'Partner carry', reps: '2 x lot width, swap at the line', tag: 'Partner format', color: O, note: 'Partner formats have run in 6 of the last 10 here.' },
+          { ex: 'Box Cutter', reps: 'x 20 IC', tag: '', color: '', note: '' },
+          { ex: 'Route 66 — Wide Arm Merkin', reps: '1 through 11, mosey each rung', tag: 'Crowd pleaser', color: B, note: 'Pulled from the AO crowd-pleaser list.' },
+        ],
+        cot: [
+          'Name the one thing this week you have been fartsacking on — not the workout, the other thing.',
+          'Two FNGs in three weeks. Who are you EHing next?',
+          'Prayers up for Hammer’s father-in-law, second round of treatment starts Monday.',
+        ],
+        cotNote: 'Close with the Creed. Count-a-rama, name-o-rama, then out.',
+        warmupB: [
+          { ex: 'Mosey', reps: 'to the base of the back hill', tag: 'AO signature', color: S, note: '' },
+          { ex: 'Windmill', reps: 'x 12 IC', tag: 'Fresh · 13 wks out', color: R, note: '' },
+          { ex: 'Merkin', reps: 'x 10 IC', tag: '', color: '', note: 'Ledger flagged this at 8 of 10 — kept low on purpose.' },
+          { ex: 'Mountain Climber', reps: 'x 20 IC', tag: '', color: '', note: '' },
+        ],
+        cotB: [
+          'Three men here today were FNGs inside the last year. Say their names.',
+          'The hill does not care how your week went. Neither does 5:30.',
+          'Prayers up for Stonewall — new job starts Monday.',
+        ],
+        cotNoteB: 'Keep it short today, the Thang ran long. Creed and out.',
+        thangB: {
+          note: 'Four Corners around the lower lot, ascending reps each round. Coupon optional at corner three.',
+          items: [
+            { ex: 'Four Corners — Merkin / Squat / Big Boy Sit-up / Burpee', reps: '10-20-30-40 by round', tag: 'AO format', color: S, note: '~75m per side.' },
+            { ex: 'Pickle Pounder', reps: 'x 20 IC', tag: 'Fresh · 11 wks out', color: R, note: '' },
+            { ex: 'Bear Crawl', reps: '2 x width of the lot', tag: '', color: '', note: '' },
+            { ex: 'Heels to Heaven', reps: 'x 15 IC', tag: '', color: '', note: '' },
+          ],
+        },
+      },
+      'last-stand': {
+        title: 'Tight Quarters',
+        summary: 'No hill, no room to hide. A Jack Webb, a Cindy block, and Mary to close — the way this AO likes it.',
+        warmup: [
+          { ex: 'Mosey', reps: 'two laps of the lot', tag: 'AO signature', color: S, note: '' },
+          { ex: 'Imperial Walker', reps: 'x 15 IC', tag: '', color: '', note: '' },
+          { ex: 'Copperhead Squat', reps: 'x 12 IC', tag: 'Fresh · 6 wks out', color: R, note: '' },
+        ],
+        thangNote: 'Jack Webb to open, Cindy block in the middle, Mary to close. Everything stays inside the lot.',
+        thang: [
+          { ex: 'Jack Webb — Merkin to Overhead Press', reps: '1:4 up to 10:40', tag: 'AO format', color: S, note: '' },
+          { ex: 'Cindy — Ranger Merkin / Copperhead Squat / Big Boy Sit-up', reps: 'AMRAP 12 min', tag: 'Crowd pleaser', color: B, note: 'Substituted for the pull-up round — no bar at this AO.' },
+          { ex: 'Nolan Ryan', reps: 'x 10 each side', tag: 'Fresh · 8 wks out', color: R, note: '' },
+          { ex: 'Rosalita', reps: 'x 20 IC', tag: 'Fresh · 10 wks out', color: R, note: '' },
+        ],
+        cot: [
+          'Hard commitment beats good intention. What did you HC to this week that you have not done?',
+          'Site Q needs two Qs for September — the sheet is in the channel.',
+          'Prayers up for the Kirby family.',
+        ],
+        cotNote: 'Mary is already in The Thang. Straight to COT, end on time.',
+        warmupB: [
+          { ex: 'Mosey', reps: 'one lap, then to the wall', tag: 'AO signature', color: S, note: '' },
+          { ex: 'Al Gore', reps: 'hold 45 seconds', tag: '', color: '', note: 'At 4 of 10 — this is the last week it stays in rotation.' },
+          { ex: 'Crab Walk', reps: '1 x width of the lot', tag: 'Fresh · 8 wks out', color: R, note: '' },
+        ],
+        cotB: [
+          'Tight quarters is the point. You cannot hide here, and you should not want to.',
+          'Q sheet for September has two open slots.',
+          'Prayers up for the Kirby family.',
+        ],
+        cotNoteB: 'End on time. Coffeeteria at the usual spot.',
+        thangB: {
+          note: 'Catch Me If You Can down the long edge, then an Escalator to finish.',
+          items: [
+            { ex: 'Catch Me If You Can — 5 Burpees on the turn', reps: 'length of the lot, 3 rounds', tag: 'AO format', color: S, note: '' },
+            { ex: 'Escalator', reps: '10 / 20 / 30 / 40 / 50', tag: 'Crowd pleaser', color: B, note: '' },
+            { ex: 'Dying Cockroach', reps: 'x 20 IC', tag: 'Fresh · 9 wks out', color: R, note: '' },
+          ],
+        },
+      },
+      'black-ops': {
+        title: 'Block Party',
+        summaryLocked: 'Coupon in hand from the first whistle. The ledger locked burpees, so the pain arrives another way.',
+        summaryReleased: 'Coupon in hand from the first whistle. You released burpees back into the pool, so they are on the menu again.',
+        summary: 'Coupon in hand from the first whistle.',
+        warmup: [
+          { ex: 'Mosey with coupon', reps: 'lap of the lot', tag: 'AO signature', color: S, note: '' },
+          { ex: 'Imperial Walker', reps: 'x 15 IC', tag: '', color: '', note: '' },
+          { ex: 'Peter Parker', reps: 'x 12 IC', tag: 'Fresh · 7 wks out', color: R, note: '' },
+        ],
+        thangNote: 'Wheel of Misery with the coupon, then a farmer-carry shuttle. Burpees are locked out by the ledger.',
+        thang: [
+          { ex: 'Wheel of Misery — 6 stations, coupon at every one', reps: '4 rounds, 60s per station', tag: 'Crowd pleaser', color: B, note: '' },
+          { ex: 'Coupon shuttle carry', reps: '3 x width of the lot', tag: 'AO signature', color: S, note: '' },
+          { ex: 'Carolina Dry Dock', reps: 'x 20 IC', tag: 'Fresh · 12 wks out', color: R, note: 'Chosen over Ranger Merkin — that one is locked at 5 of 10.' },
+          { ex: 'American Hammer with coupon', reps: 'x 25 IC', tag: '', color: '', note: '' },
+        ],
+        cot: [
+          'This AO is the hardest one on the calendar. That is a gift, not a badge.',
+          'Who have you not seen in the gloom for a month? Text him today.',
+          'Prayers up for the men doing this alone.',
+        ],
+        cotNote: 'Stack the coupons before the circle. End on time.',
+        warmupB: [
+          { ex: 'Mosey with coupon', reps: 'half lap', tag: 'AO signature', color: S, note: '' },
+          { ex: 'Overhead Press', reps: 'x 12 IC', tag: '', color: '', note: '' },
+          { ex: 'Copperhead Squat', reps: 'x 15 IC', tag: '', color: '', note: '' },
+          { ex: 'Dying Cockroach', reps: 'x 15 IC', tag: 'Fresh · 10 wks out', color: R, note: '' },
+        ],
+        cotB: [
+          'Hardest AO on the calendar. Nobody made you come. Remember that on Thursday.',
+          'Two men have not posted here in a month. You know who they are.',
+          'Prayers up.',
+        ],
+        cotNoteB: 'Coupons stacked before the circle. Short COT, long fellowship.',
+        thangB: {
+          note: 'Escalator with the coupon, then a Bataan-style finish down the long edge.',
+          items: [
+            { ex: 'Escalator with coupon', reps: '10 / 20 / 30 / 40 / 50', tag: 'AO format', color: S, note: '' },
+            { ex: 'Duck Walk', reps: '2 x width of the lot', tag: 'Fresh · 8 wks out', color: R, note: '' },
+            { ex: 'Overhead Press', reps: 'x 20 IC', tag: 'AO signature', color: S, note: '' },
+          ],
+        },
+      },
+      csaup: {
+        title: 'The Long Way Round',
+        summary: 'A CSAUP-length grinder built on region-wide history — this AO does not have enough backblasts to build from alone.',
+        warmup: [
+          { ex: 'Mosey', reps: 'half mile out and back', tag: 'Region-wide', color: O, note: '' },
+          { ex: 'Imperial Walker', reps: 'x 20 IC', tag: '', color: '', note: '' },
+          { ex: 'Copperhead Squat', reps: 'x 20 IC', tag: '', color: '', note: '' },
+        ],
+        thangNote: 'Bataan Death March as the spine, with a Lap Pyramid dropped in at the halfway point.',
+        thang: [
+          { ex: 'Bataan Death March', reps: '1.5 miles, 5 Burpees on the pass', tag: 'AO format', color: S, note: 'One of only three formats on file for CSAUP.' },
+          { ex: 'Lap Pyramid', reps: '1-2-3-2-1 laps, Merkins between', tag: 'Region-wide', color: O, note: '' },
+          { ex: 'Partner carry', reps: '400m, swap every 50m', tag: '', color: '', note: '' },
+          { ex: 'Freddie Mercury', reps: 'x 30 IC', tag: 'Fresh · 14 wks out', color: R, note: '' },
+        ],
+        cot: [
+          'Nobody finishes a CSAUP by themselves. Look at who carried you today.',
+          'Next CSAUP is on the calendar — who are you bringing?',
+          'Prayers up for the six.',
+        ],
+        cotNote: 'Long COT is fine today. Nobody is in a hurry after this one.',
+        warmupB: [
+          { ex: 'Mosey', reps: 'quarter mile easy', tag: 'Region-wide', color: O, note: '' },
+          { ex: 'Windmill', reps: 'x 15 IC', tag: 'Fresh · 12 wks out', color: R, note: '' },
+          { ex: 'Peter Parker', reps: 'x 15 IC', tag: '', color: '', note: '' },
+        ],
+        cotB: [
+          'You will forget the reps. You will not forget who stayed with you at the back.',
+          'Somebody here is quietly having the worst month of his year. Find him.',
+          'Prayers up for the six.',
+        ],
+        cotNoteB: 'Take the long COT. Nobody is in a hurry after this one.',
+        thangB: {
+          note: 'Murph-adapted circuit, scaled for the group and the clock.',
+          items: [
+            { ex: 'Murph (adapted) — 1 mile, 100 Merkins, 200 Squats, 300 LBC, 1 mile', reps: 'partition as needed', tag: 'Crowd pleaser', color: B, note: 'No pull-up bar — Ranger Merkins substituted.' },
+            { ex: 'Bear Crawl', reps: '4 x 50m', tag: 'Fresh · 9 wks out', color: R, note: '' },
+          ],
+        },
+      },
+      none: {
+        title: 'Region Standard',
+        summary: 'No AO selected, so this is built from the region-wide window — solid, but without terrain or the local voice.',
+        warmup: [
+          { ex: 'Mosey', reps: 'lap of the lot', tag: 'Region-wide', color: O, note: '' },
+          { ex: 'Imperial Walker', reps: 'x 15 IC', tag: '', color: '', note: '' },
+          { ex: 'Copperhead Squat', reps: 'x 15 IC', tag: '', color: '', note: '' },
+        ],
+        thangNote: 'DORA to open, Four Corners to close. Works at any AO in the region.',
+        thang: [
+          { ex: 'DORA 1-2-3 — Merkin / Big Boy Sit-up / Squat', reps: '100 / 200 / 300, partner runs', tag: 'Region format', color: O, note: '' },
+          { ex: 'Four Corners — Bear Crawl between', reps: '20 reps per corner, 3 rounds', tag: 'Region format', color: O, note: '' },
+          { ex: 'Freddie Mercury', reps: 'x 25 IC', tag: 'Fresh · 6 wks out', color: R, note: '' },
+        ],
+        cot: [
+          'Pick an AO next time — the draft gets sharper when it knows the ground.',
+          'Who are you EHing this week?',
+          'Prayers up.',
+        ],
+        cotNote: 'Standard close. Creed, count-a-rama, name-o-rama.',
+        warmupB: [
+          { ex: 'Mosey', reps: 'two laps', tag: 'Region-wide', color: O, note: '' },
+          { ex: 'SSH', reps: 'x 25 IC', tag: '', color: '', note: '' },
+          { ex: 'Windmill', reps: 'x 12 IC', tag: 'Fresh · 9 wks out', color: R, note: '' },
+        ],
+        cotB: [
+          'Pick an AO next time. The draft gets sharper when it knows the ground.',
+          'Who is the next man you bring?',
+          'Prayers up.',
+        ],
+        cotNoteB: 'Standard close.',
+        thangB: {
+          note: '11s to open, then a Route 66 finish.',
+          items: [
+            { ex: '11s — Merkin / Squat', reps: '10/1 down to 1/10', tag: 'Region format', color: O, note: '' },
+            { ex: 'Route 66 — LBC', reps: '1 through 11', tag: 'Crowd pleaser', color: '#c9a24a', note: '' },
+          ],
+        },
+      },
+    };
+  }
+
+  // ---------- helpers ----------
+  aoName() {
+    const a = this.aos().find((x) => x.id === this.state.ao);
+    return a ? a.name : 'No specific AO';
+  }
+
+  currentIntel() {
+    return this.intelData()[this.state.ao] || this.intelData().none;
+  }
+
+  lockedTerms() {
+    const rel = this.state.released;
+    return this.currentIntel().ledger.filter((l) => !rel[l.term]);
+  }
+
+  budgetSplit() {
+    const m = this.state.length;
+    const warm = Math.max(3, Math.round(m * 0.11));
+    const cot = Math.max(3, Math.round(m * 0.1));
+    return { warmup: warm + ' min', thang: (m - warm - cot) + ' min', cot: cot + ' min' };
+  }
+
+  logLines() {
+    const intel = this.currentIntel();
+    const locked = this.lockedTerms().length;
+    const released = this.currentIntel().ledger.length - locked;
+    const equip = this.state.equipment.map((e) => e.toUpperCase()).join(' + ');
+    const b = this.budgetSplit();
+    return [
+      { t: '00.2s', text: 'POST /api/beatdown/generate · req 7f3a1c' },
+      { t: '01.1s', text: 'marietta_bd_knowledge v37 loaded · 124 backblasts · built 07:02 UTC' },
+      { t: '01.9s', text: 'Reading last ' + intel.window + ' backblasts · ' + this.aoName() },
+      { t: '02.6s', text: 'Exicon scored · 138 terms for ' + this.state.focus.toUpperCase() + ' + ' + equip },
+      { t: '03.1s', text: 'Repeat ledger · ' + locked + ' terms locked, ' + released + ' released by Q' },
+      { t: '03.5s', text: 'AO Intel pinned · ' + intel.signature.length + ' signature moves, ' + intel.blocks[0].items.length + ' formats' },
+      { t: '18.4s', text: 'gemini-3.1-pro-preview · thinkingLevel LOW · 3 sections returned' },
+      { t: '18.6s', text: 'Parsed · ' + this.state.length + ' min budget (' + b.warmup + ' / ' + b.thang + ' / ' + b.cot + ')' },
+    ];
+  }
+
+  // ---------- actions ----------
+  setAo(id) { this.setState({ ao: id, released: {}, thangVariant: 0, warmupVariant: 0, cotVariant: 0 }); }
+
+  toggleEquip(v) {
+    const cur = this.state.equipment;
+    const next = cur.indexOf(v) >= 0 ? cur.filter((x) => x !== v) : cur.concat([v]);
+    this.setState({ equipment: next.length ? next : ['bodyweight'] });
+  }
+
+  toggleRelease(term) {
+    const rel = Object.assign({}, this.state.released);
+    if (rel[term]) delete rel[term]; else rel[term] = true;
+    this.setState({ released: rel });
+  }
+
+  startGeneration() {
+    const total = this.logLines().length;
+    this._i = 0;
+    this.setState({ step: 'generating', logIndex: 0 });
+    const advance = () => {
+      this._i += 1;
+      if (this._i > total) { this.setState({ step: 'draft' }); return; }
+      this.setState({ logIndex: this._i });
+      // the pro-model call is the long one — let the wait be visible
+      const gap = this._i === 6 ? 2600 : this._i === total ? 900 : 620;
+      this._t = setTimeout(advance, gap);
+    };
+    this._t = setTimeout(advance, 380);
+  }
+
+  regen(section) {
+    if (this.state.regen) return;
+    this.setState({ regen: section });
+    this._r = setTimeout(() => {
+      const flip = (v) => (v === 0 ? 1 : 0);
+      if (section === 'thang') this.setState({ regen: null, thangVariant: flip(this.state.thangVariant) });
+      else if (section === 'warmup') this.setState({ regen: null, warmupVariant: flip(this.state.warmupVariant) });
+      else this.setState({ regen: null, cotVariant: flip(this.state.cotVariant) });
+    }, 1400);
+  }
+
+  copy() {
+    this.setState({ copied: true });
+    this._c = setTimeout(() => this.setState({ copied: false }), 2500);
+  }
+
+  // ---------- render ----------
+  renderVals() {
+    const st = this.state;
+    const receipts = this.props.showReceipts !== false;
+    const ink = (this.props.railTone ?? 'ink') === 'ink';
+
+    const rail = ink
+      ? { bg: '#0c0c0c', fg: '#f1ece1', dim: 'rgba(241,236,225,.6)', line: '#0c0c0c',
+          hair: 'rgba(241,236,225,.18)', hair2: 'rgba(241,236,225,.28)', accent: '#2f6e89', track: 'rgba(241,236,225,.14)' }
+      : { bg: '#e7e0d1', fg: '#0c0c0c', dim: '#6b655a', line: '#0c0c0c',
+          hair: 'rgba(12,12,12,.14)', hair2: 'rgba(12,12,12,.22)', accent: '#2f6e89', track: 'rgba(12,12,12,.12)' };
+
+    const intelRaw = this.currentIntel();
+    const maxN = intelRaw.signature.reduce((m, s) => Math.max(m, s.n), 1);
+    const confMap = {
+      strong: { label: 'Strong history', color: '#2f6e89' },
+      thin: { label: 'Thin history', color: '#c9a24a' },
+      region: { label: 'Region-wide', color: '#5a5a2e' },
+    };
+    const conf = confMap[intelRaw.conf] || confMap.region;
+
+    const intel = {
+      scope: intelRaw.scope,
+      note: intelRaw.note,
+      windowLabel: intelRaw.window + ' backblasts',
+      confLabel: conf.label,
+      confColor: conf.color,
+      signature: intelRaw.signature.map((s) => ({
+        term: s.term, share: s.n + ' of ' + intelRaw.window, pct: Math.round((s.n / maxN) * 100) + '%',
+      })),
+      blocks: intelRaw.blocks.map((b) => ({ label: b.label, items: b.items.map((t) => ({ text: t })) })),
+    };
+
+    const ledgerRows = intelRaw.ledger.map((l) => {
+      const released = !!st.released[l.term];
+      return {
+        term: l.term,
+        used: l.used + ' / ' + intelRaw.window,
+        last: l.last,
+        state: released ? 'Allowed' : 'Locked',
+        stateColor: released ? (ink ? 'rgba(241,236,225,.5)' : '#6b655a') : '#b84a1a',
+        termColor: released ? (ink ? 'rgba(241,236,225,.55)' : '#6b655a') : rail.fg,
+        toggle: () => this.toggleRelease(l.term),
+      };
+    });
+
+    const mk = (list, sel, set) => list.map((o) => ({
+      value: o.value, label: o.label, on: sel === o.value ? 'true' : 'false', pick: () => set(o.value),
+    }));
+
+    const budget = this.budgetSplit();
+    const lines = this.logLines();
+    const logRows = lines.slice(0, st.logIndex).map((l, i) => {
+      const current = i === st.logIndex - 1 && st.step === 'generating';
+      return {
+        time: l.t, text: l.text,
+        dot: current ? '#b84a1a' : '#2f6e89',
+        fg: current ? '#f1ece1' : 'rgba(241,236,225,.66)',
+      };
+    });
+
+    const d = this.drafts()[st.ao] || this.drafts().none;
+    const thangItems = st.thangVariant === 0 ? d.thang : d.thangB.items;
+    const thangNote = st.thangVariant === 0 ? d.thangNote : d.thangB.note;
+    const warmupItems = st.warmupVariant === 0 ? d.warmup : d.warmupB;
+    const cotPoints = st.cotVariant === 0 ? d.cot : d.cotB;
+    const cotNoteText = st.cotVariant === 0 ? d.cotNote : d.cotNoteB;
+    const shape = (it) => ({
+      ex: it.ex, reps: it.reps, note: it.note, hasNote: !!it.note,
+      showTag: receipts && !!it.tag, tagLabel: it.tag, tagColor: it.color || '#6b655a',
+    });
+
+    const equipLabel = st.equipment.map((e) => e.charAt(0).toUpperCase() + e.slice(1)).join(', ');
+
+    return {
+      // meter ticks
+      ticks: Array.from({ length: 32 }, (_, i) => {
+        const hi = [5, 12, 22, 27].indexOf(i) >= 0;
+        return { h: hi ? '14px' : '10px', c: hi ? '#2f6e89' : 'rgba(12,12,12,.2)' };
+      }),
+      knowledgeStamp: 'Knowledge v37 · 124 backblasts · rebuilt 07:02 UTC',
+
+      isBrief: st.step === 'brief',
+      isGenerating: st.step === 'generating',
+      isDraft: st.step === 'draft',
+
+      rail, intel, ledgerRows, budget, logRows,
+      lockedCount: this.lockedTerms().length,
+
+      aoOptions: this.aos().map((a) => ({
+        name: a.name, on: st.ao === a.id ? 'true' : 'false', pick: () => this.setAo(a.id),
+      })),
+      lengthOptions: mk(
+        [{ value: 30, label: '30 min' }, { value: 45, label: '45 min' }, { value: 60, label: '60 min' }, { value: 90, label: '90 min' }],
+        st.length, (v) => this.setState({ length: v })
+      ),
+      focusOptions: mk(
+        [{ value: 'full', label: 'Full Body' }, { value: 'legs', label: 'Legs' }, { value: 'core', label: 'Core' },
+         { value: 'upper', label: 'Upper' }, { value: 'cardio', label: 'Cardio' }],
+        st.focus, (v) => this.setState({ focus: v })
+      ),
+      themeOptions: mk(
+        [{ value: null, label: 'None' }, { value: 'fng-friendly', label: 'FNG-friendly' }, { value: 'holiday', label: 'Holiday' },
+         { value: 'q-school', label: 'Q-school' }, { value: 'birthday-q', label: 'Birthday Q' }, { value: 'ruck', label: 'Ruck' },
+         { value: 'honor', label: 'Honor' }],
+        st.theme, (v) => this.setState({ theme: v })
+      ),
+      equipOptions: [
+        { value: 'bodyweight', label: 'Bodyweight' }, { value: 'coupon', label: 'Coupon' },
+        { value: 'sandbag', label: 'Sandbag' }, { value: 'kettlebell', label: 'Kettlebell' }, { value: 'sled', label: 'Sled' },
+      ].map((o) => ({
+        label: o.label, on: st.equipment.indexOf(o.value) >= 0 ? 'true' : 'false', pick: () => this.toggleEquip(o.value),
+      })),
+      famousOptions: [
+        { slug: '', label: '— No famous BD —' }, { slug: '11s', label: '11s — two-exercise ladder, sum is 11' },
+        { slug: '4-corners', label: '4 Corners — one exercise per corner' }, { slug: 'dora-1-2-3', label: 'Dora 1-2-3 — partner accumulation' },
+        { slug: 'jack-webb', label: 'Jack Webb — 1:4 merkin to press' }, { slug: 'jacobs-ladder', label: "Jacob's Ladder — hill ladder" },
+        { slug: 'murph', label: 'Murph — the classic' }, { slug: 'wheel-of-misery', label: 'Wheel of Misery — 6 stations' },
+        { slug: 'ipc-2024-round-1', label: 'IPC 2024 Round 1' },
+      ],
+      famous: st.famous,
+      onFamous: (e) => this.setState({ famous: e.target.value }),
+      notes: st.notes,
+      notesCount: st.notes.length,
+      onNotes: (e) => this.setState({ notes: e.target.value.slice(0, 1000) }),
+
+      onGenerate: () => this.startGeneration(),
+      onRestart: () => this.setState({ step: 'brief', thangVariant: 0, warmupVariant: 0, cotVariant: 0 }),
+      onRegenWarmup: () => this.regen('warmup'),
+      onRegenThang: () => this.regen('thang'),
+      onRegenCot: () => this.regen('cot'),
+      warmupBtn: st.regen === 'warmup' ? 'Regenerating…' : '↻ Regenerate',
+      thangBtn: st.regen === 'thang' ? 'Regenerating…' : '↻ Regenerate',
+      cotBtn: st.regen === 'cot' ? 'Regenerating…' : '↻ Regenerate',
+      onCopy: () => this.copy(),
+      onSave: () => {},
+      copyLabel: st.copied ? 'Copied to clipboard' : 'Copy as Slackblast',
+
+      progressPct: Math.round((st.logIndex / lines.length) * 100) + '%',
+      waitCopy: 'The pro model is doing the slow part — weighing ' + intelRaw.window +
+        ' backblasts against ' + this.lockedTerms().length +
+        ' locked repeats. This is the step that makes the draft yours instead of generic.',
+
+      draft: {
+        title: d.title,
+        summary: (d.summaryLocked && d.summaryReleased)
+          ? (st.released['Burpee'] ? d.summaryReleased : d.summaryLocked)
+          : d.summary,
+        stamp: 'F3 Marietta · ' + this.aoName() + ' · ' + st.length + ' min · ' + equipLabel,
+        provenance: [
+          { label: 'Model', value: 'gemini-3.1-pro-preview' },
+          { label: 'Time', value: '18.6s' },
+          { label: 'Knowledge', value: 'v37' },
+          { label: 'Read', value: intelRaw.window + ' backblasts' },
+          { label: 'Locks honored', value: String(this.lockedTerms().length) },
+        ],
+        warmup: warmupItems.map(shape),
+        thang: thangItems.map(shape),
+        thangNote: thangNote,
+        cot: cotPoints.map((t) => ({ text: t })),
+        cotNote: cotNoteText,
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

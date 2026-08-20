@@ -55,3 +55,6 @@ supabase/.temp/
 
 # claude code (local settings only — context and commands are tracked)
 .claude/settings.local.json
+
+# Seeded design-canvas output — 2.3MB, regenerated from the .dc.html sources
+docs/design/**/beatdown-builder-redesign.html
