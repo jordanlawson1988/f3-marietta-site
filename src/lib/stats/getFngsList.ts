@@ -13,6 +13,7 @@ export type FngEntry = {
   eventId: string;
   beatdownTitle: string | null;
   qName: string | null;
+  slackUserId: string | null;
 };
 
 export type FngsList = {
@@ -81,14 +82,14 @@ export async function getFngsList(range: TimeRange): Promise<FngsList> {
     if (name) slackById.set(u.slack_user_id, name);
   }
 
-  const resolve = (token: string): { key: string; label: string } => {
+  const resolve = (token: string): { key: string; label: string; slackUserId: string | null } => {
     if (token.startsWith("U")) {
       const name = slackById.get(token) ?? aliasMap.get(token);
-      if (name) return { key: `n:${name.toLowerCase()}`, label: name };
-      return { key: token, label: token };
+      if (name) return { key: `n:${name.toLowerCase()}`, label: name, slackUserId: token };
+      return { key: token, label: token, slackUserId: token };
     }
     const lower = token.startsWith("n:") ? token.slice(2) : token;
-    return { key: `n:${lower}`, label: titleCase(lower) };
+    return { key: `n:${lower}`, label: titleCase(lower), slackUserId: null };
   };
 
   // Resolve the Q (beatdown leader) per event from the structured f3_event_qs
@@ -117,7 +118,7 @@ export async function getFngsList(range: TimeRange): Promise<FngsList> {
     const beatdownTitle = parseBeatdownTitle(row.content_text ?? "");
     const qName = qByEvent.get(row.event_id) ?? null;
     for (const token of tokens) {
-      const { key, label } = resolve(token);
+      const { key, label, slackUserId } = resolve(token);
       const candidate: FngEntry = {
         eventDate: row.event_date,
         aoName: row.ao_name,
@@ -127,6 +128,7 @@ export async function getFngsList(range: TimeRange): Promise<FngsList> {
         eventId: row.event_id,
         beatdownTitle,
         qName,
+        slackUserId,
       };
       const existing = earliestByKey.get(key);
       if (!existing || candidate.eventDate < existing.eventDate) {

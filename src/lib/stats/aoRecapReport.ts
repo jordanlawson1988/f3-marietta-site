@@ -11,6 +11,7 @@ export type AoRecapRunReportInput = {
   mode: "live" | "dry-run";
   results: AoPostResult[];
   skippedEmpty: string[];  // AO display names with 0 posts
+  fngTotal?: number;       // region-wide new FNGs celebrated this month
 };
 
 /** Pure, total. Channel-oriented summary DMed to the admin after each run. */
@@ -24,6 +25,9 @@ export function buildAoRecapRunReport(input: AoRecapRunReportInput): string {
     lines.push(`Mode: dry-run · Would post: ${dry.length} · Skipped empty: ${skippedEmpty.length}`);
   } else {
     lines.push(`Mode: live · Posted: ${posted.length} · Already: ${already.length} · Errors: ${errored.length}`);
+  }
+  if (input.fngTotal && input.fngTotal > 0) {
+    lines.push(`New FNGs celebrated: ${input.fngTotal}`);
   }
   if (errored.length) {
     lines.push("", `Errors (${errored.length}):`);
