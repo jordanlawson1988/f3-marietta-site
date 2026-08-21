@@ -36,23 +36,23 @@ export function ReleaseNotes() {
             {/* Release Notes Panel */}
             <div
                 className={cn(
-                    "mb-4 w-[90vw] sm:w-[360px] rounded-xl border border-border bg-muted shadow-2xl transition-all duration-300 origin-bottom-left overflow-hidden flex flex-col max-h-[70vh]",
+                    "mb-4 w-[90vw] sm:w-[360px] rounded-xl border border-line-soft bg-bone-2 shadow-2xl transition-all duration-300 origin-bottom-left overflow-hidden flex flex-col max-h-[70vh]",
                     isOpen
                         ? "opacity-100 scale-100 translate-y-0"
                         : "opacity-0 scale-95 translate-y-4 pointer-events-none h-0 mb-0"
                 )}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
+                <div className="flex items-center justify-between p-4 border-b border-line-soft bg-muted/30">
                     <div className="flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-primary" />
+                        <Sparkles className="h-5 w-5 text-steel" />
                         <h3 className="font-bold font-heading text-lg">What&apos;s New</h3>
                     </div>
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={handleClose}
-                        className="h-8 w-8 rounded-full hover:bg-background/80"
+                        className="h-8 w-8 rounded-full hover:bg-bone/80"
                     >
                         <X className="h-4 w-4" />
                         <span className="sr-only">Close</span>
@@ -65,7 +65,7 @@ export function ReleaseNotes() {
                         <div key={release.version} className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <h4 className="font-bold text-sm">{release.title}</h4>
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-xs text-muted">
                                     {new Date(release.date + 'T00:00:00').toLocaleDateString("en-US", {
                                         month: "short",
                                         day: "numeric",
@@ -77,9 +77,9 @@ export function ReleaseNotes() {
                                 {release.changes.map((change, idx) => (
                                     <li
                                         key={idx}
-                                        className="text-sm text-muted-foreground flex items-start gap-2"
+                                        className="text-sm text-muted flex items-start gap-2"
                                     >
-                                        <span className="text-primary mt-1">•</span>
+                                        <span className="text-steel mt-1">•</span>
                                         <span>{change}</span>
                                     </li>
                                 ))}
@@ -96,8 +96,8 @@ export function ReleaseNotes() {
                 className={cn(
                     "rounded-full shadow-lg transition-all duration-300 hover:scale-105 h-12 w-12 relative",
                     isOpen
-                        ? "bg-muted text-muted-foreground hover:bg-muted/80"
-                        : "bg-primary text-primary-foreground hover:bg-[#3A5E88]"
+                        ? "bg-bone-2 text-muted hover:bg-bone-3"
+                        : "bg-steel text-bone hover:bg-[#3A5E88]"
                 )}
             >
                 {isOpen ? (

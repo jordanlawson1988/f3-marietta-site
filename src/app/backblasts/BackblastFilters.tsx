@@ -57,7 +57,7 @@ export function BackblastFilters({ aoList, aoFilter, searchQuery }: BackblastFil
       <select
         defaultValue={aoFilter}
         onChange={(e) => handleAOChange(e.target.value)}
-        className="bg-card border border-border rounded-lg px-4 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary focus:border-primary min-w-[140px]"
+        className="bg-bone-2 border border-line-soft rounded-lg px-4 py-2.5 text-sm text-ink focus:ring-2 focus:ring-steel focus:border-steel min-w-[140px]"
       >
         <option value="">All AOs</option>
         {aoList.map((ao) => (
@@ -73,11 +73,11 @@ export function BackblastFilters({ aoList, aoFilter, searchQuery }: BackblastFil
           placeholder="Search Q, AO, or content..."
           defaultValue={searchQuery}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="bg-card border border-border rounded-lg px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:border-primary w-[260px]"
+          className="bg-bone-2 border border-line-soft rounded-lg px-4 py-2.5 text-sm text-ink placeholder:text-muted focus:ring-2 focus:ring-steel focus:border-steel w-[260px]"
         />
         {isPending && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="h-4 w-4 border-2 border-steel border-t-transparent rounded-full animate-spin" />
           </div>
         )}
       </div>
@@ -85,7 +85,7 @@ export function BackblastFilters({ aoList, aoFilter, searchQuery }: BackblastFil
       {hasFilters && (
         <Link
           href="/backblasts"
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+          className="text-sm text-muted hover:text-ink transition-colors underline underline-offset-2"
         >
           Clear filters
         </Link>

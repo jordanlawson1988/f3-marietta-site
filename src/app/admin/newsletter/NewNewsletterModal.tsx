@@ -104,7 +104,7 @@ export function NewNewsletterModal({
         <div className="flex items-center justify-between mb-5">
           <h2
             id="new-newsletter-title"
-            className="font-display font-bold uppercase tracking-wide text-xl text-foreground"
+            className="font-display font-bold uppercase tracking-wide text-xl text-ink"
           >
             New Newsletter
           </h2>
@@ -112,7 +112,7 @@ export function NewNewsletterModal({
             type="button"
             aria-label="Close"
             onClick={onClose}
-            className="p-1 text-foreground/60 hover:text-foreground"
+            className="p-1 text-ink/60 hover:text-ink"
           >
             <X size={18} />
           </button>
@@ -131,7 +131,7 @@ export function NewNewsletterModal({
               type="date"
               value={weekStart}
               onChange={(e) => handleStartChange(e.target.value)}
-              className="w-full px-3 py-2 bg-muted border border-border rounded-md text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-3 py-2 bg-bone-2 border border-line-soft rounded-md text-ink text-sm focus:outline-none focus:ring-2 focus:ring-steel"
             />
           </div>
 
@@ -148,7 +148,7 @@ export function NewNewsletterModal({
               value={weekEnd}
               onChange={(e) => setWeekEnd(e.target.value)}
               min={weekStart}
-              className="w-full px-3 py-2 bg-muted border border-border rounded-md text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-3 py-2 bg-bone-2 border border-line-soft rounded-md text-ink text-sm focus:outline-none focus:ring-2 focus:ring-steel"
             />
           </div>
 

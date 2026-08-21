@@ -13,9 +13,9 @@ export function FAQItem({ question, answer }: FAQItemProps) {
     const [isOpen, setIsOpen] = React.useState(false);
 
     return (
-        <div className="border-b border-border/40 last:border-0">
+        <div className="border-b border-line-soft/40 last:border-0">
             <button
-                className="flex w-full items-center justify-between py-4 text-left font-medium transition-all hover:text-primary"
+                className="flex w-full items-center justify-between py-4 text-left font-medium transition-all hover:text-steel"
                 onClick={() => setIsOpen(!isOpen)}
             >
                 {question}
@@ -32,7 +32,7 @@ export function FAQItem({ question, answer }: FAQItemProps) {
                     isOpen ? "max-h-96 pb-4 opacity-100" : "max-h-0 opacity-0"
                 )}
             >
-                <p className="text-muted-foreground">{answer}</p>
+                <p className="text-muted">{answer}</p>
             </div>
         </div>
     );

@@ -43,12 +43,12 @@ export function ContactForm() {
         return (
             <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-6 text-center">
                 <p className="font-bold text-lg mb-1">Message sent!</p>
-                <p className="text-muted-foreground">
+                <p className="text-muted">
                     We&apos;ll get back to you as soon as possible.
                 </p>
                 <button
                     type="button"
-                    className="mt-4 text-sm text-primary hover:underline"
+                    className="mt-4 text-sm text-steel hover:underline"
                     onClick={() => setStatus("idle")}
                 >
                     Send another message
@@ -68,7 +68,7 @@ export function ContactForm() {
                     name="name"
                     type="text"
                     required
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full rounded-md border border-line-soft bg-bone px-3 py-2 text-sm placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-steel"
                     placeholder="Your name"
                 />
             </div>
@@ -82,7 +82,7 @@ export function ContactForm() {
                     name="email"
                     type="email"
                     required
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full rounded-md border border-line-soft bg-bone px-3 py-2 text-sm placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-steel"
                     placeholder="your@email.com"
                 />
             </div>
@@ -96,7 +96,7 @@ export function ContactForm() {
                     name="message"
                     required
                     rows={5}
-                    className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-y"
+                    className="w-full rounded-md border border-line-soft bg-bone px-3 py-2 text-sm placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-steel resize-y"
                     placeholder="How can we help?"
                 />
             </div>
@@ -108,7 +108,7 @@ export function ContactForm() {
             <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="w-full inline-flex items-center justify-center rounded-md bg-primary px-4 py-2.5 text-sm font-bold uppercase tracking-wider text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                className="w-full inline-flex items-center justify-center rounded-md bg-steel px-4 py-2.5 text-sm font-bold uppercase tracking-wider text-bone hover:bg-steel/90 transition-colors disabled:opacity-50 disabled:pointer-events-none"
             >
                 {status === "submitting" ? "Sending..." : "Send Message"}
             </button>

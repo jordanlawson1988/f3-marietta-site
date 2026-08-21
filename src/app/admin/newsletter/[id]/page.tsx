@@ -362,7 +362,7 @@ export default function NewsletterDetailPage({
                 setDateError(null);
               }}
               disabled={readOnly}
-              className="w-full px-3 py-2 bg-muted border border-border rounded-md text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-60"
+              className="w-full px-3 py-2 bg-bone-2 border border-line-soft rounded-md text-ink text-sm focus:outline-none focus:ring-2 focus:ring-steel disabled:opacity-60"
             />
           </div>
           <div>
@@ -382,7 +382,7 @@ export default function NewsletterDetailPage({
               }}
               min={editWeekStart}
               disabled={readOnly}
-              className="w-full px-3 py-2 bg-muted border border-border rounded-md text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-60"
+              className="w-full px-3 py-2 bg-bone-2 border border-line-soft rounded-md text-ink text-sm focus:outline-none focus:ring-2 focus:ring-steel disabled:opacity-60"
             />
           </div>
         </div>
@@ -406,7 +406,7 @@ export default function NewsletterDetailPage({
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
             disabled={readOnly}
-            className="w-full px-3 py-2 bg-muted border border-border rounded-md text-foreground text-sm placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-60"
+            className="w-full px-3 py-2 bg-bone-2 border border-line-soft rounded-md text-ink text-sm placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-steel disabled:opacity-60"
             placeholder="Newsletter title"
           />
         </div>
@@ -430,7 +430,7 @@ export default function NewsletterDetailPage({
               value={editNotes}
               onChange={(e) => setEditNotes(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 bg-muted border border-border rounded-md text-foreground text-sm placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary font-mono"
+              className="w-full px-3 py-2 bg-bone-2 border border-line-soft rounded-md text-ink text-sm placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-steel font-mono"
               placeholder="Monthly theme, FNGs to call out, upcoming F2/F3 events, Qs on deck for next week, weather note, anything else you want Claude to fold in…"
             />
             <div className="flex flex-wrap items-center gap-3 mt-2">

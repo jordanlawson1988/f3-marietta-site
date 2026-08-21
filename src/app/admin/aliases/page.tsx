@@ -53,7 +53,7 @@ export default async function AdminAliasesPage() {
             {rows.map((r) => (
               <li key={r.slack_id} className="flex items-baseline gap-3 border-b border-black/10 pb-2">
                 <span className="text-muted">{r.slack_id}</span>
-                <span className="flex-1 text-foreground">{r.display_name}</span>
+                <span className="flex-1 text-ink">{r.display_name}</span>
                 {r.notes && <span className="text-muted">// {r.notes}</span>}
                 <DeleteButton slackId={r.slack_id} />
               </li>

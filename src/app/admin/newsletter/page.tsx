@@ -134,7 +134,7 @@ export default function NewsletterListPage() {
             </span>
           </div>
           <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <p className="font-display font-bold uppercase tracking-wide text-lg text-foreground">
+            <p className="font-display font-bold uppercase tracking-wide text-lg text-ink">
               {currentlyPosted.title ?? 'Untitled'}
             </p>
             <Link
@@ -165,7 +165,7 @@ export default function NewsletterListPage() {
               className={`px-3 py-1.5 text-xs font-mono uppercase tracking-[.1em] border transition-colors ${
                 active
                   ? 'bg-ink text-bone border-ink'
-                  : 'bg-bone text-foreground/70 border-line-soft hover:border-ink'
+                  : 'bg-bone text-ink/70 border-line-soft hover:border-ink'
               }`}
             >
               {opt.label}
@@ -223,7 +223,7 @@ export default function NewsletterListPage() {
                         <td className="px-4 py-3 text-muted whitespace-nowrap">
                           {formatDate(n.week_start)} – {formatDate(n.week_end)}
                         </td>
-                        <td className="px-4 py-3 text-foreground font-medium">
+                        <td className="px-4 py-3 text-ink font-medium">
                           {n.title ?? <span className="text-muted italic">(untitled)</span>}
                         </td>
                         <td className="px-4 py-3 text-muted whitespace-nowrap">
@@ -283,7 +283,7 @@ export default function NewsletterListPage() {
                       {formatDate(n.week_start)} – {formatDate(n.week_end)}
                     </span>
                   </div>
-                  <p className="font-medium text-foreground">
+                  <p className="font-medium text-ink">
                     {n.title ?? <span className="text-muted italic">(untitled)</span>}
                   </p>
                   <p className="text-xs text-muted mt-2">

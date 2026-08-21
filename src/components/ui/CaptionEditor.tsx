@@ -20,7 +20,7 @@ export default function CaptionEditor({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={6}
-        className="w-full px-3 py-2 bg-muted border border-border rounded-md text-foreground text-sm placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+        className="w-full px-3 py-2 bg-bone-2 border border-line-soft rounded-md text-ink text-sm placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-steel resize-y"
         placeholder="Instagram caption..."
       />
       <div className="flex justify-end">
@@ -30,7 +30,7 @@ export default function CaptionEditor({
               ? 'text-red-500'
               : isWarning
                 ? 'text-amber-500'
-                : 'text-foreground/40'
+                : 'text-ink/40'
           }`}
         >
           {count.toLocaleString()} / {MAX_CHARS.toLocaleString()}
