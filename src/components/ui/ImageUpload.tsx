@@ -63,10 +63,10 @@ export default function ImageUpload({
       onClick={() => inputRef.current?.click()}
       className={`relative cursor-pointer rounded-lg border-2 border-dashed transition-colors overflow-hidden ${
         dragOver
-          ? 'border-primary bg-primary/10'
+          ? 'border-steel bg-steel/10'
           : file
-            ? 'border-border'
-            : 'border-border hover:border-foreground/30'
+            ? 'border-line-soft'
+            : 'border-line-soft hover:border-ink/30'
       }`}
     >
       <input
@@ -85,7 +85,7 @@ export default function ImageUpload({
           className="w-full h-48 object-cover"
         />
       ) : (
-        <div className="flex flex-col items-center justify-center gap-2 py-10 text-foreground/40">
+        <div className="flex flex-col items-center justify-center gap-2 py-10 text-ink/40">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"

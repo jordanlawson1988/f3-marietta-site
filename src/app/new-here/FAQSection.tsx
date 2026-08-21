@@ -31,12 +31,12 @@ export default function FAQSection({ faqs }: FAQSectionProps) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search FAQs..."
-          className="w-full max-w-md px-4 py-2 rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full max-w-md px-4 py-2 rounded-lg border border-line-soft bg-bone text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-steel"
           aria-label="Search frequently asked questions"
         />
       </div>
       {filtered.length === 0 ? (
-        <p className="text-muted-foreground">No FAQs match your search.</p>
+        <p className="text-muted">No FAQs match your search.</p>
       ) : (
         <div className="space-y-2">
           {filtered.map((faq) => (

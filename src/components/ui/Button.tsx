@@ -40,15 +40,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 );
 Button.displayName = "Button";
 
-const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-bone transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-steel focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
 
 const variants = {
-    default: "bg-primary text-primary-foreground hover:bg-primary/90",
-    destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-    outline: "border border-primary bg-transparent text-primary hover:bg-accent hover:text-accent-foreground",
-    secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-    ghost: "hover:bg-accent hover:text-accent-foreground",
-    link: "text-primary underline-offset-4 hover:underline",
+    default: "bg-steel text-bone hover:bg-steel/90",
+    destructive: "bg-rust text-bone hover:bg-rust/90",
+    outline: "border border-steel bg-transparent text-steel hover:bg-bone-3 hover:text-ink",
+    secondary: "bg-bone-3 text-ink hover:bg-bone-3/80",
+    ghost: "hover:bg-bone-3 hover:text-ink",
+    link: "text-steel underline-offset-4 hover:underline",
 };
 
 const sizes = {

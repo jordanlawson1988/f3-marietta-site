@@ -141,9 +141,9 @@ export function FilterBar({
 
   const chipBase =
     "inline-flex items-center px-3 py-1.5 border font-mono text-[11px] tracking-[.12em] uppercase transition-all";
-  const chipOn = "bg-foreground text-background border-foreground";
+  const chipOn = "bg-ink text-bone border-ink";
   const chipOff =
-    "bg-transparent border-black/20 hover:border-foreground hover:bg-black/5";
+    "bg-transparent border-black/20 hover:border-ink hover:bg-black/5";
   const someAoSelected = selectedSlugs.length > 0;
   const chipDim = "opacity-40 hover:opacity-100";
 
@@ -333,7 +333,7 @@ export function FilterBar({
           <button
             type="button"
             onClick={applyCustomRange}
-            className="bg-foreground text-background px-3 py-1.5 hover:opacity-90"
+            className="bg-ink text-bone px-3 py-1.5 hover:opacity-90"
           >
             Apply
           </button>

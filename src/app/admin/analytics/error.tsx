@@ -28,7 +28,7 @@ export default function Error({
         <button
           type="button"
           onClick={reset}
-          className="bg-foreground text-background font-mono text-xs px-4 py-2"
+          className="bg-ink text-bone font-mono text-xs px-4 py-2"
         >
           retry
         </button>

@@ -174,7 +174,7 @@ export function AssistantWidget({
             {/* Error Display */}
             {error && (
                 <div className={cn(
-                    "p-4 rounded-lg bg-destructive/10 text-destructive text-center mb-6",
+                    "p-4 rounded-lg bg-rust/10 text-rust text-center mb-6",
                     !isPageVariant && "text-sm"
                 )}>
                     {error}

@@ -45,17 +45,17 @@ const COLOR_PREFIXES = [
   "border-x",
   "border-y",
   "ring",
+  "ring-offset",
   "fill",
   "stroke",
   "divide",
   "outline",
 ];
 
-const SURFACE_DIRS = [
-  "src/components/beatdown",
-  "src/app/beatdown-builder",
-  "src/app/beatdown",
-];
+// The whole tree. The beatdown surface was fixed first because that is where
+// the bug was noticed, but nothing about the failure mode is beatdown-specific:
+// any file in the app can spend a token `@theme` never mints.
+const SURFACE_DIRS = ["src"];
 
 function walk(dir: string, out: string[] = []): string[] {
   if (!existsSync(dir)) return out;
@@ -76,9 +76,9 @@ function themeColorNames(): Set<string> {
   return new Set([...block.matchAll(/--color-([a-z0-9-]+)\s*:/g)].map((m) => m[1]));
 }
 
-test("beatdown surface spends no colour token that @theme never mints", () => {
+test("no file in src spends a colour token that @theme never mints", () => {
   const files = SURFACE_DIRS.flatMap((d) => walk(d));
-  assert.ok(files.length > 0, "found no beatdown source files to scan");
+  assert.ok(files.length > 0, "found no source files to scan");
 
   const offenders: string[] = [];
   for (const file of files) {
@@ -87,7 +87,12 @@ test("beatdown surface spends no colour token that @theme never mints", () => {
       for (const token of SHADCN_TOKENS) {
         // Bare utility only: `bg-card`, not `bg-card-foreground` and not
         // the arbitrary-value escape hatch `border-[color:var(--line-soft)]`.
-        const re = new RegExp(`(^|[\\s"'\`])${prefix}-${token}(?![\\w-])`, "g");
+        //
+        // A leading `:` is in the character class on purpose — it is what
+        // makes `hover:bg-primary/90` and `focus-visible:ring-ring` visible
+        // to this check. Variants no-op exactly like their bare counterparts,
+        // and the first version of this test could not see any of them.
+        const re = new RegExp(`(^|[\\s"'\`:])${prefix}-${token}(?![\\w-])`, "g");
         const hits = src.match(re);
         if (hits) offenders.push(`${file} → ${prefix}-${token} (${hits.length}x)`);
       }

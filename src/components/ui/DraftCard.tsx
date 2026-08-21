@@ -126,18 +126,18 @@ export default function DraftCard({
   }
 
   return (
-    <div className="bg-card border border-border rounded-lg p-6 space-y-4">
+    <div className="bg-bone-2 border border-line-soft rounded-lg p-6 space-y-4">
       {/* Header */}
       <div className="flex flex-wrap items-center gap-3">
-        <h3 className="text-lg font-semibold text-foreground">
+        <h3 className="text-lg font-semibold text-ink">
           {f3_event.ao_display_name ?? 'Unknown AO'}
         </h3>
-        <span className="text-sm text-foreground/50">{formatDate(f3_event.event_date)}</span>
-        <span className="text-sm text-foreground/50">
+        <span className="text-sm text-ink/50">{formatDate(f3_event.event_date)}</span>
+        <span className="text-sm text-ink/50">
           Q: {f3_event.q_name ?? 'Unknown'}
         </span>
         {f3_event.pax_count != null && (
-          <span className="text-sm text-foreground/50">
+          <span className="text-sm text-ink/50">
             PAX: {f3_event.pax_count}
           </span>
         )}
@@ -159,20 +159,20 @@ export default function DraftCard({
 
       {/* Caption Editor */}
       <div>
-        <label className="block text-xs font-medium text-foreground/60 mb-1">Caption</label>
+        <label className="block text-xs font-medium text-ink/60 mb-1">Caption</label>
         <CaptionEditor value={caption} onChange={setCaption} />
       </div>
 
       {/* Hashtags */}
       <div>
-        <label className="block text-xs font-medium text-foreground/60 mb-1">
+        <label className="block text-xs font-medium text-ink/60 mb-1">
           Hashtags (comma-separated)
         </label>
         <input
           type="text"
           value={hashtags}
           onChange={(e) => setHashtags(e.target.value)}
-          className="w-full px-3 py-2 bg-muted border border-border rounded-md text-foreground text-sm placeholder:text-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full px-3 py-2 bg-bone-2 border border-line-soft rounded-md text-ink text-sm placeholder:text-ink/40 focus:outline-none focus:ring-2 focus:ring-steel"
           placeholder="F3, F3Marietta, fitness"
         />
       </div>
@@ -180,8 +180,8 @@ export default function DraftCard({
       {/* Story text (read-only) */}
       {draft.story_text && (
         <div>
-          <label className="block text-xs font-medium text-foreground/60 mb-1">Story Text</label>
-          <p className="px-3 py-2 bg-muted border border-border rounded-md text-foreground/80 text-sm whitespace-pre-wrap">
+          <label className="block text-xs font-medium text-ink/60 mb-1">Story Text</label>
+          <p className="px-3 py-2 bg-bone-2 border border-line-soft rounded-md text-ink/80 text-sm whitespace-pre-wrap">
             {draft.story_text}
           </p>
         </div>
@@ -190,8 +190,8 @@ export default function DraftCard({
       {/* Alt text (read-only) */}
       {draft.alt_text && (
         <div>
-          <label className="block text-xs font-medium text-foreground/60 mb-1">Alt Text</label>
-          <p className="px-3 py-2 bg-muted border border-border rounded-md text-foreground/80 text-sm">
+          <label className="block text-xs font-medium text-ink/60 mb-1">Alt Text</label>
+          <p className="px-3 py-2 bg-bone-2 border border-line-soft rounded-md text-ink/80 text-sm">
             {draft.alt_text}
           </p>
         </div>
@@ -199,7 +199,7 @@ export default function DraftCard({
 
       {/* Copy Caption (shown after approval) */}
       {fullCaption && (
-        <div className="bg-muted border border-green-500/30 rounded-md p-4 space-y-2">
+        <div className="bg-bone-2 border border-green-500/30 rounded-md p-4 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-green-500">Approved — copy caption for Instagram:</span>
             <button
@@ -213,7 +213,7 @@ export default function DraftCard({
               {copied ? 'Copied!' : 'Copy Caption'}
             </button>
           </div>
-          <pre className="text-sm text-foreground/80 whitespace-pre-wrap">{fullCaption}</pre>
+          <pre className="text-sm text-ink/80 whitespace-pre-wrap">{fullCaption}</pre>
         </div>
       )}
 

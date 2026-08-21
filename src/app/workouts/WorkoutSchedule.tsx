@@ -42,31 +42,31 @@ function WorkoutCard({
       className={cn(
         "rounded-md p-3 space-y-2 transition-colors",
         isPrimary
-          ? "bg-card border border-border hover:border-primary/50"
-          : "bg-muted/40 border border-border/50 hover:border-border"
+          ? "bg-bone-2 border border-line-soft hover:border-steel/50"
+          : "bg-muted/40 border border-line-soft/50 hover:border-line-soft"
       )}
     >
       <div className="space-y-1">
         <h4
           className={cn(
             "font-bold leading-tight",
-            isPrimary ? "text-sm text-foreground" : "text-sm text-foreground/80"
+            isPrimary ? "text-sm text-ink" : "text-sm text-ink/80"
           )}
         >
           {workout.ao_name}
         </h4>
         <div className="flex flex-wrap gap-1">
-          <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded">
+          <span className="text-xs bg-steel/20 text-steel px-1.5 py-0.5 rounded">
             {workout.workout_type}
           </span>
           {regionName && (
-            <span className="text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
+            <span className="text-xs bg-bone-2 text-muted px-1.5 py-0.5 rounded">
               {regionName}
             </span>
           )}
         </div>
       </div>
-      <div className="space-y-1 text-xs text-muted-foreground">
+      <div className="space-y-1 text-xs text-muted">
         <div className="flex items-center gap-1.5">
           <Clock className="h-3 w-3 shrink-0" />
           <span>{timeStr}</span>
@@ -77,7 +77,7 @@ function WorkoutCard({
             <span className="leading-tight">{workout.location_name}</span>
           </div>
         )}
-        <div className="text-xs text-muted-foreground/70 pl-[1.125rem] leading-tight">
+        <div className="text-xs text-muted/70 pl-[1.125rem] leading-tight">
           {workout.address}
         </div>
       </div>
@@ -86,7 +86,7 @@ function WorkoutCard({
           href={workout.map_link}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+          className="inline-flex items-center gap-1 text-xs text-steel hover:underline"
         >
           Directions <ExternalLink className="h-3 w-3" />
         </a>
@@ -106,10 +106,10 @@ function OtherNearbySection({
   if (workouts.length === 0) return null;
 
   return (
-    <div className="mt-4 pt-3 border-t border-dashed border-border/60">
+    <div className="mt-4 pt-3 border-t border-dashed border-line-soft/60">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full text-left"
+        className="flex items-center gap-2 text-xs text-muted hover:text-ink transition-colors w-full text-left"
       >
         <ChevronDown
           className={cn(
@@ -120,7 +120,7 @@ function OtherNearbySection({
         <span className="font-semibold uppercase tracking-wider">
           Other Nearby
         </span>
-        <span className="bg-muted px-1.5 py-0.5 rounded text-[10px]">
+        <span className="bg-bone-2 px-1.5 py-0.5 rounded text-[10px]">
           {workouts.length}
         </span>
       </button>
@@ -172,22 +172,22 @@ function DayCard({
   );
 
   return (
-    <div className="border border-border rounded-lg overflow-hidden bg-muted/30">
+    <div className="border border-line-soft rounded-lg overflow-hidden bg-muted/30">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <span className="font-bold font-heading text-foreground">
+          <span className="font-bold font-heading text-ink">
             {DAY_NAMES[dayNum]}
           </span>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+          <span className="text-xs text-muted bg-bone-2 px-2 py-0.5 rounded">
             {totalWorkouts} workout{totalWorkouts !== 1 ? "s" : ""}
           </span>
         </div>
         <ChevronDown
           className={cn(
-            "h-5 w-5 text-muted-foreground transition-transform duration-200",
+            "h-5 w-5 text-muted transition-transform duration-200",
             isOpen && "rotate-180"
           )}
         />
@@ -198,11 +198,11 @@ function DayCard({
           isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
         )}
       >
-        <div className="p-4 pt-0 border-t border-border">
+        <div className="p-4 pt-0 border-t border-line-soft">
           {/* Primary regions — prominent display */}
           {primaryRegions.map((rg) => (
             <div key={rg.region.slug} className="mb-4 last:mb-0">
-              <h4 className="text-xs font-semibold text-primary uppercase tracking-wider mb-2 pb-1 border-b border-primary/20">
+              <h4 className="text-xs font-semibold text-steel uppercase tracking-wider mb-2 pb-1 border-b border-steel/20">
                 {rg.region.name}
               </h4>
               <div className="space-y-2">
