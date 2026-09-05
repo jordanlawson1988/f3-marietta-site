@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
 import { CTABand } from "@/components/ui/brand/CTABand";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
@@ -25,11 +27,19 @@ const BRING = [
   "Nothing else — no cash, no equipment",
 ];
 
-export default function NewHerePage() {
+// Hero photo comes from the shared daily data cache; the page itself only
+// needs to regenerate once a day to pick up a new ranking.
+export const revalidate = 86400;
+
+export default async function NewHerePage() {
+  const heroPhoto = await getHeroPhotoForSlot("newHere");
   return (
     <>
       <PageHeader
         eyebrow="§ First Whistle"
+        variant="ink"
+        backgroundImage={heroPhoto?.url}
+        backgroundStamp={heroPhoto ? formatHeroStamp(heroPhoto) : undefined}
         title={<>Your First<br />Post.</>}
         kicker={<>The workout is free. Peer-led. Held outdoors rain or shine. Here&apos;s how to show up.</>}
       />

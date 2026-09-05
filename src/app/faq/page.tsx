@@ -3,6 +3,8 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { CTABand } from "@/components/ui/brand/CTABand";
 import { FAQList, type FAQEntry } from "@/components/ui/FAQList";
 
@@ -39,13 +41,21 @@ export const metadata: Metadata = {
     "Frequently asked questions about F3 Marietta workouts, culture, and how to get started.",
 };
 
-export default function FAQPage() {
+// Hero photo comes from the shared daily data cache; the page itself only
+// needs to regenerate once a day to pick up a new ranking.
+export const revalidate = 86400;
+
+export default async function FAQPage() {
+  const heroPhoto = await getHeroPhotoForSlot("faq");
   const entries = loadFAQEntries();
 
   return (
     <>
       <PageHeader
         eyebrow="§ Questions"
+        variant="ink"
+        backgroundImage={heroPhoto?.url}
+        backgroundStamp={heroPhoto ? formatHeroStamp(heroPhoto) : undefined}
         title={<>Frequently<br />Asked.</>}
         kicker={
           <>

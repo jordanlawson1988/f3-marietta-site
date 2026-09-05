@@ -1,11 +1,11 @@
 import { CTABand } from "@/components/ui/brand/CTABand";
-import { getRecentBackblastPhotos } from "@/lib/backblast/getRecentBackblastPhotos";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { GENERIC_BACKBLAST_FALLBACK } from "@/lib/backblast/getBackblastImage";
 
 export async function JoinCTASection() {
-  // Pull the 2nd-most-recent so this section doesn't duplicate ImpactSection's photo.
-  const recent = await getRecentBackblastPhotos(3);
-  const backgroundImage = recent[1] ?? recent[0] ?? GENERIC_BACKBLAST_FALLBACK;
+  // Own slot in the ranked list, so this never duplicates the hero or impact photo.
+  const photo = await getHeroPhotoForSlot("join");
 
   return (
     <CTABand
@@ -18,7 +18,8 @@ export async function JoinCTASection() {
         </>
       }
       primary={{ label: "Plan Your First Post", href: "/new-here" }}
-      backgroundImage={backgroundImage}
+      backgroundImage={photo?.url ?? GENERIC_BACKBLAST_FALLBACK}
+      backgroundStamp={photo ? formatHeroStamp(photo) : undefined}
       watermark={
         <span className="absolute -bottom-16 right-0 font-display font-bold uppercase text-bone text-[clamp(200px,30vw,480px)] leading-none">
           05:30

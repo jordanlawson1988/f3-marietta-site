@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { CTABand } from "@/components/ui/brand/CTABand";
 import { GlossaryList } from "@/components/ui/GlossaryList";
 import { lexiconEntries, exiconEntries } from "@/../data/f3Glossary";
@@ -11,11 +13,18 @@ export const metadata: Metadata = {
   description: "F3 Lexicon and Exicon — terms, exercises, abbreviations, and inside jokes used across F3 Nation and F3 Marietta.",
 };
 
-export default function GlossaryPage() {
+// Hero photo comes from the shared daily data cache; the page itself only
+// needs to regenerate once a day to pick up a new ranking.
+export const revalidate = 86400;
+
+export default async function GlossaryPage() {
+  const heroPhoto = await getHeroPhotoForSlot("glossary");
   return (
     <>
       <PageHeader
         eyebrow="§ F3 Terms"
+        backgroundImage={heroPhoto?.url}
+        backgroundStamp={heroPhoto ? formatHeroStamp(heroPhoto) : undefined}
         variant="ink"
         title={<>The Lexicon<br />&amp; Exicon.</>}
         kicker={<>{totalTerms} terms · Lexicon ({lexiconEntries.length}) + Exicon ({exiconEntries.length}).</>}
