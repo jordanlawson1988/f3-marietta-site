@@ -27,7 +27,10 @@ test.describe("Hero PAX photos", () => {
 
   test("page headers carry a hero photo and do not repeat the home photo", async ({ page }) => {
     await page.goto("/");
-    const homeSrc = await page.getByTestId("home-hero").locator(PHOTO).first().getAttribute("src").catch(() => null);
+    // count() first: getAttribute() on a missing element would wait out the
+    // whole test timeout in an env-less CI run with no photos.
+    const homePhoto = page.getByTestId("home-hero").locator(PHOTO).first();
+    const homeSrc = (await homePhoto.count()) ? await homePhoto.getAttribute("src") : null;
 
     await page.goto("/about");
     const header = page.getByTestId("page-header");
