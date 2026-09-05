@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { SectionHead } from "@/components/ui/brand/SectionHead";
 import { CreedQuote } from "@/components/ui/brand/CreedQuote";
 import { CTABand } from "@/components/ui/brand/CTABand";
@@ -27,11 +29,14 @@ const TIMELINE = [
   { date: "TODAY",   title: "Forging On",    body: "New PAX every week. New AOs on the horizon." },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const heroPhoto = await getHeroPhotoForSlot("about");
   return (
     <>
       <PageHeader
         eyebrow="§ F3 Marietta"
+        backgroundImage={heroPhoto?.url}
+        backgroundStamp={heroPhoto ? formatHeroStamp(heroPhoto) : undefined}
         variant="ink"
         title={<>Men. Marietta.<br />Since 2024.</>}
         kicker={<>A growing community of men dedicated to becoming better leaders in our families, workplaces, and community.</>}
