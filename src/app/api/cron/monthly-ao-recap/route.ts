@@ -82,7 +82,10 @@ export async function GET(request: Request) {
   }
 
   const skippedEmpty = plan.skippedEmpty;
-  const report = buildAoRecapRunReport({ monthLabel: plan.window.monthLabel, mode, results, skippedEmpty });
+  const report = buildAoRecapRunReport({
+    monthLabel: plan.window.monthLabel, mode, results, skippedEmpty,
+    fngTotal: plan.regionBlock?.fngs?.count ?? 0,
+  });
   const { posted: reportPosted, error: reportError } = await postAdminReport(report);
 
   return NextResponse.json({
