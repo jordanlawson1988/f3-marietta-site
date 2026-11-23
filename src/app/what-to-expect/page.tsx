@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { CTABand } from "@/components/ui/brand/CTABand";
 import { MeterBar } from "@/components/ui/brand/MeterBar";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
@@ -19,11 +21,18 @@ const TIMELINE = [
   { t: "45:00", h: "Charge", body: "Back to the truck, back to your family, back to the day — improved." },
 ];
 
-export default function WhatToExpectPage() {
+// Hero photo comes from the shared daily data cache; the page itself only
+// needs to regenerate once a day to pick up a new ranking.
+export const revalidate = 86400;
+
+export default async function WhatToExpectPage() {
+  const heroPhoto = await getHeroPhotoForSlot("whatToExpect");
   return (
     <>
       <PageHeader
         eyebrow="§ The Script"
+        backgroundImage={heroPhoto?.url}
+        backgroundStamp={heroPhoto ? formatHeroStamp(heroPhoto) : undefined}
         variant="ink"
         title={<>The First<br />Whistle.</>}
         kicker={<>A standard F3 workout runs 45 minutes. Here&apos;s the minute-by-minute.</>}

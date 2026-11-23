@@ -1,18 +1,19 @@
-import Image from "next/image";
 import { getImpactStats } from "@/lib/stats/getImpactStats";
-import { getRecentBackblastPhotos } from "@/lib/backblast/getRecentBackblastPhotos";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { GENERIC_BACKBLAST_FALLBACK } from "@/lib/backblast/getBackblastImage";
 import { ChamferButton } from "@/components/ui/brand/ChamferButton";
 import { EyebrowLabel } from "@/components/ui/brand/EyebrowLabel";
+import { HeroPhotoBackdrop } from "@/components/ui/brand/HeroPhotoBackdrop";
+import { MonoTag } from "@/components/ui/brand/MonoTag";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
 import { TopoBackground } from "@/components/ui/brand/TopoBackground";
 
 export async function ImpactSection() {
-  const [stats, recentPhotos] = await Promise.all([
+  const [stats, photo] = await Promise.all([
     getImpactStats(),
-    getRecentBackblastPhotos(1),
+    getHeroPhotoForSlot("impact"),
   ]);
-  const backgroundPhoto = recentPhotos[0] ?? GENERIC_BACKBLAST_FALLBACK;
   const tiles = [
     { num: stats.uniqueHim, label: "Unique HIM Posted" },
     { num: stats.workoutsLed, label: "Workouts Led" },
@@ -22,26 +23,10 @@ export async function ImpactSection() {
 
   return (
     <section className="relative bg-ink text-bone py-28 overflow-hidden">
-      {/* Real PAX photo (most recent backblast with a photo). Heavy ink
-          gradient keeps text legible no matter what the photo looks like. */}
-      <Image
-        src={backgroundPhoto}
-        alt=""
-        aria-hidden="true"
-        fill
-        sizes="100vw"
-        className="object-cover opacity-40"
-        priority={false}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(90deg, rgba(10,13,18,.95) 0%, rgba(10,13,18,.82) 45%, rgba(10,13,18,.55) 100%)",
-        }}
-      />
-      <TopoBackground variant="dark" />
+      {/* Second-biggest PAX group of the quarter. The copy anchors left, so
+          the gradient keeps the men visible on the right. */}
+      <HeroPhotoBackdrop src={photo?.url ?? GENERIC_BACKBLAST_FALLBACK} />
+      {!photo && <TopoBackground variant="dark" />}
       <div className="relative z-10 max-w-[1320px] mx-auto px-7 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <ScrollReveal>
           <EyebrowLabel variant="steel" withRule>§ 04 · Impact</EyebrowLabel>
@@ -56,6 +41,11 @@ export async function ImpactSection() {
           <div className="mt-8">
             <ChamferButton href="/new-here" variant="steel" size="lg">Your First Post</ChamferButton>
           </div>
+          {photo && (
+            <MonoTag variant="bone" className="block mt-8 text-[10px] tracking-[.2em]" data-testid="hero-stamp">
+              {`// ${formatHeroStamp(photo)}`}
+            </MonoTag>
+          )}
         </ScrollReveal>
 
         <ScrollReveal delayMs={100}>

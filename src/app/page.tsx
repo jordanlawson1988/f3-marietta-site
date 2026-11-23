@@ -8,6 +8,7 @@ import { ImpactSection } from "@/components/home/ImpactSection";
 import { JoinCTASection } from "@/components/home/JoinCTASection";
 import { MarqueeRibbon } from "@/components/layout/MarqueeRibbon";
 import { getWeeklyPaxCount } from "@/lib/stats/getWeeklyPaxCount";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
 
 /**
  * ISR safety net. Primary refresh path is on-demand:
@@ -20,11 +21,14 @@ import { getWeeklyPaxCount } from "@/lib/stats/getWeeklyPaxCount";
 export const revalidate = 3600;
 
 export default async function Home() {
-  const weeklyPax = await getWeeklyPaxCount();
+  const [weeklyPax, heroPhoto] = await Promise.all([
+    getWeeklyPaxCount(),
+    getHeroPhotoForSlot("home"),
+  ]);
 
   return (
     <>
-      <HomeHero weeklyPax={weeklyPax} />
+      <HomeHero weeklyPax={weeklyPax} photo={heroPhoto} />
       <MarqueeRibbon />
       <ThreeFsSection />
       <CreedPrinciplesSection />

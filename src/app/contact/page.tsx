@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { ChamferButton } from "@/components/ui/brand/ChamferButton";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import { ClipFrame } from "@/components/ui/brand/ClipFrame";
@@ -16,11 +18,19 @@ const CONTACTS = [
   { label: "Media / Press", email: "press@f3marietta.com" },
 ];
 
-export default function ContactPage() {
+// Hero photo comes from the shared daily data cache; the page itself only
+// needs to regenerate once a day to pick up a new ranking.
+export const revalidate = 86400;
+
+export default async function ContactPage() {
+  const heroPhoto = await getHeroPhotoForSlot("contact");
   return (
     <>
       <PageHeader
         eyebrow="§ Connect"
+        variant="ink"
+        backgroundImage={heroPhoto?.url}
+        backgroundStamp={heroPhoto ? formatHeroStamp(heroPhoto) : undefined}
         title={<>Find us.<br />Fall in.</>}
         kicker={<>Questions about posting, planting an AO, or joining the region? Reach out — we read everything.</>}
         meter={{ left: "Coordinates · 33.9526° N, 84.5499° W", right: "F3.MAR · REGION HQ" }}

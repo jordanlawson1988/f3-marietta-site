@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { CTABand } from "@/components/ui/brand/CTABand";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
 
@@ -8,11 +10,19 @@ export const metadata: Metadata = {
   description: "What FNG means and how to post for the first time.",
 };
 
-export default function FNGPage() {
+// Hero photo comes from the shared daily data cache; the page itself only
+// needs to regenerate once a day to pick up a new ranking.
+export const revalidate = 86400;
+
+export default async function FNGPage() {
+  const heroPhoto = await getHeroPhotoForSlot("fng");
   return (
     <>
       <PageHeader
         eyebrow="§ FNG · 01"
+        variant="ink"
+        backgroundImage={heroPhoto?.url}
+        backgroundStamp={heroPhoto ? formatHeroStamp(heroPhoto) : undefined}
         title={<>Friendly<br />New Guy.</>}
         kicker={<>Every man was an FNG once. Here&apos;s what it means.</>}
       />

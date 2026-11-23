@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { CTABand } from "@/components/ui/brand/CTABand";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
 import { StatusChip } from "@/components/ui/brand/StatusChip";
@@ -18,11 +20,19 @@ const ENTRIES: Entry[] = [
   { date: "ANNUAL · NOVEMBER", title: "F3 Marietta Convergence", body: "One big workout with the full region. Family picnic after. Bring the 2.0s.", tag: "Event" },
 ];
 
-export default function CommunityPage() {
+// Hero photo comes from the shared daily data cache; the page itself only
+// needs to regenerate once a day to pick up a new ranking.
+export const revalidate = 86400;
+
+export default async function CommunityPage() {
+  const heroPhoto = await getHeroPhotoForSlot("community");
   return (
     <>
       <PageHeader
         eyebrow="§ The Ledger"
+        variant="ink"
+        backgroundImage={heroPhoto?.url}
+        backgroundStamp={heroPhoto ? formatHeroStamp(heroPhoto) : undefined}
         title={<>Fellowship<br />Ledger.</>}
         kicker={<>The gloom builds the men. The community builds the region. Here&apos;s what&apos;s on the books.</>}
       />

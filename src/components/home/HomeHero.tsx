@@ -1,17 +1,30 @@
 import Image from "next/image";
 import { ChamferButton } from "@/components/ui/brand/ChamferButton";
 import { EyebrowLabel } from "@/components/ui/brand/EyebrowLabel";
+import { HeroPhotoBackdrop } from "@/components/ui/brand/HeroPhotoBackdrop";
 import { MeterBar } from "@/components/ui/brand/MeterBar";
 import { MonoTag } from "@/components/ui/brand/MonoTag";
+import { formatHeroStamp, type HeroPhoto } from "@/lib/backblast/rankHeroPhotos";
 
 type Props = {
   weeklyPax: number;
+  /** Top-ranked group photo of the quarter; null falls back to the emblem hero. */
+  photo: HeroPhoto | null;
 };
 
-export function HomeHero({ weeklyPax }: Props) {
+const STATS = [
+  { num: "5:30", em: "am", lbl: "First Whistle" },
+  { num: "$0", em: "", lbl: "Always Free" },
+  { num: "4", em: "/wk", lbl: "Active AOs" },
+];
+
+export function HomeHero({ weeklyPax, photo }: Props) {
   return (
-    <section className="relative overflow-hidden bg-ink text-bone min-h-[calc(100vh-136px)] flex flex-col">
-      {/* Layered background */}
+    <section
+      data-testid="home-hero"
+      className="relative overflow-hidden bg-ink text-bone min-h-[calc(100vh-136px)] flex flex-col"
+    >
+      {/* Layered background: the men first, brand atmosphere behind them. */}
       <div
         aria-hidden="true"
         className="absolute inset-0 z-0"
@@ -20,9 +33,10 @@ export function HomeHero({ weeklyPax }: Props) {
             "radial-gradient(ellipse at 28% 35%, rgba(47,110,137,.32), transparent 60%), radial-gradient(ellipse at 78% 72%, rgba(30,58,95,.45), transparent 70%), radial-gradient(ellipse at 55% 90%, rgba(184,74,26,.08), transparent 55%), linear-gradient(180deg,#10141a 0%,#0a0d12 100%)",
         }}
       />
+      {photo && <HeroPhotoBackdrop src={photo.url} priority />}
       <div
         aria-hidden="true"
-        className="absolute inset-0 z-0 bg-topo-dark opacity-60 mix-blend-screen"
+        className={`absolute inset-0 z-0 bg-topo-dark mix-blend-screen ${photo ? "opacity-25" : "opacity-60"}`}
       />
 
       {/* Meter bar */}
@@ -57,11 +71,7 @@ export function HomeHero({ weeklyPax }: Props) {
           </div>
 
           <div className="mt-10 max-w-[560px] grid grid-cols-3 gap-7 border-t border-bone/12 pt-7">
-            {[
-              { num: "5:30", em: "am", lbl: "First Whistle" },
-              { num: "$0", em: "", lbl: "Always Free" },
-              { num: "4", em: "/wk", lbl: "Active AOs" },
-            ].map((m) => (
+            {STATS.map((m) => (
               <div key={m.lbl}>
                 <div className="font-display font-bold text-[42px] leading-none text-bone">
                   {m.num}
@@ -73,27 +83,49 @@ export function HomeHero({ weeklyPax }: Props) {
           </div>
         </div>
 
-        {/* Emblem — raw logo, no contrast/invert overlays */}
-        <div className="relative aspect-square max-w-[520px] w-full ml-auto">
-          <div
-            aria-hidden="true"
-            className="absolute -inset-10 rounded-full border border-dashed border-steel/40"
-            style={{ animation: "rotate-ring 60s linear infinite" }}
-          />
-          <div className="relative w-full aspect-square flex items-center justify-center" style={{ animation: "float-logo 8s ease-in-out infinite" }}>
-            <Image
-              src="/images/new-f3-marietta-logo.png"
-              alt="F3 Marietta cannon emblem"
-              fill
-              className="object-contain"
-              priority
-            />
+        {photo ? (
+          /* Photo hero: the men own the right half, so the emblem steps down
+             to an ID plate that also captions the photo honestly. */
+          <div className="relative flex md:h-full md:items-end md:justify-end">
+            <div className="flex items-center gap-5 border border-bone/20 bg-ink/55 backdrop-blur-[3px] px-5 py-4">
+              <div className="relative w-16 h-16 shrink-0">
+                <Image
+                  src="/images/new-f3-marietta-logo.png"
+                  alt="F3 Marietta cannon emblem"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div className="font-mono text-[10px] tracking-[.2em] uppercase leading-[1.9] text-bone/60">
+                <div>// ID &middot; F3.MAR.01</div>
+                <div>Fitness &middot; Fellowship &middot; Faith</div>
+                <div className="text-steel" data-testid="hero-stamp">{`// ${formatHeroStamp(photo)}`}</div>
+              </div>
+            </div>
           </div>
-          <div className="absolute -top-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">// ID &middot; F3.MAR.01</div>
-          <div className="absolute -top-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">REV &middot; 2025</div>
-          <div className="absolute -bottom-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">Fitness &middot; Fellowship &middot; Faith</div>
-          <div className="absolute -bottom-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-steel">// Gloom &middot; 05:30 EDT</div>
-        </div>
+        ) : (
+          /* Emblem hero — raw logo, no contrast/invert overlays */
+          <div className="relative aspect-square max-w-[520px] w-full ml-auto">
+            <div
+              aria-hidden="true"
+              className="absolute -inset-10 rounded-full border border-dashed border-steel/40"
+              style={{ animation: "rotate-ring 60s linear infinite" }}
+            />
+            <div className="relative w-full aspect-square flex items-center justify-center" style={{ animation: "float-logo 8s ease-in-out infinite" }}>
+              <Image
+                src="/images/new-f3-marietta-logo.png"
+                alt="F3 Marietta cannon emblem"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="absolute -top-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">// ID &middot; F3.MAR.01</div>
+            <div className="absolute -top-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">REV &middot; 2025</div>
+            <div className="absolute -bottom-4 left-0 font-mono text-[10px] tracking-[.2em] uppercase text-bone/60">Fitness &middot; Fellowship &middot; Faith</div>
+            <div className="absolute -bottom-4 right-0 font-mono text-[10px] tracking-[.2em] uppercase text-steel">// Gloom &middot; 05:30 EDT</div>
+          </div>
+        )}
       </div>
     </section>
   );

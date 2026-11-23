@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import Image from "next/image";
 import { ChamferButton } from "./ChamferButton";
+import { HeroPhotoBackdrop } from "./HeroPhotoBackdrop";
+import { MonoTag } from "./MonoTag";
 import { TopoBackground } from "./TopoBackground";
 
 type Variant = "steel" | "ink" | "bone" | "gradient";
@@ -14,12 +15,13 @@ type Props = {
   secondary?: { label: string; href: string };
   watermark?: ReactNode;
   /**
-   * Optional hero photo behind the band. Heavy ink overlay is applied
-   * automatically to preserve contrast. `priority=false` for all CTABands
-   * since they're below the fold by convention.
+   * Optional hero photo behind the band. A tone-matched gradient is applied
+   * automatically to preserve contrast; the copy anchors right so the men
+   * stay visible behind the big title on the left.
    */
   backgroundImage?: string;
-  backgroundImageAlt?: string;
+  /** Documentary caption for the photo, e.g. "Kenmo · 08.05.26 · 12 PAX". */
+  backgroundStamp?: string;
   className?: string;
 };
 
@@ -32,7 +34,7 @@ export function CTABand({
   secondary,
   watermark,
   backgroundImage,
-  backgroundImageAlt = "",
+  backgroundStamp,
   className = "",
 }: Props) {
   const bg =
@@ -45,33 +47,11 @@ export function CTABand({
     : undefined;
   const primaryVariant = variant === "bone" ? "ink" : "bone";
   const kickerColor = variant === "bone" ? "text-ink-2" : "text-bone/85";
-
-  // Dark variants get a strong legibility overlay; bone gets a soft fade so
-  // the photo still reads as dominant.
-  const overlay = variant === "bone"
-    ? "linear-gradient(180deg, rgba(241,236,225,.55) 0%, rgba(241,236,225,.88) 100%)"
-    : "linear-gradient(90deg, rgba(10,13,18,.88) 0%, rgba(10,13,18,.72) 50%, rgba(10,13,18,.58) 100%)";
+  const tone = variant === "bone" ? "bone" : "ink";
 
   return (
     <section id={id} className={`relative overflow-hidden ${bg} ${className}`} style={bgStyle}>
-      {backgroundImage && (
-        <Image
-          src={backgroundImage}
-          alt={backgroundImageAlt}
-          fill
-          sizes="100vw"
-          className="object-cover opacity-70"
-          priority={false}
-          aria-hidden={backgroundImageAlt ? undefined : true}
-        />
-      )}
-      {backgroundImage && (
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: overlay }}
-        />
-      )}
+      {backgroundImage && <HeroPhotoBackdrop src={backgroundImage} tone={tone} anchor="right" />}
       {variant !== "bone" && variant !== "gradient" && !backgroundImage && <TopoBackground variant="dark" />}
       {watermark && <div className="pointer-events-none absolute inset-0 opacity-[.06] select-none" aria-hidden="true">{watermark}</div>}
       <div className="relative z-10 max-w-[1320px] mx-auto px-7 py-24 md:py-28 grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-10 items-end">
@@ -84,6 +64,11 @@ export function CTABand({
             <ChamferButton variant={primaryVariant} href={primary.href} size="lg">{primary.label}</ChamferButton>
             {secondary && <ChamferButton variant="ghost" href={secondary.href} size="lg">{secondary.label}</ChamferButton>}
           </div>
+          {backgroundImage && backgroundStamp && (
+            <MonoTag variant={tone === "bone" ? "muted" : "bone"} className="text-[10px] tracking-[.2em]" data-testid="hero-stamp">
+              {`// ${backgroundStamp}`}
+            </MonoTag>
+          )}
         </div>
       </div>
     </section>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/ui/brand/PageHeader";
+import { getHeroPhotoForSlot } from "@/lib/backblast/getHeroPhotos";
+import { formatHeroStamp } from "@/lib/backblast/rankHeroPhotos";
 import { CTABand } from "@/components/ui/brand/CTABand";
 import { WorkoutsFilter } from "@/components/home/WorkoutsFilter";
 import { ScrollReveal } from "@/components/ui/brand/ScrollReveal";
@@ -18,6 +20,7 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function WorkoutsPage() {
+  const heroPhoto = await getHeroPhotoForSlot("workouts");
   const schedule = await getWorkoutSchedule();
   const flat: WorkoutWithRegion[] = [];
   for (const day of Object.values(schedule)) {
@@ -37,6 +40,9 @@ export default async function WorkoutsPage() {
     <>
       <PageHeader
         eyebrow="§ Posts of Assembly"
+        variant="ink"
+        backgroundImage={heroPhoto?.url}
+        backgroundStamp={heroPhoto ? formatHeroStamp(heroPhoto) : undefined}
         title={<>Find Your<br />Beatdown.</>}
         kicker={<>Beatdowns kick off at 05:30 weekdays. Saturdays start at 06:00. Pick a day. Pick a post. Fall in.</>}
         meter={{ left: "Marietta Region · F3 Nation", right: `Active AOs · ${flat.length}` }}
