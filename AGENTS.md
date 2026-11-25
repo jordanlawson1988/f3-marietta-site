@@ -62,7 +62,7 @@ When reviewing code in this project:
 - `@supabase/supabase-js` still in devDependencies (unused, leftover from migration)
 - CI workflow still references `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` secrets
 - README.md references Supabase setup (outdated — project uses Neon now)
-- `f3-automation/` directory is a legacy standalone project consolidated into admin dashboard
+- The legacy `f3-automation/` standalone project was removed; its functionality lives in the admin dashboard
 
 ### Performance-Sensitive Areas
 - AI assistant route (`/api/assistant`) — rate limited (10 req/min), OpenAI API call + glossary search

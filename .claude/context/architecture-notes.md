@@ -9,7 +9,7 @@
 | `@supabase/supabase-js` in devDependencies | **Low** | Leftover from Supabase-to-Neon migration. Unused in runtime code. Should be removed. |
 | `/stats/*` pages are `force-dynamic` | **Low** | Every crawler hit runs live Neon queries (searchParams-driven filters make plain ISR unsuitable). Candidate: `unstable_cache` on the query layer with a 15-min TTL. Fixed 2026-07-16 for the bigger wake sources (Slack triage, ISR intervals); stats left as follow-up. |
 | README.md references Supabase setup | **Low** | Entire "Backblasts Feature Setup" section references Supabase. Should be rewritten for Neon + Better Auth. |
-| `f3-automation/` legacy directory | **Low** | Standalone automation project consolidated into the admin dashboard. ESLint ignores it. Can be removed entirely. |
+| `f3-automation/` legacy directory | **Resolved** | Removed; the automation project was consolidated into the admin dashboard. |
 | No unit test framework | **Medium** | Only Playwright E2E tests exist. Pure functions (glossary search, Slack normalization, rate limiter) have no fast-feedback tests. |
 | Backblasts child record upsert is sequential | **Low** | Attendees, Qs, and blocks are inserted one-by-one in loops. Could use batch inserts for better performance on large events. |
 | No input validation library | **Low** | API routes do ad-hoc validation. No Zod or similar schema validation. Acceptable for current complexity. |
